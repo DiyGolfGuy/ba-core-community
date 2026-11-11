@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Updates — {{BUSINESS_NAME}}</title>
+<meta name="description" content="Email updates from {{BUSINESS_NAME}}{{IN_CITY_STATE}}.">
+<meta property="og:title" content="Email Updates — {{BUSINESS_NAME}}">
+<meta property="og:description" content="Email updates from {{BUSINESS_NAME}}{{IN_CITY_STATE}}.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="{{BUSINESS_NAME}}">
+<meta property="og:url" content="{{SITE_URL}}/updates">
+<meta property="og:image" content="{{OG_IMAGE}}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="{{OG_IMAGE}}">
+<link rel="canonical" href="{{SITE_URL}}/updates">
+<link rel="icon" type="image/png" href="/icons/icon-192.png">
+<link rel="stylesheet" href="/site.css">
+<script src="/site-chrome.js" defer></script>
+<style>
+  /* W45 (Sep 10 2026): the email updates page - the same signup the homepage block and the holding page draw. */
+  .signup{max-width:560px;margin:0 auto;padding:clamp(40px,10vh,90px) 20px 80px}
+  .signup h1{font-family:var(--font-display,Georgia,serif);font-size:clamp(28px,5vw,42px);margin:0 0 12px}
+  .signup .text{font-size:17px;line-height:1.7;color:var(--muted,#a0aaa0);white-space:pre-line;margin-bottom:22px}
+</style>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<header class="siteHead" id="siteHead" data-name="{{BUSINESS_NAME}}"></header>
+<main class="siteMain" id="main-content">
+  <section class="signup">
+    <div class="mono">{{BUSINESS_NAME}}</div>
+    <h1 id="signupTitle">Get email updates</h1>
+    <div class="text" id="signupText"></div>
+    <div id="signupForm"></div>
+  </section>
+</main>
+<footer class="siteFoot" id="siteFoot" data-name="{{BUSINESS_NAME}}"></footer>
+<script src="/signup.js" defer></script>
+<script>document.addEventListener('DOMContentLoaded', function () { if (window.BASignup) BASignup.mount(document.getElementById('signupForm'), { source: 'page', titleEl: document.getElementById('signupTitle'), textEl: document.getElementById('signupText') }); });</script>
+</body>
+</html>

@@ -1,0 +1,1764 @@
+<!DOCTYPE html>
+<!-- Copyright (c) 2025-2026 BA Custom Products LLC. Licensed under the PolyForm Shield License 1.0.0 - see LICENSE.txt.txt -->
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Setup Wizard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#060a06; --surface:#161e16; --surface2:#1c251c;
+      --border:#2a362a; --border2:#3a4a3a;
+      --gold:#c9a227; --text:#e8ede8; --text2:#a0aaa0; --muted:#5a6a5a;
+      --green:#4a9a4a; --danger:#c94a4a; --success:#4ac97a;
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;}
+    body::after{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(74,154,74,0.08) 0%,transparent 70%);}
+    .wiz-header{position:sticky;top:0;z-index:100;background:rgba(6,10,6,0.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:6px clamp(16px,4vw,48px);min-height:60px;display:flex;flex-wrap:wrap;row-gap:4px;align-items:center;justify-content:space-between;}
+    .wiz-logo{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;}
+    .wiz-logo span{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);display:block;}
+    .wiz-step-count{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1px;}
+    .wiz-progress{height:3px;background:var(--surface2);position:relative;}
+    .wiz-progress-fill{height:100%;background:var(--gold);transition:width .4s ease;}
+    .wiz-steps-nav{display:flex;overflow-x:auto;border-bottom:1px solid var(--border);padding:0 clamp(16px,4vw,48px);gap:0;scrollbar-width:none;}
+    .wiz-steps-nav::-webkit-scrollbar{display:none;}
+    .wiz-tab{padding:12px 16px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s;flex-shrink:0;}
+    .wiz-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+    .wiz-tab.done{color:var(--success);}
+    .wiz-tab.done::before{content:'✓ ';}
+    .wiz-main{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:clamp(32px,5vh,60px) clamp(16px,4vw,48px) 120px;}
+    .wiz-panel{display:none;}
+    .wiz-panel.active{display:block;animation:fadeIn .3s ease;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .step-eyebrow{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+    .step-eyebrow::before{content:'';width:20px;height:1px;background:var(--gold);}
+    .step-title{font-family:'Playfair Display',serif;font-size:clamp(28px,5vw,44px);font-weight:700;line-height:1.1;margin-bottom:10px;}
+    .step-desc{font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:32px;max-width:540px;}
+    .card{background:var(--surface);border:1px solid var(--border);padding:24px;margin-bottom:16px;}
+    .card-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:18px;}
+    .field{margin-bottom:16px;}
+    .field label{display:block;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+    .field input,.field select,.field textarea{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:12px 14px;font-family:'Outfit',sans-serif;font-size:14px;outline:none;transition:border-color .2s;resize:vertical;}
+    .field input[type="checkbox"]{width:16px;height:16px;flex:0 0 auto;margin:0;padding:0;accent-color:var(--gold);cursor:pointer;}
+    .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--gold);}
+    .field input::placeholder,.field textarea::placeholder{color:var(--muted);}
+    .field select option{background:var(--surface2);}
+    .field-hint{font-size:11px;color:var(--muted);margin-top:4px;font-family:'DM Mono',monospace;}
+    .field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    @media(max-width:500px){.field-row{grid-template-columns:1fr;}}
+    .days-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+    .day-chip{display:flex;align-items:center;gap:6px;padding:8px 14px;background:var(--surface2);border:1px solid var(--border);cursor:pointer;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);transition:all .2s;user-select:none;}
+    .day-chip input{display:none;}
+    .day-chip.checked{border-color:var(--gold);color:var(--gold);background:rgba(201,162,39,0.08);}
+    .themes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:8px;}
+    .theme-card{border:2px solid var(--border);padding:20px;cursor:pointer;transition:all .2s;position:relative;}
+    .theme-card.selected{border-color:var(--gold);}
+    .theme-card .tc-preview{height:60px;margin-bottom:12px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+    .theme-card .tc-name{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;}
+    .theme-card .tc-check{position:absolute;top:10px;right:10px;width:20px;height:20px;border-radius:50%;background:var(--gold);color:#000;font-size:11px;display:none;align-items:center;justify-content:center;font-weight:700;}
+    .theme-card.selected .tc-check{display:flex;}
+    .bay-block{background:var(--surface2);border:1px solid var(--border);padding:20px;margin-bottom:12px;}
+    .bay-block-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+    .bay-block-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;}
+    .btn-remove-bay{background:transparent;border:1px solid var(--danger);color:var(--danger);padding:6px 12px;font-family:'Outfit',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;}
+    .btn-remove-bay:hover{background:var(--danger);color:#fff;}
+    .btn-add-bay{width:100%;padding:14px;background:transparent;border:1px dashed var(--border2);color:var(--muted);font-family:'Outfit',sans-serif;font-size:14px;cursor:pointer;transition:all .2s;margin-top:8px;}
+    .btn-add-bay:hover{border-color:var(--gold);color:var(--gold);}
+    .hiw-section{background:var(--surface2);border:1px solid var(--border);padding:16px;margin-bottom:10px;}
+    .hiw-section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+    .hiw-section-num{font-family:'DM Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:2px;}
+    .toggle-row{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+    .toggle-switch{position:relative;width:44px;height:24px;flex-shrink:0;}
+    .toggle-switch input{opacity:0;width:0;height:0;}
+    .toggle-slider{position:absolute;inset:0;background:var(--border2);cursor:pointer;transition:.3s;border-radius:24px;}
+    .toggle-slider::before{content:'';position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:#fff;transition:.3s;border-radius:50%;}
+    .toggle-switch input:checked+.toggle-slider{background:var(--gold);}
+    .toggle-switch input:checked+.toggle-slider::before{transform:translateX(20px);}
+    .toggle-label{font-size:13px;color:var(--text2);}
+    .skip-notice{background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--muted);padding:14px 18px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+    .skip-notice-text{font-size:13px;color:var(--muted);}
+    .btn-skip{background:transparent;border:1px solid var(--border2);color:var(--muted);padding:8px 16px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+    .btn-skip:hover{border-color:var(--gold);color:var(--gold);}
+    .wiz-footer{position:fixed;bottom:0;left:0;right:0;background:rgba(6,10,6,0.97);backdrop-filter:blur(16px);border-top:1px solid var(--border);padding:16px clamp(16px,4vw,48px);display:flex;justify-content:space-between;align-items:center;gap:12px;z-index:100;}
+    .btn-back{padding:13px 24px;background:transparent;border:1px solid var(--border2);color:var(--text2);font-family:'Outfit',sans-serif;font-size:14px;cursor:pointer;transition:all .2s;}
+    .btn-back:hover{border-color:var(--gold);color:var(--gold);}
+    .btn-next{padding:13px 32px;background:var(--gold);color:#060a06;border:none;font-family:'Playfair Display',serif;font-size:16px;font-weight:700;cursor:pointer;transition:all .2s;}
+    .btn-next:hover{background:#d4b040;}
+    .btn-next:disabled{opacity:.4;cursor:not-allowed;}
+    .btn-launch{padding:13px 32px;background:var(--success);color:#060a06;border:none;font-family:'Playfair Display',serif;font-size:16px;font-weight:700;cursor:pointer;transition:all .2s;}
+    .btn-launch:hover{background:#5ae08a;}
+    .review-item{display:flex;justify-content:space-between;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--border);gap:16px;}
+    .review-item:last-child{border-bottom:none;}
+    .review-key{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1px;flex-shrink:0;width:160px;}
+    .review-val{font-size:13px;color:var(--text);text-align:right;}
+    .review-val.missing{color:var(--muted);font-style:italic;}
+    .review-val.ok{color:var(--success);}
+    .review-val.warn{color:var(--gold);}
+    .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 20px;font-family:'DM Mono',monospace;font-size:12px;z-index:500;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;}
+    .toast.show{opacity:1;}
+    .toast.error{border-color:var(--danger);color:var(--danger);}
+    .toast.success{border-color:var(--success);color:var(--success);}
+    .password-match{font-size:12px;margin-top:4px;font-family:'DM Mono',monospace;}
+    .restore-banner{display:none;max-width:760px;margin:24px auto 0;padding:0 clamp(16px,4vw,48px);}
+    .restore-card{background:var(--surface);border:1px solid var(--success);border-left:4px solid var(--success);padding:24px;}
+    .restore-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:8px;}
+    .restore-desc{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:16px;}
+    .restore-file{background:var(--surface2);border:1px solid var(--border);padding:12px 16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
+    .restore-file-name{font-family:'DM Mono',monospace;font-size:12px;color:var(--success);}
+    .restore-file-info{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);}
+    .btn-restore{padding:10px 24px;background:var(--success);color:#060a06;border:none;font-family:'Playfair Display',serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;}
+    .btn-restore:hover{opacity:.9;}
+    .restore-status{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:10px;}
+    .restore-or{text-align:center;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin:20px 0 0;padding-top:16px;border-top:1px solid var(--border);}
+  
+    .int-group-label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin:28px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+    .int-group-label:first-of-type{margin-top:8px;}
+    .btn-test{margin-top:10px;padding:9px 18px;background:transparent;border:1px solid var(--gold);color:var(--gold);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+    .btn-test:hover{background:var(--gold);color:var(--bg);}
+    .btn-test:disabled{opacity:.5;cursor:wait;}
+    .test-result{margin-top:10px;font-size:13px;line-height:1.5;min-height:0;}
+    .test-result.ok{color:var(--success);}
+    .test-result.err{color:var(--danger);}
+
+  
+/* Accessibility: a visible keyboard focus ring. Removing the outline for
+   looks leaves keyboard users unable to see where they are on the page. */
+:focus-visible{outline:3px solid #5b9bd5 !important;outline-offset:2px !important;border-radius:2px}
+.skip-link{position:absolute;left:-9999px;top:0;background:#5b9bd5;color:#08131d;padding:10px 16px;z-index:9999;font-weight:600}
+.skip-link:focus{left:0}
+
+/* Step 1 style pickers (Sep 2026): card radios for humans; the hidden
+   <select> beside each keeps the exact id/value the payload and Admin use. */
+.pick-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:4px}
+.pick{display:flex;flex-direction:column;gap:6px;padding:16px;background:var(--surface2);border:2px solid var(--border);cursor:pointer;transition:all .2s;position:relative}
+.pick:hover{border-color:var(--border2)}
+.pick.on{border-color:var(--gold);background:rgba(201,162,39,.06)}
+.pick input{position:absolute;opacity:0;width:0;height:0}
+.pick:has(input:focus-visible){outline:3px solid #5b9bd5;outline-offset:2px}
+.pick-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--text)}
+.pick.on .pick-title{color:var(--gold)}
+.pick-sub{font-size:12px;color:var(--text2);line-height:1.55}
+.sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;padding:0;margin:-1px}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="wiz-header">
+  <div class="wiz-logo">BA Core Community Setup<span><a href="https://www.bacustomproducts.com/" target="_blank" rel="noopener noreferrer" style="color:inherit">BA Custom Products LLC</a></span></div>
+  <div class="wiz-step-count" id="stepCount">Step 1 of 9</div>
+</header>
+
+<div class="wiz-progress"><div class="wiz-progress-fill" id="progressFill" style="width:11%"></div></div>
+
+<div class="wiz-steps-nav" id="stepsNav"></div>
+
+<!-- RESTORE FROM BACKUP (a backup zip found on a plugged-in USB drive) -->
+<div class="restore-banner" id="restoreBanner">
+  <div class="restore-card">
+    <div class="restore-title">Restore From Backup</div>
+    <div class="restore-desc">A backup was found on a connected USB drive. You can restore all your data &mdash; bookings, members, settings, waivers, and images &mdash; with one click. Or skip this and set up fresh.</div>
+    <div id="restoreFiles"></div>
+    <div class="restore-status" id="restoreStatus"></div>
+    <div class="restore-or">Or continue below to set up as a new system</div>
+  </div>
+</div>
+
+<div class="wiz-main" id="main" role="main">
+  <details class="card" style="margin-bottom:16px">
+    <summary style="cursor:pointer">First time setting up BA Core?</summary>
+    <p class="field-hint">Start with your facility type, owner password, hours, and one test bay. You can leave provider accounts blank and connect them after a local booking test.</p>
+    <p class="field-hint"><a href="/api/setup/guide" download>Download the start-to-finish guide</a> for Pi installation, recovery, and a checklist for opening bookings.</p>
+  </details>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       STEP 1: YOUR FACILITY — the three answers that shape everything else.
+       They used to sit on step 3, inside the Operating Hours card, after the
+       owner had already typed a password and a business name. Now they come
+       first, so every later step only asks what applies. Each picker writes
+       into a visually-hidden select element that keeps the exact ids and
+       values the payload, the admin screen and the batteries already agree on. -->
+  <div class="wiz-panel active" id="panel-0">
+    <div class="step-eyebrow">Step 1</div>
+    <h1 class="step-title">What Kind of<br><em>Facility</em> Is This?</h1>
+    <p class="step-desc">Three answers shape everything after this &mdash; which questions you see, what your customers see, and how money and doors work. Answer for TODAY; every one of them can be changed later in Admin.</p>
+
+    <div class="card">
+      <div class="card-title">Who can book?</div>
+      <div class="pick-grid" role="radiogroup" aria-label="Who is allowed to book a bay online">
+        <label class="pick on"><input type="radio" name="pickWho" value="off" checked onchange="pickSet('wizWhoCanBook', this.value)"><span class="pick-title">Open to the public</span><span class="pick-sub">Anyone can book and pay online. Members, if you create tiers later, get their own rates with a member code.</span></label>
+        <label class="pick"><input type="radio" name="pickWho" value="members" onchange="pickSet('wizWhoCanBook', this.value)"><span class="pick-title">Members only</span><span class="pick-sub">A private club. No member code, no booking. Members bill automatically and join themselves online.</span></label>
+      </div>
+      <label class="sr" for="wizWhoCanBook">Who is allowed to book a bay online?</label>
+      <select id="wizWhoCanBook" class="sr" tabindex="-1" aria-hidden="true" onchange="facilityBranch()">
+        <option value="off">Open to the public &mdash; anyone can book</option>
+        <option value="members">Members only &mdash; a private club</option>
+      </select>
+      <div class="field" id="membersOnlyExplain" style="display:none;margin-top:10px;border-left:2px solid var(--gold);padding:10px 12px;background:rgba(0,0,0,.18)">
+        <div style="font-weight:600;margin-bottom:4px">Members only &mdash; here is exactly how it works</div>
+        <div class="field-hint" style="line-height:1.7">
+          &bull; <b>No member code, no booking.</b> The server refuses any booking without a valid code &mdash; there is no way around it from the public page. You and your staff can always book anyone.<br>
+          &bull; <b>Members pay two ways:</b> their membership bills automatically through Stripe (monthly or yearly), and each booking charges their tier's per-30-minute rate &mdash; or nothing at all, if the tier includes free hours. You will set this on the Pricing step.<br>
+          &bull; <b>New members join themselves.</b> The booking page shows a <b>Become a Member</b> button that opens your online signup &mdash; perfect for linking straight from a main company website to this location.<br>
+          &bull; <b>The club caps itself.</b> Each tier has a Roster Cap you choose (75, 200, anything, 0 = unlimited); when it fills, online signup honestly says so.<br>
+          &bull; <b>Everything else is identical</b> &mdash; tee times, power automation, door codes, waivers all run exactly the same.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">How do customers get in?</div>
+      <div class="pick-grid" role="radiogroup" aria-label="How do customers get in">
+        <label class="pick on"><input type="radio" name="pickAccess" value="unmanned" checked onchange="pickSet('wizStaffedAccess', this.value)"><span class="pick-title">Unmanned</span><span class="pick-sub">Nobody on site. Every booking gets a door code before the session, revoked after. Everyone pays in full online.</span></label>
+        <label class="pick"><input type="radio" name="pickAccess" value="staffed" onchange="pickSet('wizStaffedAccess', this.value)"><span class="pick-title">Always staffed</span><span class="pick-sub">A person lets customers in. No door codes. Money can be taken at the counter &mdash; deposits, tabs, cash.</span></label>
+        <label class="pick"><input type="radio" name="pickAccess" value="hybrid" onchange="pickSet('wizStaffedAccess', this.value)"><span class="pick-title">Both</span><span class="pick-sub">Staffed some hours, unmanned the rest. You mark the staffed hours on a calendar after launch.</span></label>
+      </div>
+      <label class="sr" for="wizStaffedAccess">How do customers get in?</label>
+      <select id="wizStaffedAccess" class="sr" tabindex="-1" aria-hidden="true" onchange="accessHint();facilityBranch()">
+        <option value="unmanned">Unmanned &mdash; everyone gets a door code</option>
+        <option value="staffed">Always staffed &mdash; a person lets customers in</option>
+        <option value="hybrid">Both &mdash; staffed some hours, unmanned the rest</option>
+      </select>
+      <div class="field-hint" id="accessHint" style="margin-top:10px"></div>
+      <div class="field" id="hybridNote" style="display:none;margin-top:10px;border-left:2px solid var(--gold);padding:10px 12px;background:rgba(0,0,0,.18)">
+        <div style="font-weight:600;margin-bottom:4px">You picked Both &mdash; here is what that means</div>
+        <div class="field-hint" style="line-height:1.7">
+          You will mark which days and hours are staffed on a calendar in
+          <b>Admin &rarr; Website &rarr; Staffed Days</b>. Until a day is marked, the facility behaves as unmanned &mdash; your setup checklist will remind you. Two things follow automatically:<br><br>
+          &bull; <b>Door codes always send</b>, on staffed days too. Nobody is ever locked out because a member of staff stepped away.<br>
+          &bull; <b>Deposits and settling at the door only happen during staffed hours.</b> Money handled at the counter needs someone at the counter. Members still get their member price at any hour &mdash; outside staffed hours they simply pay all of it when they book, instead of some or all of it at the counter.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">What does one booking reserve?</div>
+      <div class="pick-grid" role="radiogroup" aria-label="What does one booking reserve">
+        <label class="pick on"><input type="radio" name="pickUnit" value="bays" checked onchange="pickSet('wizBookingUnit', this.value)"><span class="pick-title">One bay</span><span class="pick-sub">Customers pick which simulator. The normal way.</span></label>
+        <label class="pick"><input type="radio" name="pickUnit" value="facility" onchange="pickSet('wizBookingUnit', this.value)"><span class="pick-title">The entire facility</span><span class="pick-sub">One booking takes every bay &mdash; parties, leagues, a private club that hands over the keys.</span></label>
+      </div>
+      <label class="sr" for="wizBookingUnit">What does one booking reserve?</label>
+      <select id="wizBookingUnit" class="sr" tabindex="-1" aria-hidden="true" onchange="facilityBranch()">
+        <option value="bays">One bay &mdash; customers pick which simulator (default)</option>
+        <option value="facility">The entire facility &mdash; one booking takes every bay</option>
+      </select>
+      <div class="field" id="wholeFacilityExplain" style="display:none;margin-top:10px;border-left:2px solid var(--gold);padding:10px 12px;background:rgba(0,0,0,.18)">
+        <div style="font-weight:600;margin-bottom:4px">Entire facility &mdash; here is exactly how it works</div>
+        <div class="field-hint" style="line-height:1.7">
+          &bull; <b>No bay choice on the booking page.</b> Customers pick a date and time; the whole building is theirs for the session.<br>
+          &bull; <b>One booking, all the automation.</b> That single booking runs the full start sequence on EVERY bay &mdash; plugs, projectors, PCs &mdash; and the full end sequence on every bay when it is over.<br>
+          &bull; <b>You keep per-bay control.</b> The admin Bay Operations console still turns each bay on, off, or restarts it independently, any time.<br>
+          &bull; <b>Pricing is for the building.</b> Your base price per 30 minutes is the whole-facility rate ($60/hour for the building = enter 30). Per-bay premium prices never apply. With Members Only, the member rate is the whole-facility rate.<br>
+          &bull; Still add EVERY bay on the Bays step &mdash; each one needs its own hardware configured so the automation can run it.
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px;border-style:dashed">
+      <div class="card-title">Setting up a replacement device?</div>
+      <p class="step-desc" style="margin-bottom:12px">If you have a backup from a previous device, restore it here to bring everything back &mdash; settings, bookings, members, waivers, and images &mdash; exactly as it was. You will not need to run the rest of this setup.</p>
+      <button type="button" class="btn-test" onclick="toggleRestorePanel()">Restore from a backup instead</button>
+      <div id="restorePanel" style="display:none;margin-top:14px">
+        <div class="field">
+          <label for="wizardRestoreFile">Backup File (.zip or .baenc)</label>
+          <input type="file" id="wizardRestoreFile" accept=".zip,.baenc" />
+          <div class="field-hint">The backup from your old device - a .zip, or a .baenc if you set a backup passphrase (the nightly copy, the one on your computer, or a download from the admin panel).</div>
+        </div>
+        <div class="field">
+          <label for="wizardRestorePass">Backup Passphrase</label>
+          <input type="password" id="wizardRestorePass" autocomplete="off" placeholder="Only for an encrypted .baenc backup" />
+          <div class="field-hint">The passphrase you set in Admin &rsaquo; Settings &rsaquo; Backups. It is case-sensitive.</div>
+        </div>
+        <button type="button" class="btn-test" onclick="wizardRestore()" style="border-color:var(--danger);color:var(--danger)">Restore Everything</button>
+        <div id="wizardRestoreStatus" class="field-hint" style="margin-top:10px"></div>
+      </div>
+    </div>
+  
+    <!-- SET UP BY TALKING (Oct 20 2026, late): the three answers above (or a restore or an update), then the
+         name, the password and the licence - and the assistant leads the rest. The step-by-step setup is one link away. -->
+    <div class="card" id="talkCard" style="border-left:2px solid var(--gold)">
+      <div class="card-title">Then finish with your assistant</div>
+      <p class="field-hint" style="line-height:1.7;margin-bottom:12px">Your business's name and a password - then your assistant sets up the rest with you, one question at a time: your hours, bays, prices, waivers, website and connections. Your site shows "not yet public" until you tell it you are ready.</p>
+      <div class="field"><label for="talkName">Business name <span style="color:var(--danger)">*</span></label><input type="text" id="talkName" autocomplete="organization" placeholder="Your business's name" /></div>
+      <div class="field"><label for="talkPw">Admin password <span style="color:var(--danger)">*</span></label><input type="password" id="talkPw" autocomplete="new-password" placeholder="At least 8 characters" /></div>
+      <div class="field"><label for="talkPw2">Confirm password</label><input type="password" id="talkPw2" autocomplete="new-password" placeholder="Type it again" /></div>
+      <div id="talkEulaRow" style="margin:6px 0 14px"></div>
+      <button class="btn-launch" type="button" id="talkGo" onclick="finishWithAssistant()">Finish with my assistant</button>
+    </div>
+</div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       STEP 2: YOUR BUSINESS — identity, contact, and the admin password. -->
+  <div class="wiz-panel" id="panel-1">
+    <div class="step-eyebrow">Step 2</div>
+    <h1 class="step-title">Your<br><em>Business</em></h1>
+    <p class="step-desc">Only the name and a password are required &mdash; everything else can be added later in Admin &rarr; Settings.</p>
+
+    <div class="card">
+      <div class="card-title">Business Details</div>
+      <div class="field">
+        <label for="bizName">Business Name <span style="color:var(--danger)">*</span></label>
+        <input type="text" id="bizName" placeholder="e.g. City Golf Simulator Lounge" />
+      </div>
+      <div class="field">
+        <label for="legalEntity">Legal Entity Name <span style="color:#8fa08c;font-size:12px">(the LLC or corporation that owns the business &mdash; shown on your privacy policy and used for SMS registration; leave blank to use the business name)</span></label>
+        <input type="text" id="legalEntity" placeholder="e.g. City Golf Ventures LLC" />
+      </div>
+      <div class="field">
+        <label for="logoFile">Business Logo (optional)</label>
+        <input type="file" id="logoFile" accept="image/*" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px;width:100%;font-family:inherit;font-size:13px" onchange="previewLogo(this)" />
+        <div class="field-hint">PNG, JPG, or SVG &mdash; shows in the top left of your booking site and becomes the app icon on customers' phones</div>
+        <img id="logoPreview" src="" alt="" style="display:none;max-height:80px;max-width:200px;margin-top:10px;object-fit:contain;border:1px solid var(--border);padding:8px;background:var(--surface2)" />
+      </div>
+      <div class="field-row">
+        <div class="field"><label for="bizPhone">Phone Number</label><input type="tel" id="bizPhone" placeholder="(555) 000-0000" /></div>
+        <div class="field"><label for="bizEmail">Email Address</label><input type="email" id="bizEmail" placeholder="hello@yourbusiness.com" /><div class="field-hint">Where the system emails YOU &mdash; backup warnings, new-address alerts</div></div>
+      </div>
+      <div class="field"><label for="bizAddress">Street Address</label><input type="text" id="bizAddress" placeholder="123 Main St, City, State" /></div>
+      <div class="field"><label for="bizTimezone">Timezone</label>
+        <select id="bizTimezone">
+          <option value="America/New_York">Eastern</option>
+          <option value="America/Chicago" selected>Central</option>
+          <option value="America/Denver">Mountain</option>
+          <option value="America/Phoenix">Arizona (no daylight saving)</option>
+          <option value="America/Los_Angeles">Pacific</option>
+          <option value="America/Anchorage">Alaska</option>
+          <option value="Pacific/Honolulu">Hawaii</option>
+        </select>
+        <button type="button" class="btn-test" onclick="detectWizardTimezone()" style="margin-top:8px">Detect from location</button>
+        <div id="tzDetectResult" class="field-hint"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Secure Your Admin Panel</div>
+      <p class="step-desc" style="margin-bottom:12px">This password opens Admin &mdash; bookings, pricing, members, money, every setting. Make it a good one.</p>
+      <div class="field-row">
+        <div class="field">
+          <label for="newPassword">Admin Password <span style="color:var(--danger)">*</span></label>
+          <input type="password" id="newPassword" placeholder="At least 8 characters" autocomplete="new-password" />
+        </div>
+        <div class="field">
+          <label for="confirmPassword">Confirm Password</label>
+          <input type="password" id="confirmPassword" placeholder="Type it again" autocomplete="new-password" oninput="checkPasswordMatch()" />
+          <div id="passwordMatchMsg" class="password-match"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="wizBackupCard">
+      <div class="card-title">Protect Your Backups</div>
+      <p class="step-desc" style="margin-bottom:12px">Every night this unit backs itself up. A backup holds your customers' details and your payment, texting and door keys, so any copy that leaves the unit &mdash; a USB stick, your computer, a download &mdash; is locked with this passphrase, and restoring one asks for it. <b>Until one is set, nothing leaves the unit on its own.</b> Pick a phrase you will remember and write it down with your recovery codes: if it is lost, those copies cannot be opened by anyone, including us.</p>
+      <div class="field-row">
+        <div class="field">
+          <label for="backupPassphrase">Backup passphrase</label>
+          <input type="password" id="backupPassphrase" placeholder="10 characters or more" autocomplete="new-password" oninput="checkBackupPassMatch()" />
+        </div>
+        <div class="field">
+          <label for="backupPassphraseConfirm">Confirm passphrase</label>
+          <input type="password" id="backupPassphraseConfirm" placeholder="Type it again" autocomplete="new-password" oninput="checkBackupPassMatch()" />
+          <div id="backupPassMatchMsg" class="password-match"></div>
+        </div>
+      </div>
+      <div class="field-hint">You can leave this blank and set it later in Admin &rarr; Settings &rarr; Protection &rarr; Backups; the setup checklist will remind you. It is never kept in this browser.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Web Addresses &amp; Local Search (optional)</div>
+      <p class="step-desc" style="margin-bottom:12px">Helps your site show up in local Google searches and puts the right links in your customer emails. All optional; all editable later.</p>
+      <div class="field"><label for="seoDomain">This booking site's web address</label><input type="text" id="seoDomain" placeholder="https://book.yourfacility.com" /><div class="field-hint">The public address of THIS site, starting with https:// &mdash; it goes into booking links, the member portal, and connects Stripe for automatic membership renewals.</div></div>
+      <div class="field"><label for="bizWebsite">Main company website (optional)</label><input type="text" id="bizWebsite" placeholder="https://yourcompany.com" /><div class="field-hint">Only if you have a separate main site (a chain, a parent company). It appears as a link in the footer. Leave blank if this booking site IS your website.</div></div>
+      <div class="field-row">
+        <div class="field"><label for="seoCity">City</label><input type="text" id="seoCity" placeholder="Example City" /></div>
+        <div class="field"><label for="seoState">State</label><input type="text" id="seoState" placeholder="ST" /></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label for="seoZip">ZIP Code</label><input type="text" id="seoZip" placeholder="00000" /></div>
+        <div class="field"><label for="seoLat">Latitude &amp; Longitude (optional)</label>
+          <div style="display:flex;gap:8px"><input type="text" id="seoLat" placeholder="Latitude" aria-label="Latitude" /><input type="text" id="seoLng" placeholder="Longitude" aria-label="Longitude" /></div>
+          <div class="field-hint">From Google Maps &mdash; right-click your location, click the coordinates to copy. Puts a pin on your Google listing.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       STEP 3: HOURS & RULES -->
+  <div class="wiz-panel" id="panel-2">
+    <div class="step-eyebrow">Step 3</div>
+    <h1 class="step-title">Hours &amp;<br><em>Booking Rules</em></h1>
+    <p class="step-desc">When you are open, how long a session can be, how far ahead people can book, and your waiver policy. Afterwards the hours and rules live in Admin &rarr; Settings &rarr; Booking &rarr; Hours &amp; Booking Rules, and the waiver policy in Admin &rarr; Waivers.</p>
+
+    <div class="card">
+      <div class="card-title">Days Open</div>
+      <div class="days-grid" id="daysGrid">
+        <label class="day-chip checked"><input type="checkbox" value="mon" checked aria-label="Open on Monday">Mon</label>
+        <label class="day-chip checked"><input type="checkbox" value="tue" checked aria-label="Open on Tuesday">Tue</label>
+        <label class="day-chip checked"><input type="checkbox" value="wed" checked aria-label="Open on Wednesday">Wed</label>
+        <label class="day-chip checked"><input type="checkbox" value="thu" checked aria-label="Open on Thursday">Thu</label>
+        <label class="day-chip checked"><input type="checkbox" value="fri" checked aria-label="Open on Friday">Fri</label>
+        <label class="day-chip checked"><input type="checkbox" value="sat" checked aria-label="Open on Saturday">Sat</label>
+        <label class="day-chip checked"><input type="checkbox" value="sun" checked aria-label="Open on Sunday">Sun</label>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Operating Hours</div>
+      <div class="field-row">
+        <div class="field"><label for="openTime">Opening Time</label><input type="time" id="openTime" value="05:00" /><div class="field-hint">Earliest a session can start</div></div>
+        <div class="field"><label for="closeTime">Closing Time</label><input type="time" id="closeTime" value="23:00" oninput="updateCloseRead()" /><div class="field-hint">When you close. Sessions must END by this time. For a MIDNIGHT close, enter 12:00 AM</div><div class="field-hint" id="closeTimeRead" style="color:var(--gold)"></div></div>
+      </div>
+      <div class="field" style="margin-top:8px"><label for="closeNextDay" style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="closeNextDay" /> Closing time is after midnight (e.g. 1 or 2 AM)</label></div>
+      <div class="field" style="margin-top:6px"><label for="open24Hours" style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="open24Hours" onchange="toggle247()" /> Open 24 hours (no closing cap)</label></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Session Rules</div>
+      <div class="field-row">
+        <div class="field"><label for="minSession">Shortest Session</label>
+          <select id="minSession"><option value="30">30 minutes</option><option value="60" selected>1 hour</option><option value="90">1.5 hours</option></select>
+        </div>
+        <div class="field"><label for="maxSession">Longest Session</label>
+          <select id="maxSession"><option value="60">1 hour</option><option value="120">2 hours</option><option value="180">3 hours</option><option value="240" selected>4 hours</option></select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label for="windowDays">Booking Window</label>
+          <select id="windowDays"><option value="3">3 days ahead</option><option value="7" selected>7 days ahead</option><option value="14">14 days ahead</option><option value="30">30 days ahead</option><option value="60">60 days ahead</option><option value="90">90 days ahead (3 months)</option><option value="180">180 days ahead (6 months)</option><option value="365">365 days ahead (a full year)</option></select>
+          <div class="field-hint">How far ahead anyone can book. A membership tier can be given its OWN longer window later (Admin &rarr; Members &rarr; Tiers), so a club can let members book a year out while the public books a week out.</div>
+        </div>
+        <div class="field"><label for="bufferMins">Buffer Between Sessions</label>
+          <select id="bufferMins"><option value="0" selected>No buffer</option><option value="5">5 minutes</option><option value="10">10 minutes</option><option value="15">15 minutes</option><option value="30">30 minutes</option></select>
+          <div class="field-hint">Gap between back-to-back sessions</div>
+        </div>
+      </div>
+      <div style="margin-top:14px" id="wizFlowWrap">
+        <label style="display:block;font-size:13px;font-weight:600;margin-bottom:10px">Booking Flow</label>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <label for="wiz_flow_bay" style="display:flex;align-items:center;gap:8px;padding:9px 16px;background:var(--panel2,#1a1a1a);border:1px solid var(--gold);cursor:pointer;font-size:13px;color:var(--gold)" id="wiz_flow_bay_label">
+            <input type="radio" name="bookingFlow" id="wiz_flow_bay" value="bay-first" checked style="accent-color:var(--gold)" onchange="wizUpdateFlowLabels()" />
+            Bay &rarr; Date &rarr; Time
+          </label>
+          <label for="wiz_flow_time" style="display:flex;align-items:center;gap:8px;padding:9px 16px;background:var(--panel2,#1a1a1a);border:1px solid var(--border,#333);cursor:pointer;font-size:13px" id="wiz_flow_time_label">
+            <input type="radio" name="bookingFlow" id="wiz_flow_time" value="time-first" style="accent-color:var(--gold)" onchange="wizUpdateFlowLabels()" />
+            Date &rarr; Time &rarr; Auto-assign Bay
+          </label>
+        </div>
+        <div style="font-size:12px;color:var(--muted,#888);margin-top:8px">Bay-first lets customers pick their bay. Time-first auto-assigns a bay at checkout.</div>
+        <span id="wizFlowFacilityNote" style="display:none;font-size:11.5px;color:var(--gold);margin-top:6px">Not applicable for entire-facility booking &mdash; with no bay to choose there is only one flow (date and time).</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Liability Waiver Policy</div>
+      <div class="field-hint" style="margin-bottom:12px;line-height:1.7">Decide the POLICY now; upload the actual waiver PDF after launch in <b>Admin &rarr; Waivers</b>. Until a document is uploaded, nobody is asked to sign anything &mdash; so these choices sit ready and switch on the moment your lawyer's document goes in.</div>
+      <div class="field"><label for="wizWaiverMode">Waiver</label>
+        <select id="wizWaiverMode">
+          <option value="required">Required &mdash; must be signed to play</option>
+          <option value="optional">Offered &mdash; shown but never blocks a booking</option>
+          <option value="off">Off &mdash; never asked</option>
+        </select>
+      </div>
+      <div class="field"><label for="wizWaiverCollection">Where is it signed?</label>
+        <select id="wizWaiverCollection" onchange="this.dataset.touched=1">
+          <option value="online">Online &mdash; everyone signs during booking</option>
+          <option value="door">At the door &mdash; staff collects at arrival</option>
+          <option value="auto">Automatic &mdash; at the door when staffed, online otherwise</option>
+        </select>
+        <div class="field-hint" id="wizWaiverCollHint">Pre-picked to match how customers get in; change it if you prefer.</div>
+      </div>
+      <div class="field"><label for="wizWaiverTerm">A member's waiver lasts</label>
+        <select id="wizWaiverTerm">
+          <option value="membership">The life of their membership</option>
+          <option value="annual">1 year, then re-sign (recommended)</option>
+        </select>
+        <div class="field-hint">Members sign ONE waiver that rides their membership &mdash; captured at online signup, first booking, staffed check-in, or recorded by you as paper on file. Lapse and rejoin means signing again. Non-members sign per visit. Any membership tier can choose its own term later (Edit Tier).</div>
+      </div>
+      <div class="field"><label for="wizWaiverGuests">A member's guests</label>
+        <select id="wizWaiverGuests">
+          <option value="member">Covered by the member's waiver &mdash; the member is responsible for their guests</option>
+          <option value="each">Each guest signs the one-day waiver &mdash; staff collect it at check-in</option>
+        </select>
+        <div class="field-hint">Applies when a member books and brings friends. Staff can always collect a guest's own signature with one tap.</div>
+      </div>
+      <div style="font-size:12px;color:var(--gold);border:1px solid rgba(201,162,39,.3);padding:10px 12px;line-height:1.65;margin-top:6px"><b>Legal note.</b> This software records signatures with a full evidence trail (name, IP, timestamp, browser, and a fingerprint of the exact document signed) and keeps them for your records retention period: 10 years at the least, which is BA's ruling as the product's owner, not the law &mdash; you can set it longer later under Settings &gt; Protection &gt; Records. It is not legal advice: have a lawyer licensed in your state write or review your waiver document. Questions to ask them: Does my waiver cover anyone who did not sign it, such as a member's guests? Can a parent or guardian sign for a minor where I operate? Is there anything my waiver cannot cover, however it is worded?</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       STEP 4: BAYS -->
+  <div class="wiz-panel" id="panel-3">
+    <div class="step-eyebrow">Step 4</div>
+    <h1 class="step-title">Your Simulator<br><em>Bays</em></h1>
+    <p class="step-desc" id="baysDesc">Add each simulator bay you have. You need at least one. Smart plugs, IR devices and PC connections are set up later in Admin &rarr; Bays &amp; Devices.</p>
+    <div id="baysContainer"></div>
+    <button class="btn-add-bay" onclick="addBay()">+ Add Another Bay</button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       STEP 5: PRICING & MONEY — base price, the first tier, deposits, sales
+       tax, and the counter. Tax moved here from the Business step; it is a
+       money question and belongs with the other money questions. -->
+  <div class="wiz-panel" id="panel-4">
+    <div class="step-eyebrow">Step 5</div>
+    <h1 class="step-title">Pricing &amp;<br><em>Money</em></h1>
+    <p class="step-desc" id="pricingDesc">Set your base price per 30 minutes. After launch you can add time-based tiers (peak/off-peak rates) and membership plans in Admin.</p>
+
+    <div id="pricingCards">
+      <div class="card" id="wizTierCard" style="display:none">
+        <div class="card-title">Your First Membership Tier</div>
+        <div class="field-hint" style="margin-bottom:12px;line-height:1.7">A members-only club with no tier is a locked door &mdash; nobody could ever join or book. Create the first one now (add more, or fine-tune everything &mdash; free hours, guest rules, day restrictions, a longer booking window &mdash; later in <b>Admin &rarr; Members &rarr; Tiers</b>).</div>
+        <div class="field"><label for="wizTierName">Tier name</label><input type="text" id="wizTierName" placeholder="Founding Member" /></div>
+        <div class="field-row">
+          <div class="field"><label for="wizTierMonthly">Monthly price ($)</label><input type="number" id="wizTierMonthly" step="1" min="0" placeholder="100" /><div class="field-hint">Bills automatically through Stripe each month.</div></div>
+          <div class="field"><label for="wizTierAnnual">Yearly price ($, optional)</label><input type="number" id="wizTierAnnual" step="1" min="0" placeholder="0" /><div class="field-hint">Offer annual billing too, or leave 0.</div></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label for="wizTierRate">Member booking rate ($ per 30 min)</label><input type="number" id="wizTierRate" step="0.5" min="0" placeholder="15" oninput="wizTierRateEcho()" /><div class="field-hint" id="wizTierRateHint">This IS the booking price at your club. $30/hour = enter 15. Enter 0 if dues cover the golf &mdash; then give the tier free hours in Admin.</div></div>
+          <div class="field"><label for="wizTierCap">Roster cap</label><input type="number" id="wizTierCap" step="1" min="0" value="0" /><div class="field-hint">Max active members. 0 = unlimited. (75 caps the club at 75.)</div></div>
+        </div>
+        <div class="field"><label for="wizTierSell" style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="wizTierSell" checked /> Sell online &mdash; people can join themselves from your booking page</label><div class="field-hint">Needs Stripe (Connect step). Uncheck to add members by hand in Admin instead.</div></div>
+      </div>
+
+      <div class="card" id="wizBaseCard">
+        <div class="card-title" id="basePriceTitle">Base Price</div>
+        <div class="field">
+          <label for="basePrice" id="basePriceLabel">Price Per 30 Minutes ($)</label>
+          <input type="number" id="basePrice" placeholder="15.00" step="0.50" min="0" value="15" />
+          <div class="field-hint" id="basePriceHint">This is the default rate. You can add different rates for evenings, weekends, etc in Admin &rarr; Pricing.</div>
+        </div>
+      </div>
+
+      <div class="card" id="wizDepositCard" style="display:none">
+        <div class="card-title">Booking Deposit (non-members)</div>
+        <div class="field-hint" style="margin-bottom:12px;line-height:1.7">Because someone is at your counter, you CAN take just a deposit online and settle the rest at the door &mdash; the group's deposit credits everyone at check-in. Full prepayment stays the default. Hybrid facilities: deposits only apply to bookings arriving during your staffed hours; everything else pays in full online.</div>
+        <div class="field"><label for="wizDepositMode">Deposit</label>
+          <select id="wizDepositMode" onchange="document.getElementById('wizDepositAmtWrap').style.display=this.value==='per30'?'block':'none'">
+            <option value="off">Off &mdash; full prepayment online (default)</option>
+            <option value="per30">Per half-hour deposit &mdash; rest settles at the door</option>
+          </select>
+        </div>
+        <div class="field" id="wizDepositAmtWrap" style="display:none"><label for="wizDepositPer30">Deposit per half-hour ($)</label><input type="number" id="wizDepositPer30" step="1" min="1" value="10" /><div class="field-hint">Never exceeds the full session price &mdash; guardrail built in.</div></div>
+      </div>
+
+      <div class="card" id="wizCounterCard" style="display:none">
+        <div class="card-title">The Counter</div>
+        <div class="field-hint" style="margin-bottom:12px;line-height:1.7">Your staff get a phone-friendly screen at <b>/staff</b> for checking groups in, opening tabs and taking payment. Card readers, the menu and the cash drawer are set up after launch; these two are just whether the options exist at all.</div>
+        <div class="field-row">
+          <div class="field"><label for="wizPayCash">Cash at the counter</label>
+            <select id="wizPayCash"><option value="on">On &mdash; staff can take cash</option><option value="off">Off &mdash; card only</option></select>
+            <div class="field-hint">You do not need a cash drawer to take cash. Wire one later and it starts opening on its own.</div>
+          </div>
+          <div class="field"><label for="wizPayCheck">Checks at the counter</label>
+            <select id="wizPayCheck"><option value="on">On &mdash; staff can take a check</option><option value="off">Off &mdash; no checks</option></select>
+            <div class="field-hint">Leagues and corporate outings sometimes pay this way. Off and the option never appears for staff.</div>
+          </div>
+        </div>
+        <div class="field-row" style="margin-top:6px">
+          <div class="field"><label for="wizSchedOn">Employee scheduling &amp; time clock</label>
+            <select id="wizSchedOn"><option value="on">On &mdash; schedules, a time clock, an hours export</option><option value="off">Off &mdash; not now</option></select>
+            <div class="field-hint">Build staff schedules by season, let employees clock in and out on the counter pad, see their shifts from home and ask for time off or open shifts, and export hours for your payroll provider. An hours-and-schedule tool &mdash; not payroll, benefits or compliance. Change it any time in Admin.</div>
+          </div>
+          <div class="field"><label for="wizStaffedLabel">What customers see for staffed hours</label>
+            <input type="text" id="wizStaffedLabel" value="Staffed hours" maxlength="40" />
+            <div class="field-hint">The booking page marks times someone is at the counter with this label &mdash; "Staffed hours", "Bar open", "Pro shop open". Your words.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Sales Tax (Optional)</div>
+        <div style="background:rgba(201,162,39,0.08);border-left:3px solid var(--gold);padding:12px 16px;margin-bottom:16px;font-size:12px;color:var(--text2);line-height:1.6">
+          <strong style="color:var(--gold)">IMPORTANT &mdash; YOUR RESPONSIBILITY:</strong> Tax rates and rules vary by jurisdiction and change over time. It is your sole responsibility to verify the correct rate, update it when rates change, comply with all local, state, and federal tax laws, and remit collected taxes. BA Core records the tax you configure. Your business handles tax compliance and remittance. You can configure or update this later in Admin &rarr; Settings &rarr; Food &amp; Payments &rarr; Tax &amp; Legal.
+        </div>
+        <div class="field">
+          <label for="taxEnabled" style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="taxEnabled" onchange="taxVis()" /> Collect sales tax</label>
+          <div class="field-hint">One rate, asked once. It applies to bookings AND to food and drink at the counter. Different rates per category (say, beverages) can be set after launch in Admin &rarr; Settings &rarr; Food &amp; Payments &rarr; Point of Sale &mdash; Tax Codes.</div>
+        </div>
+        <div id="taxFields" style="display:none;grid-template-columns:1fr 1fr;gap:14px">
+          <div class="field"><label for="taxRate">Tax Rate (%)</label><input type="number" step="0.001" id="taxRate" placeholder="7.375" /><div class="field-hint">Example: 7.375 for 7.375%</div></div>
+          <div class="field"><label for="taxLabel">Tax Label</label><input type="text" id="taxLabel" placeholder="Local Sales Tax" /><div class="field-hint">Shows on customer receipts</div></div>
+          <div class="field"><label for="taxRegion">Region / State</label><input type="text" id="taxRegion" placeholder="State or region" /></div>
+          <div class="field"><label for="taxTaxId">Tax ID (optional)</label><input type="text" id="taxTaxId" placeholder="Business tax ID" /></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       STEP 6: LOOK -->
+  <div class="wiz-panel" id="panel-5">
+    <div class="step-eyebrow">Step 6</div>
+    <h1 class="step-title">Choose Your<br><em>Look</em></h1>
+    <p class="step-desc">One choice colours your whole site &mdash; your public pages, the booking screen your customers use, memberships and gift cards. Your staff screens and this admin keep their own colours on purpose, so staff can tell at a glance which app they are in.</p>
+    <div class="skip-notice">
+      <span class="skip-notice-text">Skip and you get Pine Dark. Change it any time in <b>Admin &rarr; Website &rarr; Colors</b>, where you can also set every colour by hand.</span>
+      <button class="btn-skip" onclick="nextStep()">Skip for now</button>
+    </div>
+    <div class="themes-grid" id="themesGrid">
+      <div class="theme-card" data-theme="fairway-light" onclick="selectTheme(this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"><div class="tc-preview" style="background:#f5f3ea;border:1px solid rgba(255,255,255,.08)"><span style="color:#1c3a26;font-family:serif;font-weight:700;font-size:15px">Aa</span><span style="display:inline-block;width:14px;height:14px;background:#b08a1d;margin-left:8px;border-radius:3px;vertical-align:2px"></span></div><div class="tc-name" style="color:#b08a1d">Fairway Light</div><div class="tc-check">&#10003;</div></div><div class="theme-card selected" data-theme="pine-dark" onclick="selectTheme(this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"><div class="tc-preview" style="background:#0d1810;border:1px solid rgba(255,255,255,.08)"><span style="color:#eef3ea;font-family:serif;font-weight:700;font-size:15px">Aa</span><span style="display:inline-block;width:14px;height:14px;background:#c9a227;margin-left:8px;border-radius:3px;vertical-align:2px"></span></div><div class="tc-name" style="color:#c9a227">Pine Dark</div><div class="tc-check">&#10003;</div></div><div class="theme-card" data-theme="navy-copper" onclick="selectTheme(this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"><div class="tc-preview" style="background:#f4f5f7;border:1px solid rgba(255,255,255,.08)"><span style="color:#152238;font-family:serif;font-weight:700;font-size:15px">Aa</span><span style="display:inline-block;width:14px;height:14px;background:#b06a3b;margin-left:8px;border-radius:3px;vertical-align:2px"></span></div><div class="tc-name" style="color:#b06a3b">Navy &amp; Copper</div><div class="tc-check">&#10003;</div></div><div class="theme-card" data-theme="charcoal-red" onclick="selectTheme(this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"><div class="tc-preview" style="background:#f6f5f3;border:1px solid rgba(255,255,255,.08)"><span style="color:#232323;font-family:serif;font-weight:700;font-size:15px">Aa</span><span style="display:inline-block;width:14px;height:14px;background:#b23a30;margin-left:8px;border-radius:3px;vertical-align:2px"></span></div><div class="tc-name" style="color:#b23a30">Charcoal &amp; Red</div><div class="tc-check">&#10003;</div></div><div class="theme-card" data-theme="slate-teal" onclick="selectTheme(this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"><div class="tc-preview" style="background:#f3f6f5;border:1px solid rgba(255,255,255,.08)"><span style="color:#16332b;font-family:serif;font-weight:700;font-size:15px">Aa</span><span style="display:inline-block;width:14px;height:14px;background:#1f8a70;margin-left:8px;border-radius:3px;vertical-align:2px"></span></div><div class="tc-name" style="color:#1f8a70">Slate &amp; Teal</div><div class="tc-check">&#10003;</div></div><div class="theme-card" data-theme="sand-forest" onclick="selectTheme(this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"><div class="tc-preview" style="background:#f7f2e7;border:1px solid rgba(255,255,255,.08)"><span style="color:#2e4426;font-family:serif;font-weight:700;font-size:15px">Aa</span><span style="display:inline-block;width:14px;height:14px;background:#7a8c2e;margin-left:8px;border-radius:3px;vertical-align:2px"></span></div><div class="tc-name" style="color:#7a8c2e">Sand &amp; Forest</div><div class="tc-check">&#10003;</div></div><div class="theme-card" data-theme="midnight-ice" onclick="selectTheme(this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"><div class="tc-preview" style="background:#0e1116;border:1px solid rgba(255,255,255,.08)"><span style="color:#eef3f8;font-family:serif;font-weight:700;font-size:15px">Aa</span><span style="display:inline-block;width:14px;height:14px;background:#5ab0d8;margin-left:8px;border-radius:3px;vertical-align:2px"></span></div><div class="tc-name" style="color:#5ab0d8">Midnight Ice</div><div class="tc-check">&#10003;</div></div><div class="theme-card" data-theme="plum-gold" onclick="selectTheme(this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"><div class="tc-preview" style="background:#f6f3f6;border:1px solid rgba(255,255,255,.08)"><span style="color:#3a1f3a;font-family:serif;font-weight:700;font-size:15px">Aa</span><span style="display:inline-block;width:14px;height:14px;background:#b08a1d;margin-left:8px;border-radius:3px;vertical-align:2px"></span></div><div class="tc-name" style="color:#b08a1d">Plum &amp; Gold</div><div class="tc-check">&#10003;</div></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       STEP 7: CONNECT -->
+  <div class="wiz-panel" id="panel-6">
+    <div class="step-eyebrow">Step 7</div>
+    <h1 class="step-title">Connect Your<br><em>Services</em></h1>
+    <p class="step-desc">Every connection here is optional and can be added or changed later in Admin &rarr; Settings. Enter only what you have now &mdash; anything you set here is saved and never needs re-entering.</p>
+
+    <div class="skip-notice">
+      <span class="skip-notice-text">Don't have these yet? Skip and add them later in Admin &rarr; Settings.</span>
+      <button class="btn-skip" onclick="nextStep()">Skip all connections</button>
+    </div>
+
+    <div class="int-group-label">Payments</div>
+    <div class="card">
+      <div class="card-title">Stripe &mdash; Collect Payments Online</div>
+      <div id="wizStripeMembersNote" style="display:none;font-size:12px;color:var(--gold);border:1px solid rgba(201,162,39,.3);padding:8px 10px;margin-bottom:12px;line-height:1.6">Your club is <b>members only</b>: Stripe is what bills each membership automatically every month or year, and what lets new members join themselves online. Strongly recommended now &mdash; without it, you add every member by hand and collect dues yourself.</div>
+      <div class="field-hint" style="margin-bottom:14px;color:var(--text2)" id="wizStripeHint">Takes card payments when customers book. Get your keys at <strong>dashboard.stripe.com &rarr; Developers &rarr; API Keys</strong>.</div>
+      <div class="field"><label for="stripePublishable">Publishable Key</label><input type="text" id="stripePublishable" placeholder="pk_live_..." /></div>
+      <div class="field"><label for="stripeSecret">Secret Key</label><input type="password" id="stripeSecret" placeholder="sk_live_..." /><div class="field-hint">Use sk_test_ keys while testing, switch to sk_live_ when ready to go live.</div></div>
+    </div>
+
+    <div class="int-group-label">Notifications</div>
+    <div class="card">
+      <div class="card-title">Twilio &mdash; Text Message Notifications</div>
+      <div class="field-hint" style="margin-bottom:14px;color:var(--text2)" id="wizTwilioHint">Sends booking confirmations and reminders by text. Sign up at <strong>twilio.com</strong>.</div>
+      <div class="field-row">
+        <div class="field"><label for="twilioSid">Account SID</label><input type="text" id="twilioSid" placeholder="ACxxxxxxxx" /></div>
+        <div class="field"><label for="twilioToken">Auth Token</label><input type="password" id="twilioToken" placeholder="Auth token" /></div>
+      </div>
+      <div class="field"><label for="twilioPhone">Phone Number</label><input type="text" id="twilioPhone" placeholder="+15550001234" /><div class="field-hint">Your Twilio number in +1XXXXXXXXXX format.</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Bird &mdash; optional automatic backup (skip this)</div>
+      <div class="field-hint" style="margin-bottom:14px;color:var(--text2)"><b>Your texting provider is Twilio</b> &mdash; that is what this system sends through and what your guides walk you through registering. Leave this card blank. It exists only so that, if you have separately set up a Bird SMS channel yourself, a text Twilio refuses can retry through Bird automatically. Nothing needs it.</div>
+      <div class="toggle-row">
+        <label for="useMessagebird" class="toggle-switch"><input type="checkbox" id="useMessagebird" onchange="toggleMessagebird()" /><div class="toggle-slider"></div></label>
+        <span class="toggle-label">I have a MessageBird / Bird account</span>
+      </div>
+      <div id="messagebirdFields" style="display:none;margin-top:14px">
+        <div class="field"><label for="messagebirdApiKey">API Key</label><input type="text" id="messagebirdApiKey" placeholder="Your MessageBird API key" /></div>
+        <div class="field"><label for="messagebirdPhone">Phone Number</label><input type="text" id="messagebirdPhone" placeholder="+15550001234" /><div class="field-hint">Your MessageBird number in +1XXXXXXXXXX format.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Resend &mdash; Email Notifications</div>
+      <div class="field-hint" style="margin-bottom:14px;color:var(--text2)" id="wizResendHint">Sends confirmations by email alongside text. Sign up at <strong>resend.com</strong>.</div>
+      <div class="toggle-row">
+        <label for="useResend" class="toggle-switch"><input type="checkbox" id="useResend" onchange="toggleResend()" /><div class="toggle-slider"></div></label>
+        <span class="toggle-label">I want to send email notifications too</span>
+      </div>
+      <div id="resendFields" style="display:none;margin-top:14px">
+        <div class="field"><label for="resendApiKey">API Key</label><input type="text" id="resendApiKey" placeholder="re_..." /><div class="field-hint">Get your API key at resend.com &rarr; API Keys.</div></div>
+        <div class="field"><label for="resendFromEmail">From Email</label><input type="text" id="resendFromEmail" placeholder="bookings@yourdomain.com" /><div class="field-hint">Must be a verified domain in your Resend account.</div></div>
+      </div>
+    </div>
+
+    <div class="int-group-label">The Door</div>
+    <div class="card">
+      <div class="card-title">RemoteLock &mdash; Automatic Door Codes</div>
+      <div id="wizDoorNote" style="display:none;font-size:12px;color:var(--gold);border:1px solid rgba(201,162,39,.3);padding:8px 10px;margin-bottom:12px;line-height:1.6">You chose <b>Always staffed</b> &mdash; no door codes are ever generated or sent, so you can skip this card. It stays here in case you go hybrid later; everything can be added any time in Admin. The bay automation below still applies to you.</div>
+      <div class="field-hint" style="margin-bottom:14px;color:var(--text2)">Generates a unique door code and emails it to the customer (texts too, if they opt in) before their session - 15 minutes before unless you change it later on the Door Access card - then expires it automatically. This card sets up a RemoteLock smart lock. A UniFi Access door or a Z-Wave lock through Home Assistant is set up after Launch, in Admin &gt; Settings &gt; Devices, on the Door Access Provider card.</div>
+      <div class="toggle-row">
+        <label for="useRemoteLock" class="toggle-switch"><input type="checkbox" id="useRemoteLock" onchange="toggleRemoteLock()" /><div class="toggle-slider"></div></label>
+        <span class="toggle-label">I have a RemoteLock smart lock</span>
+      </div>
+      <div id="remoteLockFields" style="display:none;margin-top:14px">
+        <div class="field-row">
+          <div class="field"><label for="rlClientId">Client ID</label><input type="text" id="rlClientId" placeholder="Client ID" /></div>
+          <div class="field"><label for="rlClientSecret">Client Secret</label><input type="password" id="rlClientSecret" placeholder="Client Secret" /></div>
+        </div>
+        <div class="field"><label for="rlDeviceId">Device ID</label><input type="text" id="rlDeviceId" placeholder="Device ID" /><div class="field-hint">Request developer access and find these at developer.remotelock.com.</div></div>
+      </div>
+    </div>
+
+    <div class="int-group-label">Bay Automation</div>
+    <div class="card">
+      <div class="card-title">BroadLink RM4 / RM Mini &mdash; IR Control (TVs, Projectors)</div>
+      <div class="field-hint" style="margin-bottom:14px;color:var(--text2)">Turns TVs and projectors on and off with each session using infrared, like a remote control. You teach it your remote's buttons in Admin after launch. Every facility style benefits from this &mdash; staffed or not.</div>
+      <div class="toggle-row">
+        <label for="useBroadlink" class="toggle-switch"><input type="checkbox" id="useBroadlink" onchange="toggleBroadlink()" /><div class="toggle-slider"></div></label>
+        <span class="toggle-label">I have (or plan to get) a BroadLink RM4 or RM Mini</span>
+      </div>
+      <div id="broadlinkInfo" style="display:none;margin-top:14px">
+        <div class="field-hint" style="color:var(--text2);line-height:1.8;padding:12px;background:var(--surface2);border:1px solid var(--border)">
+          <strong>Nothing to enter here.</strong> The BroadLink bridge is already running on this Pi. After launch, go to <strong>Admin &rarr; Bays &amp; Devices</strong>, add an IR device to a bay, and use the Learn buttons to teach it your TV/projector remote. You set the on/off timing there too.
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Home Assistant &mdash; Smart Device Automation</div>
+      <div class="field-hint" style="margin-bottom:14px;color:var(--text2)">If you run Home Assistant, this connects to it once and lets you control almost any smart device it manages &mdash; switches, lights, thermostats, locks &mdash; per booking. You assign which devices belong to which bay in Admin after launch.</div>
+      <div class="toggle-row">
+        <label for="useHomeAssistant" class="toggle-switch"><input type="checkbox" id="useHomeAssistant" onchange="toggleHomeAssistant()" /><div class="toggle-slider"></div></label>
+        <span class="toggle-label">I run Home Assistant on my network</span>
+      </div>
+      <div id="homeAssistantFields" style="display:none;margin-top:14px">
+        <div class="field"><label for="haUrl">Home Assistant URL</label><input type="text" id="haUrl" placeholder="http://homeassistant.local:8123" /><div class="field-hint">Your HA address on the local network. Include http:// and the port (usually 8123).</div></div>
+        <div class="field"><label for="haToken">Long-Lived Access Token</label><input type="password" id="haToken" placeholder="Paste your token" /><div class="field-hint">In Home Assistant: your profile &rarr; Security &rarr; Long-Lived Access Tokens &rarr; Create Token.</div></div>
+        <button type="button" class="btn-test" onclick="testHomeAssistant()">Test Connection</button>
+        <div id="haTestResult" class="test-result"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       STEP 8: YOUR SITE -->
+  <div class="wiz-panel" id="panel-7">
+    <div class="step-eyebrow">Step 8</div>
+    <h1 class="step-title">Your Site's<br><em>Words</em></h1>
+    <p class="step-desc">The text on your booking page and your How It Works page. Defaults are written to match the answers you gave on step 1 &mdash; keep them, or make them yours. Editable any time in Admin &rarr; Website and Admin &rarr; Settings.</p>
+
+    <div class="skip-notice">
+      <span class="skip-notice-text">Default text is already filled in to match your facility. Customise now or later.</span>
+      <button class="btn-skip" onclick="nextStep()">Use defaults &amp; skip</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Hero Background Image (optional)</div>
+      <div class="field-hint" style="margin-bottom:12px;color:var(--text2)">Add a background photo behind the main heading on your booking page. A dark overlay is added automatically so text stays readable.</div>
+      <input type="file" id="heroFile" accept="image/*" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px;width:100%;font-family:inherit;font-size:13px" onchange="previewHero(this)" aria-label="Hero background image file">
+      <img id="heroPreview" src="" alt="" style="display:none;width:100%;max-height:200px;object-fit:cover;margin-top:10px;border:1px solid var(--border)" />
+    </div>
+
+    <div class="card">
+      <div class="card-title">Booking Page Hero</div>
+      <div class="field"><label for="heroTagline">Main Tagline</label><input type="text" id="heroTagline" value="Play On Your Terms" oninput="this.dataset.touched=1" /><div class="field-hint">The big heading customers see first</div></div>
+      <div class="field"><label for="heroDesc">Description</label><textarea id="heroDesc" rows="2" oninput="this.dataset.touched=1">Choose your bay, pick your time, and step into the simulator. Book online 24/7.</textarea></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Policies</div>
+      <div class="field"><label for="policyNotice">Policy Notice Below Pay Button (leave blank to hide)</label><textarea id="policyNotice" rows="2" placeholder="e.g. No outside alcohol permitted. Please remove outdoor footwear before entering bays."></textarea></div>
+      <p class="field-hint">Booking SMS consent and related policy wording are fixed. Review the <a href="/sms-terms" target="_blank" rel="noopener">SMS Terms</a> and <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a> before registering your Twilio campaign.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">How It Works Page</div>
+      <div class="field-hint" style="margin-bottom:16px;color:var(--text2)">These sections appear on your "How It Works" page. They are written for the access style you chose &mdash; door codes for unmanned and hybrid, a greeting at the counter for always-staffed. Edit any of them.</div>
+      <div id="hiwSections"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       STEP 9: REVIEW & LAUNCH -->
+  <div class="wiz-panel" id="panel-8">
+    <div class="step-eyebrow">Step 9</div>
+    <h1 class="step-title">Review &amp;<br><em>Launch</em></h1>
+    <p class="step-desc">Everything look right? Finish setup. Public booking stays closed until you open it from Admin. Every line below can be changed later in Admin.</p>
+    <div class="card" id="reviewCard"></div>
+  </div>
+
+</div>
+
+<div class="wiz-footer">
+  <button class="btn-back" id="btnBack" onclick="prevStep()" style="visibility:hidden">Back</button>
+  <div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace" id="footerHint"></div>
+  <button class="btn-next" id="btnNext" onclick="nextStep()">Next Step</button>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+// ── THE STEPS ──────────────────────────────────────────────────────────────
+// Nine, and the nav is BUILT from this list so it can never disagree with it
+// again (the old wizard had ten panels, nine tabs, a "Review" tab that landed
+// on the wrong page, and a hints array one short).
+const STEPS = [
+  { name: 'Facility',      hint: 'Three answers shape everything after this' },
+  { name: 'Business',      hint: 'Name and password required' },
+  { name: 'Hours & Rules', hint: 'All changeable later' },
+  { name: 'Bays',          hint: 'At least 1 bay needed' },
+  { name: 'Pricing',       hint: '' },
+  { name: 'Look',          hint: 'Can change anytime' },
+  { name: 'Connect',       hint: 'All optional - skip if needed' },
+  { name: 'Your Site',     hint: 'Can edit anytime later' },
+  { name: 'Review',        hint: '' }
+];
+const LAST = STEPS.length - 1;
+let currentStep = 0;
+let selectedTheme = 'pine-dark';
+let bayCount = 0;
+const completedSteps = new Set();
+
+function buildNav() {
+  const nav = document.getElementById('stepsNav');
+  nav.innerHTML = STEPS.map((s, i) =>
+    `<div class="wiz-tab${i === 0 ? ' active' : ''}" onclick="goToStep(${i})" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">${s.name}</div>`
+  ).join('');
+}
+
+// ── THE STYLE PICKERS ──────────────────────────────────────────────────────
+// Card radios for humans; a hidden <select> per question keeps the exact id,
+// value and onchange the payload builder, facilityBranch() and the batteries
+// already read. One value, two faces.
+function pickSet(selectId, value) {
+  const sel = document.getElementById(selectId);
+  if (!sel) return;
+  sel.value = value;
+  document.querySelectorAll(`input[type="radio"]`).forEach(r => {
+    const lab = r.closest('label.pick');
+    if (lab && r.name === (selectId === 'wizWhoCanBook' ? 'pickWho' : selectId === 'wizStaffedAccess' ? 'pickAccess' : 'pickUnit')) {
+      lab.classList.toggle('on', r.checked);
+    }
+  });
+  sel.dispatchEvent(new Event('change'));
+}
+
+// Seeded How It Works steps - generic, compliance-correct (email-first door
+// codes), and fully editable later in Admin. Door codes send at unmanned AND
+// hybrid facilities (a hybrid sends them on staffed days too, so nobody is
+// locked out if staff step away); only always-staffed greets at the counter.
+function defaultHiw(access, facility) {
+  const book = facility
+    ? { title: 'Book Online', body: 'Reserve the whole facility in minutes. Pick your date, time, and session length. Pay securely online and your session is confirmed instantly.' }
+    : { title: 'Book Online', body: 'Reserve your bay in minutes. Pick your date, time, and session length. Pay securely online and your session is confirmed instantly.' };
+  const door = access === 'staffed'
+    ? { title: 'Come On In',         body: 'Our staff will greet you and get you set up - no codes or keys needed.' }
+    : { title: 'Get Your Door Code', body: 'Shortly before your session a unique door code arrives by email - or by text if you opt in. Enter it on the keypad to let yourself in.' };
+  return [
+    book, door,
+    { title: facility ? 'Everything is Ready' : 'Your Bay is Ready', body: facility
+        ? 'Every bay powers on automatically before you arrive. The whole place is set up and waiting - walk in and start playing.'
+        : 'The simulator powers on automatically before you arrive. Everything is set up and waiting - just walk in and start playing.' },
+    { title: 'During Your Session', body: 'House rules and tips go here - edit this step in Admin to match your facility.' },
+    { title: 'Wrapping Up', body: facility
+        ? 'At the end of your session every bay shuts down automatically. If another group is booked after you please exit promptly so they can start on time.'
+        : 'At the end of your session the bay shuts down automatically. If another group is booked after you please exit promptly so they can start on time.' }
+  ];
+}
+
+// ── THE DRAFT ──────────────────────────────────────────────────────────────
+// Everything the owner typed, kept in this browser so a closed tab or a reload
+// does not cost them the hour. NEVER the passwords or the provider secrets:
+// the admin password they are choosing, the Stripe secret, the Twilio token,
+// the Home Assistant token and the RemoteLock secret are typed once and go
+// straight to the device. A draft holding them would leave them sitting in a
+// browser store on whatever laptop happened to be used at ship time.
+const DRAFT_KEY = 'ba-setup-draft-v1';
+const DRAFT_NEVER = ['newPassword', 'confirmPassword', 'talkPw', 'talkPw2', 'stripeSecret', 'twilioToken',
+                     'haToken', 'rlClientSecret', 'resendApiKey', 'messagebirdApiKey',
+                     'backupPassphrase', 'backupPassphraseConfirm'];
+function draftable(el) {
+  if (!el.id || el.type === 'password' || el.type === 'file') return false;
+  if (DRAFT_NEVER.includes(el.id)) return false;
+  if (/assword|ecret|Token|ApiKey/.test(el.id)) return false;   // anything added later, by name
+  return true;
+}
+// (once setup has launched the draft is done: a save still waiting - 600 ms after the owner's last change - must not write the answers
+// back after the launch cleared them, or the next setup in this browser starts from this facility's - test-facility-shapes, Oct 25 2026)
+let DRAFT_DONE = false;
+// the save waiting 600 ms after the owner's last change (out here, not inside the page's start, so "Start fresh instead" can call it off)
+let draftT = null;
+const queueSave = () => { clearTimeout(draftT); draftT = setTimeout(saveDraft, 600); };
+function saveDraft() {
+  if (DRAFT_DONE) return;
+  try {
+    const out = {};
+    for (const el of document.querySelectorAll('input[id], select[id], textarea[id]')) {
+      if (!draftable(el)) continue;
+      out[el.id] = (el.type === 'checkbox' || el.type === 'radio') ? !!el.checked : el.value;
+    }
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({ at: Date.now(), fields: out }));
+  } catch (e) { /* a full or blocked store must never break the wizard */ }
+}
+function restoreDraft() {
+  let d = null;
+  try { d = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); } catch (e) { return; }
+  if (!d || !d.fields || !Object.keys(d.fields).length) return;
+  // a draft older than a day is someone else's session, not a recovery
+  if (!d.at || Date.now() - d.at > 24 * 60 * 60 * 1000) { clearDraft(); return; }
+  let n = 0;
+  const undo = [];               // what each field held BEFORE the restore
+  for (const id in d.fields) {
+    const el = document.getElementById(id);
+    if (!el || !draftable(el)) continue;
+    const v = d.fields[id];
+    // (only an answer that changed the form is counted - a draft of the form as it starts restores nothing, and was once said to
+    // restore every field in it: Oct 25 2026)
+    if (el.type === 'checkbox' || el.type === 'radio') { if (el.checked !== !!v) { undo.push([el, el.checked]); el.checked = !!v; el.dispatchEvent(new Event('change', { bubbles: true })); n++; } }
+    else if (el.value !== v) { undo.push([el, el.value]); el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); n++; }
+  }
+  if (n) {
+    const bar = document.createElement('div');
+    bar.setAttribute('role', 'status');
+    bar.style.cssText = 'position:sticky;top:0;z-index:99;background:#16241a;border-bottom:1px solid #24382a;'
+      + 'color:#c8d2c4;padding:10px 14px;font-size:13.5px;text-align:center';
+    bar.innerHTML = 'Picked up where you left off - ' + n + ' answer' + (n === 1 ? '' : 's') + ' restored from this browser. '
+      + '<b>Passwords and keys are never saved</b>, so enter those again. '
+      + '<a href="#" id="draftDiscard" style="color:#c9a227">Start fresh instead</a>';
+    document.body.insertBefore(bar, document.body.firstChild);
+    // PUT THE FORM BACK, DO NOT RELOAD THE PAGE. This page is locked by
+    // test-login-lockout against reloading itself at all - W39, where a login
+    // screen that refreshed itself locked an owner out in ten seconds - and a
+    // blanket lock is worth more than the one exception an owner-clicked
+    // refresh would earn. So "start fresh" undoes exactly the fields the
+    // restore touched, which is what was asked for and does it without a flash.
+    document.getElementById('draftDiscard').addEventListener('click', ev => {
+      ev.preventDefault();
+      for (const [el, was] of undo) {
+        if (el.type === 'checkbox' || el.type === 'radio') { el.checked = was; el.dispatchEvent(new Event('change', { bubbles: true })); }
+        else { el.value = was; el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); }
+      }
+      // (putting the fields back fires their own input and change, which queue a save - 600 ms later it wrote the draft back and the
+      // next load said "Picked up where you left off" to an owner who chose to start fresh: Oct 25 2026, the adversarial review. The
+      // waiting save is called off; what the owner types next is saved as before)
+      clearTimeout(draftT); draftT = null;
+      clearDraft();
+      bar.textContent = 'Draft discarded - the form is back to how it starts.';
+    });
+  }
+}
+function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch (e) {} }
+
+document.addEventListener('DOMContentLoaded', () => {
+  buildNav();
+  initDayChips();
+  addBay();
+  accessHint();
+  facilityBranch();
+  talkEula();
+  // restore AFTER the form exists (addBay and the branches build fields), then
+  // start saving - so restoring does not immediately overwrite the draft with
+  // a half-built form
+  restoreDraft();
+  document.addEventListener('input', queueSave, true);
+  document.addEventListener('change', queueSave, true);
+  updateNav();
+  checkForUsbBackup();
+});
+
+function wizUpdateFlowLabels() {
+  const bay  = document.getElementById('wiz_flow_bay');
+  const time = document.getElementById('wiz_flow_time');
+  const bayLabel  = document.getElementById('wiz_flow_bay_label');
+  const timeLabel = document.getElementById('wiz_flow_time_label');
+  if (!bay || !bayLabel) return;
+  bayLabel.style.borderColor  = bay.checked  ? 'var(--gold)' : 'var(--border,#333)';
+  bayLabel.style.color        = bay.checked  ? 'var(--gold)' : '';
+  timeLabel.style.borderColor = time.checked ? 'var(--gold)' : 'var(--border,#333)';
+  timeLabel.style.color       = time.checked ? 'var(--gold)' : '';
+}
+
+async function checkForUsbBackup() {
+  try {
+    const res = await fetch('/api/setup/check-usb');
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!data.backups?.length) return;
+    const banner = document.getElementById('restoreBanner');
+    const filesDiv = document.getElementById('restoreFiles');
+    banner.style.display = 'block';
+    USB_BACKUPS = data.backups;
+    const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    // An encrypted backup found on the drive asks for its passphrase right here,
+    // beside the file it opens (Sep 23 2026 - it used to fail with "enter the
+    // backup passphrase" and no place to enter it).
+    filesDiv.innerHTML = data.backups.map((b, i) => {
+      const date = new Date(b.date).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit' });
+      const sizeMB = (b.size / 1024).toFixed(1);
+      const enc = /\.baenc$/i.test(b.filename);
+      return `<div class="restore-file">
+        <div>
+          <div class="restore-file-name">${esc(b.filename)}</div>
+          <div class="restore-file-info">${esc(b.drive)} · ${sizeMB} MB · ${date}${enc ? ' · encrypted' : ''}</div>
+          ${enc ? `<input type="password" id="usbRestorePass${i}" class="restore-pass" autocomplete="off" placeholder="Backup passphrase" aria-label="Backup passphrase for ${esc(b.filename)}" style="margin-top:8px;width:100%;max-width:280px">` : ''}
+        </div>
+        <button class="btn-restore" onclick="restoreFromBackup(${i})">Restore This Backup</button>
+      </div>`;
+    }).join('');
+  } catch {}
+}
+
+// W44 (Sep 10 2026): the restore's result screen. A backup from an older device
+// never answered the newer wizard questions - those settings sit at their
+// defaults. The server names them (dot paths); this lists them in plain words
+// so the owner can review each one after signing in, and waits for the owner
+// instead of bouncing to Admin while the list is on the screen.
+const RESTORE_GROUPS = { pos: 'Counter', scheduling: 'Employees & hours', coverage: 'Coverage', waiver: 'Waivers', booking: 'Booking', setup: 'Setup', firstTier: 'First membership tier', bookingHoldMins: 'Checkout hold (minutes)', membership: 'Memberships', sms: 'Texting', backup: 'Backups', staff: 'Staff', records: 'Records', website: 'Website', contact: 'Contact', seo: 'Search' };
+function restoreLabel(key) {
+  const parts = String(key).split('.');
+  const words = p => p.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/_/g, ' ').replace(/^./, c => c.toUpperCase());
+  const head = RESTORE_GROUPS[parts[0]] || words(parts[0]);
+  return [head].concat(parts.slice(1).map(words)).join(' › ');
+}
+function showRestoreResult(statusEl, headline, data) {
+  const defaults = Array.isArray(data && data.defaults) ? data.defaults : [];
+  const migrated = data && data.migrated && data.migrated.tables > 0 ? ' Your data was brought up to date for this software (' + data.migrated.tables + ' tables).' : '';
+  // What the backup said it was (backup.json, Sep 23 2026) - only backups that carry one.
+  const madeBy = data && data.manifest && data.madeBy ? ' This backup was ' + data.madeBy + '.' : '';
+  // Site photos and video never ride in a backup (Sep 23 2026) - say which to put back.
+  const leftOut = data && data.leftOut && data.leftOut.message ? data.leftOut.message : '';
+  const esc = v => String(v).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  statusEl.innerHTML = '<div style="color:var(--success);margin-bottom:8px">' + esc(headline + madeBy + migrated) + '</div>' +
+    (leftOut ? '<div id="restoreLeftOut" style="color:var(--text);margin-bottom:8px">' + esc(leftOut) + '</div>' : '') +
+    (defaults.length ? '<div style="color:var(--text);margin-bottom:6px"><b>' + defaults.length + ' setting' + (defaults.length === 1 ? '' : 's') + ' were not in your backup and use the defaults.</b> Review them once you sign in (Admin &rsaquo; Settings):</div>' +
+    '<ul id="restoreDefaults" style="margin:0 0 12px 18px;padding:0;line-height:1.7;max-height:220px;overflow:auto">' + defaults.map(k => '<li>' + esc(restoreLabel(k)) + '</li>').join('') + '</ul>' : '') +
+    '<p class="restore-ready" role="status"></p>' +
+    (data.setupComplete
+      ? '<button type="button" class="btn-restore" disabled onclick="window.location.href=\'/admin\'">Continue to Admin</button>'
+      : '<button type="button" class="btn-restore" onclick="window.location.href=\'/setup\'">Continue Setup</button>');
+  if (data.setupComplete) enableAdminLink(statusEl.querySelector('button'), statusEl.querySelector('.restore-ready'));
+}
+
+let USB_BACKUPS = [];
+async function restoreFromBackup(i) {
+  const b = USB_BACKUPS[i];
+  if (!b) return;
+  const status = document.getElementById('restoreStatus');
+  const passEl = document.getElementById('usbRestorePass' + i);
+  const pass = passEl ? passEl.value : '';
+  if (passEl && !pass) { status.textContent = 'This backup is encrypted - enter your backup passphrase beside it, then press Restore This Backup.'; passEl.focus(); return; }
+  if (!confirm('Restore from ' + b.filename + '? This will replace the current empty system with your backed-up data.')) return;
+  status.textContent = 'Restoring...';
+  try {
+    const res = await fetch('/api/setup/restore', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(pass ? { backupPath: b.path, passphrase: pass } : { backupPath: b.path })
+    });
+    const data = await res.json();
+    if (!res.ok) { status.textContent = 'Restore failed: ' + (data.error || 'Unknown error'); if (data.needsPassphrase && passEl) passEl.focus(); return; }
+    showRestoreResult(status, 'Restored: ' + (data.restored || []).join(', ') + '.', data);
+  } catch (err) {
+    status.textContent = 'Restore error: ' + err.message;
+  }
+}
+
+function initDayChips() {
+  document.querySelectorAll('.day-chip').forEach(chip => {
+    const cb = chip.querySelector('input[type="checkbox"]');
+    chip.addEventListener('click', (e) => {
+      e.preventDefault();
+      cb.checked = !cb.checked;
+      chip.classList.toggle('checked', cb.checked);
+    });
+  });
+}
+
+function accessHint(){
+  var v=document.getElementById('wizStaffedAccess').value;
+  var hint=document.getElementById('accessHint');
+  var note=document.getElementById('hybridNote');
+  if(v==='staffed'){
+    hint.innerHTML='No door codes are ever generated or sent &mdash; a person lets customers in. Confirmations and reminders still send. Because someone is at the counter, you can take deposits, run tabs, and settle members at the door.';
+  } else if(v==='hybrid'){
+    hint.innerHTML='Best for facilities with a bar or counter part of the week and self-service the rest.';
+  } else {
+    hint.innerHTML='Every booking gets a door code before the session and it is revoked afterwards. Pick this if nobody is on site. Staff codes, tabs and the counter screen still exist if you ever want them.';
+  }
+  if(note) note.style.display = (v==='hybrid') ? 'block' : 'none';
+}
+
+function buildHiwSections(force) {
+  const container = document.getElementById('hiwSections');
+  if (!force && container.dataset.touched) return;
+  const access = document.getElementById('wizStaffedAccess').value;
+  const facility = document.getElementById('wizBookingUnit').value === 'facility';
+  container.innerHTML = defaultHiw(access, facility).map((s, i) => `
+    <div class="hiw-section">
+      <div class="hiw-section-header"><span class="hiw-section-num">Section ${i+1}</span></div>
+      <div class="field" style="margin-bottom:8px"><label>Title</label><input type="text" class="hiw-title" value="${s.title}" oninput="document.getElementById('hiwSections').dataset.touched=1" /></div>
+      <div class="field" style="margin-bottom:0"><label>Body Text</label><textarea class="hiw-body" rows="2" oninput="document.getElementById('hiwSections').dataset.touched=1">${s.body}</textarea></div>
+    </div>
+  `).join('');
+}
+
+// The hero copy defaults follow the facility shape too - "choose your bay"
+// is wrong for a building rental and for time-first booking.
+function seedHeroDefaults() {
+  const tag = document.getElementById('heroTagline');
+  const desc = document.getElementById('heroDesc');
+  const membersOnly = document.getElementById('wizWhoCanBook').value === 'members';
+  const facility = document.getElementById('wizBookingUnit').value === 'facility';
+  const timeFirst = document.querySelector('input[name="bookingFlow"]:checked')?.value === 'time-first';
+  if (tag && !tag.dataset.touched) tag.value = membersOnly ? 'Your Club, Your Time' : 'Play On Your Terms';
+  if (desc && !desc.dataset.touched) {
+    desc.value = facility
+      ? 'Pick your date and time and the whole facility is yours for the session. Book online 24/7.'
+      : timeFirst
+        ? 'Pick your time and session length - we set you up in a bay. Book online 24/7.'
+        : membersOnly
+          ? 'Members: enter your code, choose your bay and time, and play. Not a member yet? Join online.'
+          : 'Choose your bay, pick your time, and step into the simulator. Book online 24/7.';
+  }
+}
+
+function addBay() {
+  bayCount++;
+  const facility = document.getElementById('wizBookingUnit')?.value === 'facility';
+  const container = document.getElementById('baysContainer');
+  const block = document.createElement('div');
+  block.className = 'bay-block';
+  block.dataset.bay = bayCount;
+  block.innerHTML = `
+    <div class="bay-block-header">
+      <div class="bay-block-title">Bay ${bayCount}</div>
+      ${bayCount > 1 ? '<button class="btn-remove-bay" onclick="removeBay(this)">Remove</button>' : ''}
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Bay Name <span style="color:var(--danger)">*</span></label><input type="text" class="bay-name" placeholder="e.g. Bay 1, The Green Room" /></div>
+      <div class="field"><label>Description</label><input type="text" class="bay-desc" placeholder="Full swing simulator" /></div>
+    </div>
+    <div class="field"><label>What is in this bay?</label>
+      <input type="text" class="bay-features" placeholder="e.g. Trackman, 4K projector, lounge seating, bar service" />
+      <div class="field-hint">Separate with commas. These show as small chips on your booking page so customers can tell your bays apart.</div>
+    </div>
+    <div class="field bay-premium-wrap" style="${facility ? 'display:none' : ''}"><label>Premium bay? Charge extra per half hour</label>
+      <input type="number" class="bay-premium" step="0.50" min="0" placeholder="0.00" style="max-width:160px" />
+      <div class="field-hint">Leave blank or 0 if all your bays cost the same. Enter e.g. 5 and this bay costs $5 more per half hour than your base price, at every time of day. It is automatically tagged <b>Premium</b> on the booking page, and member discounts still apply on top.</div>
+    </div>
+    <div class="field-hint" style="color:var(--text2);margin-bottom:0">Smart plugs, IR devices and simulator PC settings are set up later in <b>Admin &rarr; Bays &amp; Devices</b> &mdash; you do not need any of that to take bookings.</div>
+  `;
+  container.appendChild(block);
+}
+
+function removeBay(btn) { btn.closest('.bay-block').remove(); }
+function selectTheme(card) { document.querySelectorAll('.theme-card').forEach(c=>c.classList.remove('selected')); card.classList.add('selected'); selectedTheme=card.dataset.theme; }
+function toggleRemoteLock() { document.getElementById('remoteLockFields').style.display = document.getElementById('useRemoteLock').checked ? 'block' : 'none'; }
+function toggleBroadlink() { document.getElementById('broadlinkInfo').style.display = document.getElementById('useBroadlink').checked ? 'block' : 'none'; }
+function toggleResend() { document.getElementById('resendFields').style.display = document.getElementById('useResend').checked ? 'block' : 'none'; }
+function toggleMessagebird() { document.getElementById('messagebirdFields').style.display = document.getElementById('useMessagebird').checked ? 'block' : 'none'; }
+function toggleHomeAssistant() { document.getElementById('homeAssistantFields').style.display = document.getElementById('useHomeAssistant').checked ? 'block' : 'none'; }
+function taxVis() { document.getElementById('taxFields').style.display = document.getElementById('taxEnabled').checked ? 'grid' : 'none'; }
+
+function toggle247() {
+  const on = document.getElementById('open24Hours').checked;
+  const close = document.getElementById('closeTime');
+  const nextDay = document.getElementById('closeNextDay');
+  const open = document.getElementById('openTime');
+  close.disabled = on; nextDay.disabled = on; open.disabled = on;
+  close.style.opacity = on ? '0.4' : '1';
+  open.style.opacity = on ? '0.4' : '1';
+  const openHint = open.closest('.field')?.querySelector('.field-hint');
+  if (openHint) openHint.textContent = on ? 'Open 24 hours - sessions can start any time.' : 'Earliest a session can start';
+  updateCloseRead();
+}
+
+// Live plain-English readout of the closing time, so "midnight" is never a
+// guessing game (browsers show 12-hour AM/PM; internally midnight is 00:00).
+function updateCloseRead() {
+  const el = document.getElementById('closeTimeRead');
+  if (!el) return;
+  const v = document.getElementById('closeTime').value;
+  const nextDay = document.getElementById('closeNextDay').checked;
+  const open24  = document.getElementById('open24Hours').checked;
+  const fmt = t => { const [h,m] = t.split(':').map(Number); const ap = h < 12 ? 'AM' : 'PM'; const h12 = h % 12 || 12; return `${h12}:${String(m).padStart(2,'0')} ${ap}`; };
+  el.style.color = 'var(--gold)';
+  if (open24)            { el.textContent = 'Open 24 hours — no closing time applies.'; return; }
+  if (!v)                { el.textContent = ''; return; }
+  if (v === '00:00')     { el.textContent = 'Sessions end by MIDNIGHT (12:00 AM).'; return; }
+  if (v === '12:00')     { el.style.color = '#e0763f'; el.textContent = 'Heads up: 12:00 PM is NOON. For midnight, enter 12:00 AM.'; return; }
+  const hr = parseInt(v.split(':')[0], 10);
+  if (nextDay && hr >= 12) { el.style.color = '#e0763f'; el.textContent = `"After midnight" is checked, but ${fmt(v)} isn't after midnight - uncheck it, or enter a time like 1:00 AM or 2:00 AM.`; return; }
+  el.textContent = `Sessions end by ${fmt(v)}${nextDay ? ' the following morning' : ''}.`;
+}
+document.getElementById('closeNextDay').addEventListener('change', updateCloseRead);
+updateCloseRead();
+
+function toggleRestorePanel() {
+  const p = document.getElementById('restorePanel');
+  p.style.display = p.style.display === 'none' ? 'block' : 'none';
+}
+
+async function wizardRestore() {
+  const status = document.getElementById('wizardRestoreStatus');
+  const fileInput = document.getElementById('wizardRestoreFile');
+  const passEl = document.getElementById('wizardRestorePass');
+  const file = fileInput.files[0];
+  if (!file) { status.textContent = 'Choose your backup file first.'; return; }
+  // AN ENCRYPTED BACKUP IS A NORMAL BACKUP (maintainer, Sep 23 2026). Once an owner sets a
+  // backup passphrase - the first thing the guide asks - every copy that leaves
+  // the unit is a .baenc: the nightly USB copy, the pull to their computer, the
+  // admin download. This screen took .zip only and had nowhere to type the
+  // passphrase, so on the worst day - a replacement unit - the owner who had done
+  // everything right could not restore here at all.
+  const name = file.name.toLowerCase();
+  const encrypted = name.endsWith('.baenc');
+  if (!encrypted && !name.endsWith('.zip')) { status.textContent = 'That is not a backup file - choose the .zip or .baenc from your old device.'; return; }
+  const pass = passEl ? passEl.value : '';
+  if (encrypted && !pass) { status.textContent = 'This backup is encrypted - enter your backup passphrase above, then press Restore Everything.'; if (passEl) passEl.focus(); return; }
+  if (!confirm('Restore this device from the backup? This brings back all settings, bookings, members, and files from the backup. The rest of setup will be skipped.')) return;
+  status.textContent = 'Uploading and restoring... this can take a moment.';
+  try {
+    const fd = new FormData();
+    if (pass) fd.append('passphrase', pass);
+    fd.append('backup', file);
+    const res = await fetch('/api/admin/restore', { method: 'POST', credentials: 'same-origin', body: fd });
+    const data = await res.json();
+    if (res.ok && data.ok) {
+      showRestoreResult(status, 'Restore complete. Your device is back to how it was.', data);
+    } else {
+      status.textContent = data.error || 'Restore failed. Check the file and try again.';
+      if (data.needsPassphrase && passEl) passEl.focus();
+    }
+  } catch (e) {
+    status.textContent = 'Restore error: ' + e.message;
+  }
+}
+
+async function detectWizardTimezone() {
+  const out = document.getElementById('tzDetectResult');
+  out.textContent = 'Detecting from location...';
+  try {
+    const res = await fetch('/api/admin/timezone/detect', {
+      method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: '{}'
+    });
+    const data = await res.json();
+    if (data.ok) {
+      const sel = document.getElementById('bizTimezone');
+      if (![...sel.options].some(o => o.value === data.timezone)) {
+        const opt = document.createElement('option');
+        opt.value = data.timezone; opt.textContent = data.timezone;
+        sel.appendChild(opt);
+      }
+      sel.value = data.timezone;
+      out.textContent = `Detected ${data.timezone}${data.city ? ' ('+data.city+')' : ''}.`;
+    } else {
+      out.textContent = data.error || 'Could not detect. Pick your timezone from the list.';
+    }
+  } catch (e) {
+    out.textContent = 'Could not detect. Pick your timezone from the list.';
+  }
+}
+
+async function testHomeAssistant() {
+  const url = document.getElementById('haUrl').value.trim();
+  const token = document.getElementById('haToken').value.trim();
+  const out = document.getElementById('haTestResult');
+  const btn = event.target;
+  if (!url || !token) { out.className = 'test-result err'; out.textContent = 'Enter both the URL and token first.'; return; }
+  btn.disabled = true; out.className = 'test-result'; out.textContent = 'Testing connection...';
+  try {
+    const res = await fetch('/api/admin/homeassistant/test', {
+      method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url, token })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      out.className = 'test-result ok';
+      out.textContent = `Connected — found ${data.entityCount} device${data.entityCount === 1 ? '' : 's'} in Home Assistant.`;
+    } else {
+      out.className = 'test-result err';
+      out.textContent = data.error || 'Could not connect. Check the URL and token.';
+    }
+  } catch (e) {
+    out.className = 'test-result err';
+    out.textContent = 'Could not reach the server to run the test.';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function checkPasswordMatch() {
+  const pw = document.getElementById('newPassword').value;
+  const cf = document.getElementById('confirmPassword').value;
+  const el = document.getElementById('passwordMatchMsg');
+  if (!cf) { el.textContent = ''; return; }
+  if (pw === cf) { el.style.color = 'var(--success)'; el.textContent = '✓ Passwords match'; }
+  else { el.style.color = 'var(--danger)'; el.textContent = '✗ Passwords do not match'; }
+}
+
+function checkBackupPassMatch() {
+  const pw = document.getElementById('backupPassphrase').value;
+  const cf = document.getElementById('backupPassphraseConfirm').value;
+  const el = document.getElementById('backupPassMatchMsg');
+  if (!cf) { el.textContent = ''; return; }
+  if (pw === cf) { el.style.color = 'var(--success)'; el.textContent = '✓ Passphrases match'; }
+  else { el.style.color = 'var(--danger)'; el.textContent = '✗ Passphrases do not match'; }
+}
+
+// ── NAVIGATION ─────────────────────────────────────────────────────────────
+function goToStep(n) {
+  if (n > currentStep) { for (let i = currentStep; i < n; i++) { if (!validateStep(i)) { currentStep = i; updateNav(); return; } completedSteps.add(i); } }
+  currentStep = n; onEnterStep(n); updateNav();
+}
+// ── SET UP BY TALKING (Oct 20 2026, late; maintainer, in the sandbox chat: "we want it to basicly replace the wizard
+//    so the no more wizard part") ── the first screen keeps the three answers, a restore and an update; then the business's
+//    name, the owner's password and the licence, and the assistant leads the rest one question at a time, with the public
+//    site behind its holding page until the owner says it is ready. Everything else starts at the step-by-step setup's own
+//    defaults (the same fields, untouched).
+//    NO WIZARD ON BA CORE 2 (maintainer, Oct 20 2026, latest: "the main wizard does not need to exist for setup. they will do it with
+//    the AI guiding them so the AI can use the wizard as a sort of way to guide the owner through the initial setup"): no
+//    step-by-step link and no step tabs - the assistant walks the owner through the wizard's own steps, in its order
+//    (services/assistant/playbooks/01-first-setup.md). ?steps=1 still opens the steps, linked from nowhere - for BA's own
+//    batteries and support, never an owner's path.
+let TALK = false, STEPWISE = /[?&]steps=1(?:&|$)/.test(location.search);
+function talkEula() {
+  // the licence's own words, from the box on the last step - one text, whichever way the owner sets up
+  const row = document.getElementById('talkEulaRow'), src = document.getElementById('wizEula');
+  if (!row || !src || row.firstChild) return;
+  const lab = src.closest('label').cloneNode(true); const box = lab.querySelector('input'); box.id = 'talkEula'; row.appendChild(lab);
+}
+async function finishWithAssistant() {
+  const name = document.getElementById('talkName').value.trim(), pw = document.getElementById('talkPw').value, cf = document.getElementById('talkPw2').value;
+  if (!name) { toast('Business name is required', 'error'); return; }
+  if (!pw || pw.length < 8) { toast('Admin password must be at least 8 characters', 'error'); return; }
+  if (pw !== cf) { toast('Passwords do not match', 'error'); return; }
+  if (!document.getElementById('talkEula')?.checked) { toast('Please read and accept the Software License Agreement to finish setup', 'error'); return; }
+  document.getElementById('bizName').value = name; document.getElementById('newPassword').value = pw; document.getElementById('confirmPassword').value = cf;
+  document.getElementById('wizEula').checked = true;
+  TALK = true;
+  const go = document.getElementById('talkGo'); go.disabled = true; go.textContent = 'Setting up...';
+  try { await launchSite(); } finally { go.disabled = false; go.textContent = 'Finish with my assistant'; }
+}
+
+function nextStep() {
+  if (!validateStep(currentStep)) return;
+  completedSteps.add(currentStep);
+  if (currentStep === LAST) { launchSite(); return; }
+  currentStep++;
+  onEnterStep(currentStep);
+  updateNav();
+}
+function prevStep() { if (currentStep > 0) { currentStep--; updateNav(); } }
+
+// Some steps write their defaults from earlier answers the moment they open.
+function onEnterStep(n) {
+  if (n === 7) { buildHiwSections(false); seedHeroDefaults(); }
+  if (n === LAST) buildReview();
+}
+
+function updateNav() {
+  document.querySelectorAll('.wiz-panel').forEach((p,i) => p.classList.toggle('active', i === currentStep));
+  document.querySelectorAll('.wiz-tab').forEach((t,i) => {
+    t.classList.toggle('active', i === currentStep);
+    t.classList.toggle('done', completedSteps.has(i) && i !== currentStep);
+  });
+  document.getElementById('stepCount').textContent = `Step ${currentStep+1} of ${STEPS.length}`;
+  document.getElementById('progressFill').style.width = `${((currentStep+1)/STEPS.length)*100}%`;
+  document.getElementById('btnBack').style.visibility = currentStep === 0 ? 'hidden' : 'visible';
+  const btnNext = document.getElementById('btnNext');
+  btnNext.style.display = (currentStep === 0 && !STEPWISE) ? 'none' : '';
+  { const tc = document.getElementById('talkCard'); if (tc) tc.style.display = STEPWISE ? 'none' : ''; }
+  // the steps' tabs, counter and bar belong to the step-by-step setup only
+  for (const el of [document.getElementById('stepsNav'), document.getElementById('stepCount'), document.querySelector('.wiz-progress')]) if (el) el.style.display = STEPWISE ? '' : 'none';
+  if (currentStep === LAST) { btnNext.className='btn-launch'; btnNext.textContent='Launch My Booking Site'; }
+  else { btnNext.className='btn-next'; btnNext.textContent = currentStep === LAST - 1 ? 'Review & Launch' : 'Next Step'; }
+  document.getElementById('footerHint').textContent = STEPS[currentStep].hint || '';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// ── FACILITY BRANCHING ─────────────────────────────────────────────────────
+// The three step-1 answers decide what every later step shows. Nothing is
+// deleted, only shown, hidden, or explained; every choice remains changeable
+// in Admin afterward.
+function facilityBranch() {
+  const membersOnly = document.getElementById('wizWhoCanBook')?.value === 'members';
+  const access = document.getElementById('wizStaffedAccess')?.value || 'unmanned';
+  const facility = document.getElementById('wizBookingUnit')?.value === 'facility';
+  const staffedSomewhere = access === 'staffed' || access === 'hybrid';
+  const show = (id, on) => { const el = document.getElementById(id); if (el) el.style.display = on ? '' : 'none'; };
+
+  show('membersOnlyExplain', membersOnly);
+  show('wholeFacilityExplain', facility);
+
+  // Deposits exist only where a person can settle the rest at the door,
+  // and only for NON-members - a private club has no non-member bookings.
+  show('wizDepositCard', !membersOnly && (access === 'staffed' || access === 'hybrid'));
+  show('wizTierCard', membersOnly);
+  // The counter's two switches only mean something where there is a counter.
+  show('wizCounterCard', staffedSomewhere);
+
+  // Members-only: the tier rate IS the price, so the tier card leads and the
+  // base price is demoted to the fallback it really is.
+  const cards = document.getElementById('pricingCards');
+  const tierCard = document.getElementById('wizTierCard');
+  const baseCard = document.getElementById('wizBaseCard');
+  if (cards && tierCard && baseCard) {
+    if (membersOnly && cards.firstElementChild !== tierCard) cards.insertBefore(tierCard, baseCard);
+    if (!membersOnly && cards.firstElementChild !== baseCard) cards.insertBefore(baseCard, tierCard);
+  }
+  const pd = document.getElementById('pricingDesc');
+  if (pd) pd.textContent = membersOnly
+    ? 'At a members-only club the TIER rate is the real booking price. The base price below it is only a fallback reference (used if a tier is ever set to percentage pricing) - most clubs never see it again.'
+    : facility
+      ? 'Set the price for the WHOLE facility per 30 minutes ($60/hour for the building = enter 30). After launch you can add time-based rates and membership plans in Admin.'
+      : 'Set your base price per 30 minutes. After launch you can add time-based tiers (peak/off-peak rates) and membership plans in Admin.';
+  const bpt = document.getElementById('basePriceTitle');
+  const bpl = document.getElementById('basePriceLabel');
+  const bph = document.getElementById('basePriceHint');
+  if (bpt) bpt.textContent = membersOnly ? 'Base Price (fallback)' : facility ? 'Whole-Facility Price' : 'Base Price';
+  if (bpl) bpl.textContent = facility ? 'Price for the whole facility, per 30 minutes ($)' : 'Price Per 30 Minutes ($)';
+  if (bph) bph.innerHTML = membersOnly
+    ? 'Only used if a tier is set to percentage-off pricing. Your first tier above sets the real price.'
+    : facility
+      ? 'Per-bay premiums never apply to a building rental. Time-based rates can be added in Admin &rarr; Pricing.'
+      : 'This is the default rate. You can add different rates for evenings, weekends, etc in Admin &rarr; Pricing.';
+
+  // Waiver collection pre-pick follows the door answer (owner can override).
+  const coll = document.getElementById('wizWaiverCollection');
+  if (coll && !coll.dataset.touched) {
+    coll.value = access === 'staffed' ? 'door' : (access === 'hybrid' ? 'auto' : 'online');
+  }
+  const collHint = document.getElementById('wizWaiverCollHint');
+  if (collHint) collHint.textContent = access === 'staffed'
+    ? 'Pre-picked At the door: your counter collects it (typed or paper) and the booking page tells customers so.'
+    : access === 'hybrid'
+      ? 'Pre-picked Automatic: bookings arriving during staffed hours sign at the counter, everything else signs online.'
+      : 'Pre-picked Online: with nobody at a door, the signature happens during booking.';
+
+  // Connect step: honest, style-aware annotations. Nothing hidden.
+  show('wizDoorNote', access === 'staffed');
+  show('wizStripeMembersNote', membersOnly);
+  const sh = document.getElementById('wizStripeHint');
+  if (sh) sh.innerHTML = (access === 'unmanned'
+    ? 'Takes card payments when customers book. With nobody on site there is no other way to collect for a booking, so this is strongly recommended before you go public. '
+    : access === 'staffed'
+      ? 'Takes card payments when customers book. Without it, every booking is collected at the counter when the group arrives - which works, but means no deposits and no online prepayment. '
+      : 'Takes card payments when customers book. Without it, every booking is collected at the counter - including bookings arriving when nobody is there, which is a problem. Recommended. ')
+    + 'Get your keys at <strong>dashboard.stripe.com &rarr; Developers &rarr; API Keys</strong>.';
+  const th = document.getElementById('wizTwilioHint');
+  if (th) th.innerHTML = (access === 'staffed'
+    ? 'Sends booking confirmations and reminders by text. '
+    : 'Sends booking confirmations, reminders, and door codes by text (door codes go by email first; text if the customer opts in). ')
+    + 'Sign up at <strong>twilio.com</strong>.';
+  const rh = document.getElementById('wizResendHint');
+  if (rh) rh.innerHTML = (access === 'staffed'
+    ? 'Sends confirmations and reminders by email. '
+    : 'Sends confirmations and door codes by email - the door code always goes by email, so this matters at an unmanned door. ')
+    + 'Sign up at <strong>resend.com</strong>.';
+
+  // Whole facility: no bay choice exists, so the bay-first/time-first
+  // question cannot apply and stands down; per-bay premiums never apply.
+  document.querySelectorAll('input[name="bookingFlow"]').forEach(el => {
+    el.disabled = facility;
+    const wrap = el.closest('label') || el.parentElement;
+    if (wrap) wrap.style.opacity = facility ? '.45' : '1';
+  });
+  show('wizFlowFacilityNote', facility);
+  document.querySelectorAll('.bay-premium-wrap').forEach(w => { w.style.display = facility ? 'none' : ''; });
+  const bd = document.getElementById('baysDesc');
+  if (bd) bd.innerHTML = facility
+    ? 'Add EVERY bay in the building - each one needs its own hardware configured so a facility booking can run the automation on all of them. Smart plugs, IR devices and PC connections are set up later in <b>Admin &rarr; Bays &amp; Devices</b>.'
+    : 'Add each simulator bay you have. You need at least one. Smart plugs, IR devices and PC connections are set up later in <b>Admin &rarr; Bays &amp; Devices</b>.';
+}
+
+function wizTierRateEcho() {
+  const v = parseFloat(document.getElementById('wizTierRate')?.value) || 0;
+  const el = document.getElementById('wizTierRateHint');
+  if (el) el.textContent = v > 0
+    ? 'This IS the booking price at your club: $' + v.toFixed(2) + ' / 30 min  (1 hour = $' + (v * 2).toFixed(2) + ').'
+    : 'This IS the booking price at your club. $30/hour = enter 15. Enter 0 if dues cover the golf - then give the tier free hours in Admin.';
+}
+
+function validateStep(step) {
+  if (step === 1) {
+    if (!document.getElementById('bizName').value.trim()) { toast('Business name is required', 'error'); return false; }
+    const pw = document.getElementById('newPassword').value;
+    const cf = document.getElementById('confirmPassword').value;
+    if (pw.trim().length < 8 || pw.length > 256) { toast('Choose an admin password of 8 to 256 characters', 'error'); return false; }
+    if (pw !== cf) { toast('Passwords do not match', 'error'); return false; }
+    // The backup passphrase is optional here - but if one is typed it must be usable.
+    const bp = document.getElementById('backupPassphrase').value;
+    const bc = document.getElementById('backupPassphraseConfirm').value;
+    if (bp && bp.length < 10) { toast('Backup passphrase: use at least 10 characters - a short phrase you will remember beats a password you will lose', 'error'); return false; }
+    if (bp && bp !== bc) { toast('Backup passphrases do not match', 'error'); return false; }
+    if (bp && bp === pw) { toast('Use a different backup passphrase from your admin password', 'error'); return false; }
+  }
+  if (step === 3) {
+    const names = [...document.querySelectorAll('.bay-name')].map(i=>i.value.trim()).filter(Boolean);
+    if (!names.length) { toast('Add at least one bay with a name', 'error'); return false; }
+  }
+  if (step === 4 && document.getElementById('wizWhoCanBook').value === 'members') {
+    // A members-only launch without a working tier is a locked door.
+    if (!document.getElementById('wizTierName').value.trim()) { toast('Name your first membership tier - a members-only club needs one', 'error'); return false; }
+    const m = parseFloat(document.getElementById('wizTierMonthly').value) || 0;
+    const a = parseFloat(document.getElementById('wizTierAnnual').value) || 0;
+    if (m <= 0 && a <= 0) { toast('Give the tier a monthly or yearly price so members can actually join', 'error'); return false; }
+  }
+  if (step === 4 && document.getElementById('wizWhoCanBook').value !== 'members') {
+    const price = document.getElementById('basePrice').valueAsNumber;
+    if (!Number.isFinite(price) || price < 0) { toast('Enter a base price of zero or more', 'error'); return false; }
+  }
+  if (step === 4 && document.getElementById('taxEnabled').checked && !(parseFloat(document.getElementById('taxRate').value) > 0)) {
+    toast('Enter your tax rate, or untick Collect sales tax', 'error'); return false;
+  }
+  return true;
+}
+
+// ── REVIEW ─────────────────────────────────────────────────────────────────
+function reviewProfileLines() {
+  const membersOnly = document.getElementById('wizWhoCanBook').value === 'members';
+  const access = document.getElementById('wizStaffedAccess').value;
+  const facility = document.getElementById('wizBookingUnit').value === 'facility';
+  const accessTxt = access === 'staffed' ? 'Always staffed' : access === 'hybrid' ? 'Staffed some hours, unmanned the rest - mark them in Admin > Website > Staffed Days' : 'Unmanned - door codes';
+  const wm = document.getElementById('wizWaiverMode').value;
+  const wc = document.getElementById('wizWaiverCollection').value;
+  const lines = [
+    ['Who can book', membersOnly ? 'Members only (private club)' : 'Open to the public'],
+    ['One booking reserves', facility ? 'The ENTIRE facility - every bay, full automation on all of them' : 'One bay'],
+    ['Customer access', accessTxt],
+    ['Waiver policy', (wm === 'off' ? 'Off' : (wm === 'optional' ? 'Offered' : 'Required')) + (wm === 'off' ? '' : ' - signed ' + (wc === 'door' ? 'at the door' : wc === 'auto' ? 'at the door when staffed, online otherwise' : 'online') + ' (upload the PDF in Admin > Waivers)')]
+  ];
+  if (!membersOnly && document.getElementById('wizDepositCard').style.display !== 'none' && document.getElementById('wizDepositMode').value === 'per30') {
+    lines.push(['Booking deposit', '$' + (parseFloat(document.getElementById('wizDepositPer30').value) || 10) + ' per half-hour, rest settles at the door']);
+  }
+  if (membersOnly) {
+    const cap = parseInt(document.getElementById('wizTierCap').value) || 0;
+    const rate = parseFloat(document.getElementById('wizTierRate').value) || 0;
+    lines.push(['First tier', document.getElementById('wizTierName').value.trim() + ' - $' + (parseFloat(document.getElementById('wizTierMonthly').value) || 0) + '/mo, ' + (rate > 0 ? '$' + rate + '/30min to book' : 'dues cover the golf (set free hours in Admin)') + ', ' + (cap ? 'capped at ' + cap + ' members' : 'no roster cap') + (document.getElementById('wizTierSell').checked ? ', selling online' : ', added by hand in Admin')]);
+  }
+  if (access === 'staffed' || access === 'hybrid') {
+    lines.push(['The counter', 'Cash ' + (document.getElementById('wizPayCash').value === 'off' ? 'off' : 'on') + ', checks ' + (document.getElementById('wizPayCheck').value === 'off' ? 'off' : 'on')]);
+    lines.push(['Employee scheduling', (document.getElementById('wizSchedOn').value === 'off' ? 'Off' : 'On - schedules, time clock, hours export') + ' - staffed hours shown as "' + (document.getElementById('wizStaffedLabel').value.trim() || 'Staffed hours') + '"']);
+  }
+  return lines;
+}
+
+function buildReview() {
+  const bays = [...document.querySelectorAll('.bay-name')].map(i=>i.value.trim()).filter(Boolean);
+  const days = [...document.querySelectorAll('.day-chip.checked input')].map(i=>i.value);
+  const hasStripe = document.getElementById('stripeSecret').value.trim();
+  const hasTwilio = document.getElementById('twilioSid').value.trim();
+  const hasRL     = document.getElementById('useRemoteLock').checked;
+  const hasBL     = document.getElementById('useBroadlink').checked;
+  const hasHA     = document.getElementById('useHomeAssistant').checked;
+  const hasResend = document.getElementById('resendApiKey').value.trim();
+  const hasMB     = document.getElementById('messagebirdApiKey').value.trim();
+  const open24    = document.getElementById('open24Hours').checked;
+  const facility  = document.getElementById('wizBookingUnit').value === 'facility';
+  const access    = document.getElementById('wizStaffedAccess').value;
+  const taxOn     = document.getElementById('taxEnabled').checked;
+  const tzSel     = document.getElementById('bizTimezone');
+  const flow      = facility ? 'Date and time (whole facility)' : (document.querySelector('input[name="bookingFlow"]:checked')?.value === 'time-first' ? 'Date > Time > auto-assigned bay' : 'Bay > Date > Time');
+
+  const esc = v => String(v ?? '').replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
+  const row = (k, v, cls) => `<div class="review-item"><span class="review-key">${esc(k)}</span><span class="review-val ${cls || 'ok'}">${esc(v)}</span></div>`;
+  const profileRows = reviewProfileLines().map(([k, v]) => row(k, v)).join('');
+  const membersOnlyRv = document.getElementById('wizWhoCanBook').value === 'members';
+  document.getElementById('reviewCard').innerHTML =
+    row('Business Name', document.getElementById('bizName').value) +
+    row('Timezone', tzSel.options[tzSel.selectedIndex]?.textContent || tzSel.value) +
+    row('Backup passphrase', document.getElementById('backupPassphrase').value ? 'Set - copies that leave the unit are encrypted' : 'Not set - backups stay on this unit until you set one in Admin', document.getElementById('backupPassphrase').value ? 'ok' : 'warn') +
+    profileRows +
+    row('Theme', selectedTheme.replace('-',' ').toUpperCase()) +
+    row('Days Open', days.length === 7 ? 'Every day' : days.join(', ')) +
+    row('Hours', open24 ? 'Open 24 hours' : document.getElementById('openTime').value + ' — ' + document.getElementById('closeTime').value + (document.getElementById('closeNextDay').checked ? ' (after midnight)' : '')) +
+    row('Sessions', document.getElementById('minSession').value + ' — ' + document.getElementById('maxSession').value + ' min, ' + (document.getElementById('bufferMins').value === '0' ? 'no buffer' : document.getElementById('bufferMins').value + ' min buffer')) +
+    row('Booking window', document.getElementById('windowDays').value + ' days ahead') +
+    row('Booking flow', flow) +
+    row(facility ? 'Whole-facility price' : 'Base Price', '$' + document.getElementById('basePrice').value + ' / 30 min') +
+    row('Sales tax', taxOn ? (document.getElementById('taxRate').value + '% ' + (document.getElementById('taxLabel').value || 'Sales Tax') + ' - bookings AND food & drink') : 'Not collecting', taxOn ? 'ok' : 'warn') +
+    row('Bays', bays.join(', ')) +
+    row('Stripe Payments', hasStripe ? 'Configured' : (access === 'unmanned' ? 'NOT SET - nothing can be collected until it is' : 'Not set — collect at the counter, add later in Admin'), hasStripe ? 'ok' : 'warn') +
+    row('Twilio SMS', hasTwilio ? 'Configured' : 'Not set — add later in Admin', hasTwilio ? 'ok' : 'warn') +
+    row('MessageBird SMS', hasMB ? 'Configured' : 'Not using — Twilio is primary', hasMB ? 'ok' : 'warn') +
+    row('Resend Email', hasResend ? 'Configured' : 'Not set — add later in Admin', hasResend ? 'ok' : 'warn') +
+    (access === 'staffed' ? '' : row('RemoteLock', hasRL ? 'Configured' : 'Not using — add later if needed', hasRL ? 'ok' : 'warn')) +
+    row('BroadLink IR', hasBL ? 'Will set up in Admin → Bays & Devices' : 'Not using — add later if needed', hasBL ? 'ok' : 'warn') +
+    row('Home Assistant', hasHA ? 'Connected — assign devices in Admin → Bays & Devices' : 'Not using — add later if needed', hasHA ? 'ok' : 'warn') +
+    row('Memberships', membersOnlyRv ? 'First tier created at launch — add more in Admin → Members' : 'Set up after launch in Admin → Members → Membership Tiers', membersOnlyRv ? 'ok' : 'warn');
+}
+
+function previewLogo(input) { const f=input.files[0]; if(!f)return; const r=new FileReader(); r.onload=e=>{const img=document.getElementById('logoPreview');img.src=e.target.result;img.style.display='block';}; r.readAsDataURL(f); }
+function previewHero(input) { const f=input.files[0]; if(!f)return; const r=new FileReader(); r.onload=e=>{const img=document.getElementById('heroPreview');img.src=e.target.result;img.style.display='block';}; r.readAsDataURL(f); }
+
+async function uploadImages() {
+  // A failed upload must never be silent - a 401 is not a fetch rejection,
+  // so the old catch-and-warn showed nothing while the image quietly never
+  // landed (the Aug 13 hero mystery). The logo response now also says
+  // whether the app icons generated.
+  const fails = [];
+  const send = async (id, path, label) => {
+    const f = document.getElementById(id)?.files[0];
+    if (!f) return;
+    try {
+      const form = new FormData(); form.append('image', f);
+      const r = await fetch(path, { method: 'POST', credentials: 'same-origin', body: form });
+      if (!r.ok) { fails.push(label); return; }
+      const d = await r.json().catch(() => ({}));
+      if (d && d.icons === false) fails.push('app icons (the logo itself saved: ' + (d.iconsError || 'icons could not be generated') + ')');
+    } catch (e) { fails.push(label); }
+  };
+  await send('logoFile', '/api/uploads/logo', 'logo');
+  await send('heroFile', '/api/uploads/hero', 'hero background');
+  if (fails.length) alert('Could not upload your ' + fails.join(' and ') + '. You can add it any time later in Admin -> Settings -> Business & Content -> Branding & Theme.');
+}
+
+// ── LAUNCH ─────────────────────────────────────────────────────────────────
+async function launchSite() {
+  const facility = document.getElementById('wizBookingUnit').value === 'facility';
+  const access = document.getElementById('wizStaffedAccess').value;
+  const bays = [...document.querySelectorAll('.bay-block')].map((b,i) => {
+    const prem = facility ? 0 : (parseFloat((b.querySelector('.bay-premium')||{}).value) || 0);
+    const feats = ((b.querySelector('.bay-features')||{}).value || '')
+      .split(',').map(s => s.trim()).filter(Boolean).slice(0, 6);
+    return {
+      id: 'bay-'+(i+1), name: b.querySelector('.bay-name').value.trim()||('Bay '+(i+1)),
+      description: b.querySelector('.bay-desc').value.trim()||'Full swing simulator bay',
+      // Same field names Admin > Bays & Devices uses, so a bay set up here is already
+      // set up there - the owner never enters it twice.
+      features: feats,
+      priceAdjustCents: Math.round(prem * 100),
+      active:true, shellyDevices:[], broadlinkDevices:[], simulatorPcIp:'',
+      simulatorWinUser:'Admin', simulatorWinPass:''
+    };
+  });
+  const days = [...document.querySelectorAll('.day-chip.checked input')].map(i=>i.value);
+  buildHiwSections(false);
+  const hiw = [...document.querySelectorAll('.hiw-section')].map(s => ({
+    title: s.querySelector('.hiw-title').value.trim(), body: s.querySelector('.hiw-body').value.trim()
+  }));
+  const config = {
+    // Taken out by the server before anything is saved and kept only as the derived key (services/backupvault).
+    backupPassphrase: document.getElementById('backupPassphrase').value || undefined,
+    setup: { completed: true },
+    server: { businessName: document.getElementById('bizName').value.trim(), legalEntity: document.getElementById('legalEntity').value.trim(), adminPassword: document.getElementById('newPassword').value, timezone: document.getElementById('bizTimezone').value },
+    booking: {
+      openDays: days, openTime: document.getElementById('openTime').value,
+      closeTime: document.getElementById('closeTime').value,
+      closeNextDay: document.getElementById('closeNextDay').checked,
+      open24Hours: document.getElementById('open24Hours').checked,
+      // accessStyle is THE key Admin reads and writes (Hours & Booking Rules).
+      // The server derives staffedAccess from it; sent here for old readers.
+      staffedAccess: access === 'staffed',
+      accessStyle: access,
+      membersOnly: document.getElementById('wizWhoCanBook').value === 'members',
+      wholeFacility: document.getElementById('wizBookingUnit').value === 'facility',
+      accessModeChosen: true,
+      depositMode: (document.getElementById('wizDepositCard').style.display !== 'none'
+        ? document.getElementById('wizDepositMode').value : 'off'),
+      depositPer30: parseFloat(document.getElementById('wizDepositPer30').value) || 10,
+      windowDays: parseInt(document.getElementById('windowDays').value),
+      minSessionMins: parseInt(document.getElementById('minSession').value),
+      maxSessionMins: parseInt(document.getElementById('maxSession').value),
+      bufferMins: parseInt(document.getElementById('bufferMins').value),
+      bookingFlow: facility ? 'bay-first' : (document.querySelector('input[name="bookingFlow"]:checked')?.value || 'bay-first'),
+      pricePerHalfHour: document.getElementById('basePrice').valueAsNumber
+    },
+    waiver: {
+      mode: document.getElementById('wizWaiverMode').value,
+      collection: document.getElementById('wizWaiverCollection').value,
+      membershipTerm: document.getElementById('wizWaiverTerm').value,
+      guests: document.getElementById('wizWaiverGuests').value === 'each' ? 'each' : 'member'
+    },
+    // Server-side creation at /api/setup/complete - atomic with the rest of
+    // setup, no auth juggling mid-wizard.
+    firstTier: (document.getElementById('wizWhoCanBook').value === 'members' && !TALK) ? {
+      name: document.getElementById('wizTierName').value.trim(),
+      price_monthly: parseFloat(document.getElementById('wizTierMonthly').value) || 0,
+      price_annual: parseFloat(document.getElementById('wizTierAnnual').value) || 0,
+      rate_per_30: parseFloat(document.getElementById('wizTierRate').value) || 0,
+      roster_cap: parseInt(document.getElementById('wizTierCap').value) || 0,
+      sell_online: document.getElementById('wizTierSell').checked
+    } : null,
+    content: {
+      heroTagline: document.getElementById('heroTagline').value.trim(),
+      heroDesc: document.getElementById('heroDesc').value.trim(),
+      policyNotice: document.getElementById('policyNotice').value.trim(),
+      howItWorks: hiw
+    },
+    contact: {
+      phone: document.getElementById('bizPhone').value.trim(),
+      email: document.getElementById('bizEmail').value.trim(),
+      address: document.getElementById('bizAddress').value.trim(),
+      website: document.getElementById('bizWebsite').value.trim()
+    },
+    seo: {
+      domain:    document.getElementById('seoDomain').value.trim().replace(/\/+$/, ''),
+      city:      document.getElementById('seoCity').value.trim(),
+      state:     document.getElementById('seoState').value.trim(),
+      zip:       document.getElementById('seoZip').value.trim(),
+      county:    '',
+      latitude:  document.getElementById('seoLat').value.trim(),
+      longitude: document.getElementById('seoLng').value.trim(),
+      metaDescription: '',
+      footerBlurb: ''
+    },
+    bays,
+    stripe: { publishableKey: document.getElementById('stripePublishable').value.trim(), secretKey: document.getElementById('stripeSecret').value.trim() },
+    twilio: { accountSid: document.getElementById('twilioSid').value.trim(), authToken: document.getElementById('twilioToken').value.trim(), phoneNumber: document.getElementById('twilioPhone').value.trim() },
+    remotelock: { clientId: document.getElementById('rlClientId').value.trim(), clientSecret: document.getElementById('rlClientSecret').value.trim(), deviceId: document.getElementById('rlDeviceId').value.trim() },
+    resend: { apiKey: document.getElementById('resendApiKey').value.trim(), fromEmail: document.getElementById('resendFromEmail').value.trim(), sendConfirmation: true, sendReminder: true, sendDoorCode: true, sendCancellation: true, sendEndingWarning: true },
+    messagebird: { apiKey: document.getElementById('messagebirdApiKey').value.trim(), phoneNumber: document.getElementById('messagebirdPhone').value.trim() },
+    homeAssistant: {
+      enabled: document.getElementById('useHomeAssistant').checked,
+      url:     document.getElementById('haUrl').value.trim(),
+      token:   document.getElementById('haToken').value.trim(),
+      customActions: []
+    },
+    tax: {
+      enabled: document.getElementById('taxEnabled').checked,
+      rate:    parseFloat(document.getElementById('taxRate').value) || 0,
+      label:   document.getElementById('taxLabel').value.trim() || 'Sales Tax',
+      region:  document.getElementById('taxRegion').value.trim(),
+      taxId:   document.getElementById('taxTaxId').value.trim()
+    }
+  };
+  // The counter's switches ride along only where a counter exists; elsewhere
+  // the server's defaults (cash and checks on, scheduling off) apply untouched.
+  if (access === 'staffed' || access === 'hybrid') {
+    config.pos = { payments: {
+      cash:  document.getElementById('wizPayCash').value !== 'off',
+      check: document.getElementById('wizPayCheck').value !== 'off'
+    } };
+    config.scheduling = {
+      enabled: document.getElementById('wizSchedOn').value !== 'off',
+      staffedLabel: document.getElementById('wizStaffedLabel').value.trim() || 'Staffed hours'
+    };
+  }
+  const launchButton = document.getElementById('btnNext');
+  launchButton.disabled = true;
+  try {
+    await uploadImages();
+    // THEME MUST LAND WHERE IT NATIVELY LIVES: website_content.theme, the same
+    // place Admin > Website > Colors writes.
+    try {
+      await fetch('/api/website/content', {
+        method: 'PUT', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: 'theme', value: { preset: selectedTheme, custom: false } })
+      });
+    } catch (e) { console.warn('Theme save:', e); }
+
+    const res = await fetch('/api/setup/complete', { method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json'}, body:JSON.stringify(config) });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) { toast(data.error||'Launch failed','error'); return; }
+    clearDraft();
+    showPostLaunch(config.server.businessName);
+  } catch (err) { toast('Error: '+err.message,'error'); }
+  finally { launchButton.disabled = false; }
+}
+
+// The service changes from loopback to LAN after setup. Wait for the new
+// listener before offering to open Admin, and let the owner sign in there.
+async function enableAdminLink(button, status) {
+  status.textContent = 'Waiting for the BA Core service to restart…';
+  for (let attempt = 0; attempt < 20; attempt++) {
+    await new Promise(resolve => setTimeout(resolve, 750));
+    try {
+      const response = await fetch('/api/auth/setup/state', { cache: 'no-store' });
+      if (response.ok && (await response.json()).lan_ready) {
+        status.textContent = 'BA Core is ready. Sign in with the owner password you just created.';
+        button.disabled = false;
+        return;
+      }
+    } catch { /* the SSH forward stays open during the restart */ }
+  }
+  status.textContent = 'Admin did not respond yet. Keep the SSH tunnel open and check systemctl status ba-core on the Pi, then try Admin again.';
+  button.disabled = false;
+}
+
+function showPostLaunch(businessName) {
+  document.body.innerHTML = `
+    <main style="max-width:720px;margin:0 auto;padding:60px 24px;min-height:100vh">
+      <h1 style="font-size:42px;margin-bottom:12px;color:var(--gold)">Setup complete</h1>
+      <p><strong id="completedFacility"></strong> is set up. Public booking is on hold until you choose to publish it.</p>
+      <p>In Admin, use your setup checklist to review hours, rates and integrations. Test a booking on your own network before you open the public site.</p>
+      <p id="adminReadyStatus" role="status"></p>
+      <button type="button" class="btn-next" id="completedAdmin" disabled onclick="window.location.href='/admin'">Go to Admin Panel</button>
+    </main>`;
+  document.getElementById('completedFacility').textContent = businessName;
+  enableAdminLink(document.getElementById('completedAdmin'), document.getElementById('adminReadyStatus'));
+  window.scrollTo(0, 0);
+}
+
+let toastTimer;
+function toast(msg,type='') { const el=document.getElementById('toast'); el.textContent=msg; el.className='toast show'+(type?' '+type:''); clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'),4000); }
+</script>
+</body>
+</html>

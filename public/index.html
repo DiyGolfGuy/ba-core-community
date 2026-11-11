@@ -1,0 +1,2667 @@
+<!DOCTYPE html>
+<!-- Copyright (c) 2025-2026 BA Custom Products LLC. Licensed under the PolyForm Shield License 1.0.0 - see LICENSE.txt.txt -->
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book a Session — {{BUSINESS_NAME}}</title>
+  <meta name="description" id="metaDescription" content="Book your indoor golf simulator session online.">
+  <meta name="keywords" id="metaKeywords" content="indoor golf simulator, golf simulator booking">
+  <link rel="canonical" id="metaCanonical" href="{{SITE_URL}}/book">
+  <meta property="og:url" id="ogUrl" content="{{SITE_URL}}/book">
+  <!-- Geo -->
+  <meta name="geo.region" id="metaGeoRegion" content="{{GEO_REGION}}">
+  <meta name="geo.placename" id="metaGeoPlace" content="{{CITY_STATE}}">
+  <meta name="geo.position" id="metaGeoPosition" content="{{GEO_POSITION}}">
+  <meta name="ICBM" id="metaICBM" content="{{GEO_ICBM}}">
+  <!-- Open Graph -->
+  <meta property="og:type" content="business.business">
+  <meta property="og:title" id="ogTitle" content="Book a Session">
+  <meta property="og:description" id="ogDesc" content="Book your indoor golf simulator session online.">
+  <meta name="twitter:card" content="summary">
+  <!-- Structured data injected at runtime -->
+  <script type="application/ld+json" id="jsonLd"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#c9a227">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Book a Session">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <style>
+    /* ── HERO OVERLAY ── */
+    .hero { position: relative; }
+    .hero::before { content:''; position:absolute; inset:0; background:var(--hero-overlay, transparent); pointer-events:none; z-index:0; }
+    .hero > * { position: relative; z-index: 1; }
+
+    /* ── THEME VARIABLES (overridden dynamically) ── */
+    :root {
+      /* Neutral defaults — overridden by /api/theme on load */
+      --bg:#111111; --surface:#1e1e1e; --surface2:#252525;
+      --border:#333333; --border2:#444444;
+      --gold:#888888; --gold-dim:#88888888;
+      --text:#eeeeee; --text2:#aaaaaa; --muted:#8b918b;
+      --danger:#c94a4a; --success:#4ac97a;
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:var(--font-body,system-ui,sans-serif);min-height:100vh;min-height:100dvh;-webkit-font-smoothing:antialiased;}
+    body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 80% 50% at 50% -20%,rgba(74,154,74,0.07) 0%,transparent 70%);}
+
+    /* HEADER */
+    /* Finding #1 (mobile header): fixed 64px height + no wrap clipped long
+       facility names on narrow phones. Same treatment as the other pages:
+       min-height with wrap room, and the name scales down before it clips. */
+    header{position:sticky;top:0;z-index:200;background:rgba(6,10,6,0.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:8px clamp(20px,5vw,72px);min-height:64px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;row-gap:4px;column-gap:12px;}
+    .logo-main{font-family:var(--font-display,Georgia,serif);font-size:clamp(16px,4.5vw,20px);font-weight:700;}
+    .logo-sub{font-family:var(--font-mono,ui-monospace,monospace);font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);}
+    .header-right{font-family:var(--font-mono,ui-monospace,monospace);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px;}
+    .live-dot{width:6px;height:6px;background:var(--success);border-radius:50%;animation:pulse 2s infinite;}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+    /* HERO */
+    .hero{position:relative;z-index:1;padding:clamp(48px,8vh,96px) clamp(20px,5vw,72px) clamp(32px,5vh,64px);}
+    .hero-eyebrow{font-family:var(--font-mono,ui-monospace,monospace);font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:16px;display:flex;align-items:center;gap:12px;}
+    .hero-eyebrow::before{content:'';width:28px;height:1px;background:var(--gold);}
+    .hero-title{font-family:var(--font-display,Georgia,serif);font-size:clamp(40px,7vw,88px);font-weight:700;line-height:1.02;margin-bottom:20px;letter-spacing:-1px;}
+    .hero-title em{font-style:italic;color:var(--gold);}
+    .hero-desc{font-size:16px;color:var(--text2);line-height:1.8;max-width:480px;font-weight:300;margin-bottom:24px;}
+    .how-it-works-btn{display:inline-flex;align-items:center;padding:11px 22px;background:transparent;border:2px solid var(--gold);color:var(--gold);text-decoration:none;font-family:var(--font-display,Georgia,serif);font-size:14px;font-weight:700;margin-bottom:20px;transition:all .2s;}
+    .how-it-works-btn:hover{background:var(--gold);color:var(--bg);}
+
+    /* BOOKING WRAP */
+    .booking-wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 clamp(20px,5vw,72px) clamp(60px,8vh,100px);}
+
+    /* STEPS */
+    .step-header{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+    .step-num{width:32px;height:32px;border-radius:50%;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono,ui-monospace,monospace);font-size:12px;color:var(--muted);flex-shrink:0;transition:all .3s;}
+    .step-num.active{border-color:var(--gold);color:var(--gold);background:rgba(201,162,39,.08);background:color-mix(in srgb,var(--gold) 8%,transparent);}
+    .step-num.done{border-color:var(--success);color:var(--success);background:rgba(74,201,122,.08);}
+    .step-title{font-family:var(--font-display,Georgia,serif);font-size:18px;font-weight:700;}
+    .step-subtitle{font-size:12px;color:var(--muted);font-family:var(--font-mono,ui-monospace,monospace);margin-top:2px;letter-spacing:.5px;}
+
+    /* BAY CARDS */
+    .bay-hint{font-family:var(--font-mono,ui-monospace,monospace);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+    .bay-hint::before{content:'';width:16px;height:1px;background:var(--gold);}
+    .bay-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;}
+    .bay-card{background:var(--surface);border:1px solid var(--border);padding:20px;cursor:pointer;transition:all .25s;position:relative;overflow:hidden;}
+    .bay-card:hover{border-color:var(--border2);background:var(--surface2);}
+    .bay-card.selected{border-color:var(--gold);background:rgba(201,162,39,.07);background:color-mix(in srgb,var(--gold) 7%,transparent);}
+    .bay-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:transparent;transition:background .2s;}
+    .bay-card.selected::before{background:var(--gold);}
+    .bay-check{position:absolute;top:12px;right:12px;width:20px;height:20px;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:10px;color:transparent;transition:all .2s;}
+    .bay-card.selected .bay-check{background:var(--gold);border-color:var(--gold);color:#000;}
+    .bay-icon{font-size:28px;margin-bottom:8px;}
+    .bay-name{font-family:var(--font-display,Georgia,serif);font-size:17px;font-weight:700;margin-bottom:4px;}
+    .bay-card.selected .bay-name{color:var(--gold);}
+    .bay-desc{font-size:12px;color:var(--muted);}
+
+    /* DATE CARDS */
+    /* a11y: interactive cards are real <button>s - neutralize UA styles */
+    button.bay-card,button.date-card,button.time-slot,button.dur-pill{appearance:none;-webkit-appearance:none;font-family:inherit;font-size:inherit;color:inherit;text-align:inherit;display:block;}
+    button.time-slot,button.dur-pill{text-align:center;}
+    /* a11y: visible keyboard focus everywhere (mouse clicks unaffected) */
+    :focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+    .date-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;scrollbar-width:thin;scrollbar-color:var(--accent,#4ade80) transparent;scroll-behavior:smooth;}
+    .date-row::-webkit-scrollbar{height:6px;}
+    .date-row::-webkit-scrollbar-thumb{background:var(--accent,#4ade80);border-radius:3px;opacity:.6;}
+    .date-row::-webkit-scrollbar-track{background:rgba(255,255,255,.06);border-radius:3px;}
+    .date-nav{display:flex;align-items:center;gap:10px;}
+    .date-arrow{flex:0 0 auto;width:36px;height:36px;border:1px solid var(--border,#2a3328);background:transparent;color:var(--accent,#4ade80);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+    .date-arrow:hover{background:rgba(74,222,128,.08);}
+    .date-card{flex-shrink:0;background:var(--surface);border:1px solid var(--border);padding:12px 14px;cursor:pointer;transition:all .2s;min-width:64px;text-align:center;}
+    .date-card:hover{border-color:var(--border2);}
+    .date-card.selected{border-color:var(--gold);background:rgba(201,162,39,.07);background:color-mix(in srgb,var(--gold) 7%,transparent);}
+    .date-dow{font-family:var(--font-mono,ui-monospace,monospace);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+    .date-card.selected .date-dow{color:var(--gold);}
+    .date-num{font-family:var(--font-display,Georgia,serif);font-size:20px;font-weight:700;}
+    .date-mon{font-family:var(--font-mono,ui-monospace,monospace);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:2px;}
+
+    /* TIME GRID */
+    .time-section{opacity:.3;pointer-events:none;transition:opacity .3s;}
+    .time-section.ready{opacity:1;pointer-events:all;}
+    .time-group{margin-bottom:20px;}
+    .time-group-label{font-family:var(--font-mono,ui-monospace,monospace);font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+    .time-grid{display:flex;flex-wrap:wrap;gap:6px;}
+    .time-slot{padding:9px 12px;background:var(--surface);border:1px solid var(--border);font-family:var(--font-mono,ui-monospace,monospace);font-size:11px;letter-spacing:.5px;cursor:pointer;transition:all .15s;color:var(--text2);}
+    .time-slot:hover:not(.unavail):not(.past){border-color:var(--gold);color:var(--text);}
+    .time-slot.selected{background:var(--gold);border-color:var(--gold);color:var(--bg);font-weight:700;}
+    .time-slot.unavail{opacity:.2;cursor:not-allowed;text-decoration:line-through;}
+    .slot-price{display:block;font-size:10px;color:var(--gold);margin-top:2px;font-weight:700;letter-spacing:.3px}
+    .time-slot.past .slot-price,.time-slot.unavail .slot-price{display:none}
+    .time-slot.past{opacity:.15;cursor:not-allowed;text-decoration:line-through;color:var(--muted);}
+    /* staffed hours (Sep 2026): a gold dot on every slot inside the day's staffed window */
+    .time-slot.staffed-slot::after{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold);margin-left:6px;vertical-align:middle;}
+    .staffed-line{font-size:12px;color:var(--gold);margin:-6px 0 12px;font-family:var(--font-mono,ui-monospace,monospace);letter-spacing:.3px;}
+
+    /* FORM */
+    .form-section{opacity:.3;pointer-events:none;transition:opacity .3s;}
+    .form-section.ready{opacity:1;pointer-events:all;}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    @media(max-width:540px){.form-grid{grid-template-columns:1fr;}}
+    .field{margin-bottom:0;}
+    .field label{display:block;font-family:var(--font-mono,ui-monospace,monospace);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+    .field input{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:13px 14px;font-family:var(--font-body,system-ui,sans-serif);font-size:16px;outline:none;transition:border-color .2s;}
+    .field input:focus{border-color:var(--gold);}
+    .field input::placeholder{color:var(--muted);}
+
+    /* DISCOUNT */
+    .discount-row{display:flex;gap:8px;margin-bottom:16px;align-items:flex-end;}
+    .discount-row .field{flex:1;margin-bottom:0;}
+    .btn-apply{padding:13px 18px;background:transparent;border:1px solid var(--border2);color:var(--text2);font-family:var(--font-body,system-ui,sans-serif);font-size:14px;cursor:pointer;transition:all .2s;white-space:nowrap;}
+    .btn-apply:hover{border-color:var(--gold);color:var(--gold);}
+    .discount-status{display:none;padding:10px 14px;font-family:var(--font-mono,ui-monospace,monospace);font-size:12px;margin-bottom:12px;}
+    .discount-status.ok{background:rgba(74,201,122,.08);border:1px solid rgba(74,201,122,.3);color:var(--success);}
+    .discount-status.err{background:rgba(201,74,74,.08);border:1px solid rgba(201,74,74,.3);color:var(--danger);}
+
+    /* SUMMARY */
+    .summary-box{display:none;background:var(--surface);border:1px solid var(--border);padding:20px;margin-bottom:16px;}
+    .summary-box.visible{display:block;}
+    .summary-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;}
+    .summary-row:last-child{border-bottom:none;font-weight:600;font-size:15px;}
+    .summary-row .sk{color:var(--muted);}
+
+    /* WAIVER STATUS */
+    .waiver-status{display:none;padding:10px 14px;font-family:var(--font-mono,ui-monospace,monospace);font-size:12px;margin-bottom:12px;}
+    .waiver-status.required{display:block;background:rgba(201,162,39,.08);background:color-mix(in srgb,var(--gold) 8%,transparent);border:1px solid rgba(201,162,39,.3);border-color:color-mix(in srgb,var(--gold) 30%,transparent);color:var(--gold);}
+    .waiver-status.signed{display:block;background:rgba(74,201,122,.08);border:1px solid rgba(74,201,122,.3);color:var(--success);}
+
+    /* SMS CONSENT */
+    .sms-consent{font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:12px;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);font-family:var(--font-mono,ui-monospace,monospace);letter-spacing:0.3px;}
+    .policy-notice{font-size:11px;color:var(--muted);line-height:1.8;margin-top:14px;}
+
+    /* BOOK BUTTON */
+    .btn-book{width:100%;padding:18px;background:var(--gold);color:var(--bg);border:none;font-family:var(--font-display,Georgia,serif);font-size:18px;font-weight:700;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
+    .btn-book:hover:not(:disabled){background:var(--gold);filter:brightness(1.08);transform:translateY(-1px);}
+    .btn-book:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+    .btn-text{display:block;}
+    .btn-spinner{display:none;width:20px;height:20px;border:2px solid rgba(0,0,0,.3);border-top-color:var(--bg);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto;}
+    .btn-book.loading .btn-text{display:none;}
+    .btn-book.loading .btn-spinner{display:block;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* PAYMENT */
+    #payment-element{margin-bottom:16px;}
+
+    /* DURATION MODAL */
+    #durationModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:350;align-items:center;justify-content:center;padding:20px;}
+    .dur-modal-inner{background:var(--surface);border:1px solid var(--border);width:100%;max-width:420px;overflow:hidden;animation:fadeUp .25s ease;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    .dur-modal-head{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+    .dur-modal-title{font-family:var(--font-display,Georgia,serif);font-size:18px;font-weight:700;}
+    .dur-modal-sub{font-size:11px;color:var(--muted);font-family:var(--font-mono,ui-monospace,monospace);margin-top:3px;}
+    .dur-modal-close{background:transparent;border:1px solid var(--border2);color:var(--muted);width:32px;height:32px;cursor:pointer;font-size:16px;}
+    .dur-pills{padding:20px;display:flex;flex-wrap:wrap;gap:10px;}
+    .dur-pill{flex:1;min-width:90px;padding:14px 10px;border:2px solid var(--border2);background:var(--surface2);color:var(--text);cursor:pointer;font-family:var(--font-mono,ui-monospace,monospace);font-size:12px;letter-spacing:1px;transition:all .15s;text-align:center;}
+    .dur-pill:hover{border-color:var(--gold);color:var(--gold);}
+    .cross-bay{display:none;margin:0 20px 20px;padding:14px 16px;background:rgba(201,162,39,0.08);background:color-mix(in srgb,var(--gold) 8%,transparent);border:1px solid rgba(201,162,39,0.4);border-color:color-mix(in srgb,var(--gold) 40%,transparent);}
+    .cross-bay-text{font-size:12px;color:var(--gold);font-family:var(--font-mono,ui-monospace,monospace);letter-spacing:1px;margin-bottom:8px;}
+    .cross-bay-btn{width:100%;padding:11px;background:var(--gold);color:var(--bg);border:none;font-family:var(--font-display,Georgia,serif);font-size:15px;font-weight:700;cursor:pointer;}
+
+    /* WAIVER MODAL */
+    .waiver-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:400;align-items:center;justify-content:center;padding:16px;}
+    .waiver-backdrop.show{display:flex;}
+    /* W37 (Sep 8 2026): this modal was pilot facility's failure #6, character for
+       character - a fixed-height flex column with no overflow rule and
+       flex-shrink:0 on all three panes. It was fine when the footer held one
+       checkbox; every round added a row until the footer alone exceeded a
+       phone screen, crushing the body to a sliver with Sign & Continue below
+       the fold and no way to scroll to it. Desktop hid it because the footer
+       happened to fit. The header stays fixed; the body and the footer SHARE
+       the remaining height and each scrolls on its own (min-height:0 is what
+       actually lets a flex child shrink below its content). */
+    .waiver-modal{background:var(--surface);border:1px solid var(--border);width:100%;max-width:680px;max-height:90vh;max-height:90dvh;display:flex;flex-direction:column;min-height:0;}
+    .waiver-modal-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
+    .waiver-modal-title{font-family:var(--font-display,Georgia,serif);font-size:20px;font-weight:700;}
+    .waiver-modal-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+    .waiver-modal-body{padding:20px 24px;background:var(--surface2);border-bottom:1px solid var(--border);flex:0 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+    .waiver-modal-footer{padding:20px 24px;border-top:1px solid var(--border);flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--surface2);}
+    .waiver-sign-row{margin-bottom:14px;}
+    .waiver-sign-row label{display:block;font-family:var(--font-mono,ui-monospace,monospace);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+    .waiver-sign-row input{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:12px 14px;font-family:var(--font-body,system-ui,sans-serif);font-size:16px;outline:none;}
+    .waiver-sign-row input:focus{border-color:var(--gold);}
+    .waiver-agree-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+    .waiver-checkbox{width:18px;height:18px;accent-color:var(--gold);cursor:pointer;flex-shrink:0;}
+    .waiver-agree-label{font-size:13px;color:var(--text2);line-height:1.5;cursor:pointer;}
+    .waiver-agree-label strong{color:var(--text);}
+    .btn-waiver-sign{width:100%;padding:14px;background:var(--gold);color:var(--bg);border:none;font-family:var(--font-display,Georgia,serif);font-size:16px;font-weight:700;cursor:pointer;transition:all .2s;}
+    .btn-waiver-skip{display:none;width:100%;margin-top:8px;padding:12px;background:transparent;color:var(--text2);border:1px solid rgba(255,255,255,.18);font-family:var(--font-mono,ui-monospace,monospace);font-size:12px;letter-spacing:1px;cursor:pointer;}
+    .btn-waiver-skip.show{display:block;}
+    .btn-waiver-sign:disabled{opacity:.35;cursor:not-allowed;}
+
+    /* SUCCESS */
+    .success-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:300;overflow-y:auto;}
+    .success-screen.visible{display:block;}
+    .success-wrap{max-width:560px;margin:0 auto;padding:clamp(60px,10vh,120px) clamp(20px,5vw,48px);}
+    .success-icon{font-size:56px;margin-bottom:24px;}
+    .success-title{font-family:var(--font-display,Georgia,serif);font-size:clamp(32px,5vw,52px);font-weight:700;margin-bottom:12px;}
+    .success-sub{font-size:15px;color:var(--text2);line-height:1.7;margin-bottom:32px;}
+    .success-details{background:var(--surface);border:1px solid var(--border);padding:20px;margin-bottom:24px;}
+    .success-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
+    .success-row:last-child{border-bottom:none;}
+    .success-row .sk{color:var(--muted);}
+    .btn-new{padding:14px 32px;background:transparent;border:1px solid var(--border2);color:var(--text);font-family:var(--font-display,Georgia,serif);font-size:16px;font-weight:700;cursor:pointer;transition:all .2s;}
+    .btn-new:hover{border-color:var(--gold);color:var(--gold);}
+
+    /* FOOTER */
+    footer{position:relative;z-index:1;padding:32px clamp(20px,5vw,72px) 24px;border-top:1px solid var(--border);}
+    .footer-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:20px;margin-bottom:20px;}
+    .footer-brand{display:flex;flex-direction:column;gap:6px;}
+    .footer-text{font-family:var(--font-mono,ui-monospace,monospace);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+    .footer-note{font-size:11px;color:var(--muted);max-width:320px;line-height:1.7;margin-top:4px;}
+    .footer-contact{display:flex;flex-direction:column;gap:5px;text-align:right;}
+    .footer-contact a,.footer-contact span{font-size:12px;color:var(--muted);text-decoration:none;font-family:var(--font-mono,ui-monospace,monospace);display:block;transition:color .2s;}
+    .footer-contact a:hover{color:var(--gold);}
+    .footer-bottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding-top:18px;border-top:1px solid var(--border);}
+    .manage-link{font-family:var(--font-mono,ui-monospace,monospace);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);text-decoration:none;border-bottom:1px solid var(--border2);padding-bottom:2px;transition:color .2s;}
+    .manage-link:hover{color:var(--gold);border-bottom-color:var(--gold);}
+
+    /* TOAST */
+    .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--surface2);border:1px solid var(--danger);color:var(--danger);padding:11px 20px;font-family:var(--font-mono,ui-monospace,monospace);font-size:12px;z-index:500;opacity:0;transition:all .3s;pointer-events:none;text-align:center;max-width:90vw;}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  /* Accessibility skip-link: off-screen until keyboard-focused. It was
+     rendering as a visible link because index.html had no rule for it. */
+  .skip-link{position:absolute;left:-9999px;top:0;background:var(--gold,#c9a227);color:#000;padding:10px 16px;z-index:9999;font-weight:600;border-radius:0 0 6px 0}
+  .skip-link:focus{left:0}
+  </style>
+</head>
+<body>
+<a href="#main" class="skip-link">Skip to main content</a>
+<span id="main-content" tabindex="-1"></span>
+
+<header>
+  <div>
+    <div id="headerLogoWrap">
+      <img id="headerLogo" src="" alt="" style="display:none;height:40px;max-width:160px;object-fit:contain;" />
+      <div id="headerBrandText">
+        <div class="logo-main" id="headerBrand">Book a Session</div>
+        <div class="logo-sub" id="headerSub">Simulator Lounge</div>
+      </div>
+    </div>
+  </div>
+  <div class="header-right"><div class="live-dot"></div><span id="headerHours">Open Daily</span></div>
+</header>
+
+<div class="hero" id="heroSection">
+  <div class="hero-eyebrow">Online Booking</div>
+  <h1 class="hero-title" id="heroTitle">Play On<br><em>Your Terms</em></h1>
+  <a href="/how-it-works" class="how-it-works-btn">How It Works</a>
+  <p class="hero-desc" id="heroDesc">Choose your bay, pick your time, and step into the simulator. Book online 24/7.</p>
+</div>
+
+<div class="booking-wrap" id="main" role="main">
+
+  <!-- PRE-BOOKING SURFACE: flow-agnostic (Aug 20). Members-only wall, member
+       PIN, member status, deposit info, and the whole-facility notice render
+       for EVERY flow. They used to live inside stepBay, which the time-first
+       flow hides wholesale - a members-only facility on time-first (or any
+       facility-rental venue, which forces time-first) lost its sign-in. -->
+  <div id="preBookSurface" style="margin-bottom:24px">
+    <!-- MEMBERSHIP PIN -->
+    <div class="discount-row">
+      <div id="membersOnlyNotice" style="display:none;border:1px solid var(--gold);border-radius:8px;padding:14px 16px;margin-bottom:14px">
+        <div style="font-weight:600;margin-bottom:6px">Members-Only Facility</div>
+        <div style="font-size:13px;line-height:1.55;margin-bottom:10px">Booking here requires a current member code. Members: enter your code below and book your tee time. Not a member yet?</div>
+        <a href="/memberships" id="membersOnlyCta" style="display:inline-block;background:var(--gold);color:#141810;border-radius:6px;padding:10px 16px;font-size:13.5px;font-weight:600;text-decoration:none">Become a Member</a>
+      </div>
+      <div class="field"><label for="memberPin" id="memberPinLabel">Member? Enter your PIN first (optional)</label><input type="text" id="memberPin" placeholder="Enter your member PIN" maxlength="8" inputmode="numeric" pattern="[0-9]*" /></div>
+      <button class="btn-apply" onclick="validateMemberPin()">Verify</button>
+    </div>
+    <div class="discount-status" id="memberStatus" aria-live="polite" style="display:none;margin-bottom:16px"></div>
+    <div id="depositInfo" style="display:none;border:1px solid var(--border,#2a332a);border-left:3px solid var(--gold,#c9a227);border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:13px;line-height:1.55"></div>
+    <!-- today's specials the owner put on the booking page (Oct 20 2026) - filled from /api/website/today -->
+    <div id="todaySpecials" style="display:none;border:1px solid var(--gold);border-radius:8px;padding:12px 14px;margin-bottom:14px" aria-live="polite"></div>
+    <!-- packages and booking deals (Oct 22 2026) - filled from /api/bookings/packages -->
+    <div id="pkgBox" style="display:none;border:1px solid var(--border,#2a332a);border-left:3px solid var(--gold);border-radius:8px;padding:12px 14px;margin-bottom:14px" aria-live="polite"></div>
+    <div id="facilityNotice" style="display:none;border:1px solid var(--gold);border-radius:8px;padding:12px 14px;margin-bottom:14px">
+      <div style="font-weight:600;margin-bottom:4px">Book the Entire Facility</div>
+      <div style="font-size:13px;line-height:1.55">Your booking reserves the whole facility &mdash; every bay is yours for the session. Just pick a date and time below.</div>
+    </div>
+  </div>
+
+  <!-- STEP 1: BAY -->
+  <div id="stepBay" style="margin-bottom:32px">
+    <div id="bayChoiceBlock">
+    <div class="step-header">
+      <div class="step-num active" id="sn1">1</div>
+      <div><div class="step-title">Choose Your Bay</div><div class="step-subtitle">Select which simulator you'd like to book</div></div>
+    </div>
+    <div class="bay-hint">Don't forget to check both bays if your preferred time isn't available</div>
+    <div class="bay-cards" id="bayCards">
+      <div style="color:var(--muted);font-family:var(--font-mono,ui-monospace,monospace);font-size:12px">Loading bays...</div>
+    </div>
+    </div>
+  </div>
+
+  <!-- STEP 2: DATE -->
+  <div id="stepDate" style="margin-bottom:32px">
+    <div class="step-header">
+      <div class="step-num" id="sn2">2</div>
+      <div><div class="step-title">Pick a Date</div><div class="step-subtitle">Select your preferred day</div></div>
+    </div>
+    <div class="date-nav">
+      <button type="button" class="date-arrow" onclick="scrollDates(-1)" aria-label="Earlier dates">&#8249;</button>
+      <div class="date-row" id="dateCards"></div>
+      <button type="button" class="date-arrow" onclick="scrollDates(1)" aria-label="Later dates">&#8250;</button>
+    </div>
+      <div style="font-size:11.5px;color:var(--muted,#8a917f);margin-top:6px">Member with an extended booking window? Apply your PIN at checkout and more dates unlock.</div>
+  </div>
+
+  <!-- STEP 3: TIME -->
+  <div class="time-section" id="stepTime" style="margin-bottom:32px">
+    <div class="step-header">
+      <div class="step-num" id="sn3">3</div>
+      <div><div class="step-title">Pick a Start Time</div><div class="step-subtitle" id="timeSub">Select your bay and date first</div></div>
+    </div>
+    <div class="time-group" id="groupL" style="display:none">
+      <div class="time-group-label">Late Night</div>
+      <div class="time-grid" id="gridL"></div>
+    </div>
+    <div class="time-group">
+      <div class="time-group-label">Morning</div>
+      <div class="time-grid" id="gridM"></div>
+    </div>
+    <div class="time-group">
+      <div class="time-group-label">Afternoon</div>
+      <div class="time-grid" id="gridA"></div>
+    </div>
+    <div class="time-group">
+      <div class="time-group-label">Evening</div>
+      <div class="time-grid" id="gridE"></div>
+    </div>
+  </div>
+
+  <!-- STEP 3b (TIME-FIRST ONLY): DURATION + AVAILABILITY CHECK -->
+  <div id="stepTfDur" class="time-section" style="margin-bottom:32px;display:none">
+    <div class="step-header">
+      <div class="step-num" id="snTfDur">3</div>
+      <div><div class="step-title">Choose Duration</div><div class="step-subtitle" id="tfDurSub">Select a start time first</div></div>
+    </div>
+    <div class="dur-pills" id="tfDurPills" style="padding:0;display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px"></div>
+    <div id="tfAvailStatus" style="display:none;padding:12px 16px;font-family:var(--font-mono,ui-monospace,monospace);font-size:12px;letter-spacing:0.5px;line-height:1.7;border:1px solid var(--border)"></div>
+  </div>
+
+  <!-- STEP 4: DETAILS + PAYMENT -->
+  <div class="form-section" id="stepDetails">
+    <div class="step-header">
+      <div class="step-num" id="sn4">4</div>
+      <div><div class="step-title">Your Details &amp; Payment</div><div class="step-subtitle">Your confirmation &amp; door code &mdash; by email, or text if you choose</div></div>
+    </div>
+    <div class="waiver-status" id="waiverStatus"></div>
+    <div class="form-grid" style="margin-bottom:16px">
+      <div class="field"><label for="inputName">Full Name</label><input type="text" id="inputName" placeholder="John Smith" autocomplete="name" /></div>
+      <div class="field"><label for="inputPhone">Mobile Number</label><input type="tel" id="inputPhone" placeholder="(555) 000-0000" autocomplete="tel" /><div style="font-size:11.5px;color:var(--muted,#8a917f);margin-top:4px">We only send texts if you choose text updates at checkout.</div></div>
+      <div class="field"><label for="inputEmail">Email Address</label><input type="email" id="inputEmail" placeholder="you@email.com" autocomplete="email" /></div>
+    </div>
+<!-- Membership PIN moved above the bay picker (verify first: dates, rates, guests all apply before choosing) -->
+    <!-- GUEST COUNT (shown only for members with guest privileges) -->
+    <div id="guestCountWrap" style="display:none;margin-bottom:16px">
+      <div class="field" style="max-width:200px"><label for="guestCount">Number of Guests</label>
+        <select id="guestCount" onchange="fetchPrice()" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:13px 14px;font-family:var(--font-body,system-ui,sans-serif);font-size:15px;width:100%;outline:none">
+          <option value="0">No guests</option>
+          <option value="1">1 guest</option>
+          <option value="2">2 guests</option>
+          <option value="3">3 guests</option>
+          <option value="4">4 guests</option>
+        </select>
+        <div id="guestFeeNote" aria-live="polite" style="font-size:12px;color:var(--gold);margin-top:6px"></div>
+        <div id="creditNote" aria-live="polite" style="display:none;font-size:12.5px;color:#7fb069;margin-top:6px"></div>
+      </div>
+    </div>
+    <div class="discount-row">
+      <div class="field"><label for="discountCode">Discount Code (optional)</label><input type="text" id="discountCode" placeholder="Enter code" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()" /></div>
+      <button class="btn-apply" onclick="applyDiscount()">Apply</button>
+    </div>
+    <div class="discount-status" id="discountStatus"></div>
+    <div class="summary-box" id="summaryBox">
+      <div class="summary-row"><span class="sk">Bay</span><span id="sumBay">—</span></div>
+      <div class="summary-row"><span class="sk">Date</span><span id="sumDate">—</span></div>
+      <div class="summary-row"><span class="sk">Time</span><span id="sumTime">—</span></div>
+      <div class="summary-row"><span class="sk">Duration</span><span id="sumDur">—</span></div>
+      <div class="summary-row" id="sumPkgRow" style="display:none"><span class="sk">Package</span><span id="sumPkg" style="text-align:right;overflow-wrap:anywhere">—</span></div>
+      <div class="summary-row" id="sumDealRow" style="display:none"><span class="sk">Deal</span><span id="sumDeal" style="text-align:right;overflow-wrap:anywhere">—</span></div>
+      <div class="summary-row" id="sumFreeRow" style="display:none"><span class="sk">Comes with</span><span id="sumFree" style="text-align:right;overflow-wrap:anywhere">—</span></div>
+      <div class="summary-row" id="sumSubtotalRow" style="display:none"><span class="sk">Subtotal</span><span id="sumSubtotal">—</span></div>
+      <div class="summary-row" id="sumTaxRow" style="display:none"><span class="sk" id="sumTaxLabel">Tax</span><span id="sumTax">—</span></div>
+      <div class="summary-row"><span class="sk">Total</span><span id="sumPrice">—</span></div>
+    </div>
+    <div id="payment-element"></div>
+    <div id="smsSurface" style="display:none">
+    <div id="smsBenefitHead" style="margin:14px 0 6px;font-size:14.5px;font-weight:600">Want your door code texted to you? It&#39;s optional &mdash; email always works too.</div>
+    <div class="sms-consent" style="display:flex;align-items:flex-start;gap:10px">
+      <input type="checkbox" id="smsOptIn" style="margin-top:3px;flex-shrink:0;width:16px;height:16px" />
+      <label for="smsOptIn" style="cursor:pointer"><strong>(Optional)</strong> <span id="smsOptInHeadline">Text me my booking updates &amp; door code.</span> By checking this box, you agree to receive automated transactional SMS messages (<span id="smsOptInUse">booking confirmations, reminders, session-ending notices, cancellations, and door access codes</span>) from {{BUSINESS_NAME}} at the number provided. Consent is not a condition of any purchase. Message frequency varies (typically 2-5 messages per booking). Message &amp; data rates may apply. Reply STOP to cancel or HELP for help. <span id="smsOptInFallback">If you do not opt in, your booking updates and door code will be sent to your email instead.</span> <a href="/sms-terms" target="_blank" style="color:var(--gold)">SMS Terms</a> &middot; <a href="/privacy" target="_blank" style="color:var(--gold)">Privacy Policy</a></label>
+    </div>
+    <div id="deliveryNote" aria-live="polite" style="font-size:12.5px;color:var(--muted,#8a917f);margin:6px 0 12px;padding-left:26px"></div>
+    </div>
+    <button class="btn-book" id="btnBook" onclick="submitBooking()">
+      <span class="btn-text">Confirm &amp; Pay</span>
+      <div class="btn-spinner"></div>
+    </button>
+    <div class="policy-notice" id="policyNoticeWrap" style="display:none">
+      <span id="policyNoticeText"></span>
+      <a href="/how-it-works" style="color:var(--gold);text-decoration:none;margin-left:4px">Learn more &rarr;</a>
+    </div>
+  </div>
+
+</div><!-- end booking-wrap -->
+
+<!-- DURATION MODAL -->
+<div id="durationModal">
+  <div class="dur-modal-inner">
+    <div class="dur-modal-head">
+      <div>
+        <div class="dur-modal-title" id="durationModalTitle">Choose Duration</div>
+        <div class="dur-modal-sub" id="durationModalSub"></div>
+      </div>
+      <button class="dur-modal-close" onclick="closeDurationModal()">x</button>
+    </div>
+    <div class="dur-pills" id="modalDurationPills"></div>
+    <div class="cross-bay" id="crossBaySuggestion">
+      <div class="cross-bay-text" id="crossBayText"></div>
+      <button class="cross-bay-btn" id="crossBayBtn" onclick="switchToCrossBay()">Switch Bay</button>
+    </div>
+  </div>
+</div>
+
+<!-- WAIVER MODAL -->
+<div class="waiver-backdrop" id="waiverModal">
+  <div class="waiver-modal">
+    <div class="waiver-modal-header">
+      <div>
+        <div class="waiver-modal-title">Liability Waiver</div>
+        <div class="waiver-modal-sub" id="waiverModalSub">Please read and sign before proceeding</div>
+      </div>
+    </div>
+    <div class="waiver-modal-body">
+      <div style="font-size:13px;color:var(--text2);margin-bottom:12px">Please review the full waiver before signing:</div>
+      <a id="waiverPdfLink" href="#" target="_blank" style="display:inline-flex;align-items:center;gap:8px;padding:12px 20px;background:var(--gold);color:var(--bg);text-decoration:none;font-family:var(--font-display,Georgia,serif);font-size:15px;font-weight:700">Open &amp; Read Waiver PDF</a>
+      <div style="margin-top:10px;font-size:11px;color:var(--muted);font-family:var(--font-mono,ui-monospace,monospace);letter-spacing:1px">Opens in a new tab - read it then come back here to sign</div>
+    </div>
+    <div class="waiver-modal-footer">
+      <div class="waiver-sign-row">
+        <label for="waiverSignName">Type Your Full Name to Sign</label>
+        <input type="text" id="waiverSignName" placeholder="John Smith" autocomplete="name" oninput="checkWaiverReady()" />
+      </div>
+      <div class="waiver-agree-row">
+        <input type="checkbox" class="waiver-checkbox" id="waiverCheckbox" onchange="checkWaiverReady()" />
+        <label class="waiver-agree-label" for="waiverCheckbox">I have read and agree to the terms of this <strong>Liability Waiver</strong>.</label>
+      </div>
+      <div class="waiver-agree-row" style="margin-top:2px">
+        <input type="checkbox" class="waiver-checkbox" id="waiverGuardianCheck" onchange="document.getElementById('waiverGuardianWrap').style.display=this.checked?'block':'none'" />
+        <label class="waiver-agree-label" for="waiverGuardianCheck">I am signing as the <strong>parent or legal guardian</strong> of a participant who is a minor.</label>
+      </div>
+      <div class="waiver-sign-row" id="waiverGuardianWrap" style="display:none">
+        <label for="waiverGuardianName">Participant's name (the minor)</label>
+        <input type="text" id="waiverGuardianName" placeholder="Participant's full name" autocomplete="off" />
+      </div>
+      <button class="btn-waiver-sign" id="btnWaiverSign" disabled onclick="acceptWaiver()">Sign &amp; Continue to Payment</button>
+      <button class="btn-waiver-skip" id="btnWaiverSkip" onclick="skipWaiver()">Continue without signing</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUCCESS -->
+<div class="success-screen" id="successScreen">
+  <div class="success-wrap">
+    <div class="success-icon">⛳</div>
+    <h2 class="success-title">You're<br><em>Booked!</em></h2>
+<p class="success-sub" id="successSub">Your session is confirmed.</p>
+    <p style="font-size:12.5px;color:var(--muted,#8a917f);margin:2px 0 10px" id="successArmor"></p>
+    <div class="success-details" id="successDetails"></div>
+    <p id="successReview" style="display:none;font-size:13.5px;margin:2px 0 14px"><a id="successReviewLink" href="#" target="_blank" rel="noopener" style="color:var(--gold,#c9a227);text-decoration:none">&#9733; Enjoying it here? Leave us a Google review</a></p>
+    <button class="btn-new" onclick="resetBooking()">Book Another Session</button>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="footer-text" id="footerBrand">Simulator Lounge</div>
+      <div class="footer-note">Sessions not claimed within 10 minutes of start time may be released.</div>
+    </div>
+    <div class="footer-contact" id="footerContact"></div>
+  </div>
+  <div class="footer-bottom">
+    <div style="display:flex;gap:16px;flex-wrap:wrap">
+      <a href="/my-booking" class="manage-link">Manage / Cancel Booking</a>
+      <a href="/my-membership" class="manage-link">Member Portal</a>
+      <a href="/how-it-works" class="manage-link">How It Works</a>
+      <a href="/gift-cards" class="manage-link">Gift Cards</a>
+      <a href="/sms-terms" class="manage-link">SMS Terms</a>
+      <a href="/privacy" class="manage-link">Privacy Policy</a>
+    </div>
+    <div class="footer-text" id="footerHours"></div>
+  </div>
+  <div class="footer-text" id="seoFooterBlurb" style="margin-top:16px;font-size:12px;opacity:0.6;line-height:1.7;max-width:900px"></div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+  // ── STATE ──────────────────────────────────────────────────────────────────
+  let selBay = null, selDate = null, selDur = null, selTime = null;
+  let availByBay = {}, bays = [];
+  let FORCED_BAY = null; // time-first only: bay locked in via ?bay= QR scan
+  let stripeInst = null, stripeElements = null;
+  let pendingBookingId = null;
+  let activeWaiver = null, waiverAccepted = false, waiverSignedName = '';
+  let discountResult = null;
+  let memberResult = null;
+  let OPEN = 5*60, CLOSE = 23*60+30, MID = 24*60;
+  let CLOSE_END = 24*60;   // minutes-from-open-day by which a session must END (may exceed 1440)
+  let OPEN24 = false;      // true = no close cap, sessions can cross midnight freely
+  // the facility's one set of hours, and the days with their own (Oct 22 2026): useDayHours puts the picked day's into OPEN / CLOSE_END
+  let OPEN_SET = OPEN, CLOSE_END_SET = CLOSE_END, DAY_HOURS = {};
+  function useDayHours(ds) {
+    OPEN = OPEN_SET; CLOSE_END = CLOSE_END_SET;
+    if (OPEN24 || !ds) return;
+    const h = DAY_HOURS[['sun','mon','tue','wed','thu','fri','sat'][new Date(ds + 'T12:00:00').getDay()]];
+    if (!h || !h.open || !h.close) return;
+    OPEN = t2m(h.open); const c = t2m(h.close);
+    CLOSE_END = c === 0 ? 1440 : c + (h.close <= h.open ? 1440 : 0);
+  }
+  // Offset (ms) between this browser's clock and the Pi's clock. Set on load from
+  // /api/time so the whole frontend uses the PI's "now", not the visitor's device.
+  let SERVER_OFFSET_MS = 0;
+  let SERVER_ZONE = '';
+  // "Now" anchored to the Pi's clock.
+  function serverNow() { return new Date(Date.now() + SERVER_OFFSET_MS); }
+  async function syncServerTime() {
+    try {
+      const r = await fetch('/api/time');
+      if (r.ok) { const t = await r.json(); if (t.epoch) { SERVER_OFFSET_MS = t.epoch - Date.now(); SERVER_ZONE = t.zone || ''; } }
+    } catch(e) { SERVER_OFFSET_MS = 0; }
+  }
+  let OPEN_DAYS = ['mon','tue','wed','thu','fri','sat','sun'];
+  let MIN_SESSION = 30, MAX_SESSION = 240, WINDOW_DAYS = 30;
+  let SHOW_SLOT_PRICES = false, SLOT_PRICES = null;   // pilot facility-parity price chips (maintainer, Aug 13)
+  let SLOT_FREE = null;                              // the SERVER's availability answer (Sep 19 2026)
+  // WHAT THIS MEMBER IS SHOWN (maintainer, Sep 19 2026). Chips and pills used to draw
+  // the ANONYMOUS public price while checkout charged the member's own - the
+  // gap a live owner read as his bay count doubling the price. These three come
+  // from validate-pin, computed by the same pricing.sessionQuote the charge
+  // uses, so what is on screen is what the card is asked for.
+  let MEMBER_DAY_RATES = null;    // per-30 rate for each slot chip, or "included"
+  let MEMBER_DUR_QUOTES = null;   // one quote per duration pill at the chosen start
+  let MEMBER_RATES_ONLY = false;  // members-only club: no public price exists here
+  let MEMBER_RATES_NOTE = '';
+  // The customer's word for what they booked (maintainer, Sep 19 2026). WHOLE_FACILITY
+  // comes from /api/booking-rules; a club that rents the building as one has no
+  // bays to its customers, so "holds your bay" is the wrong noun on this screen
+  // exactly as it was in the email.
+  function swYour()     { return WHOLE_FACILITY ? 'the facility' : 'your bay'; }
+  function swReserves() { return WHOLE_FACILITY ? 'the facility' : 'your bay'; }
+  function swSplit()    { return WHOLE_FACILITY ? 'the facility is split by heads' : 'the bay is split by heads'; }
+  let BOOKING_FLOW = 'bay-first';
+  let MEMBERS_ONLY = false;
+  let WHOLE_FACILITY = false;
+  let SMS_AVAILABLE = true;
+  let tfAvailableBays = [];     // bays returned by availability-by-time
+  let resolvedBayName = '';     // actual bay name returned by create-payment-intent
+  const DAY_NAMES = ['sun','mon','tue','wed','thu','fri','sat'];
+
+  // PACKAGES AND BOOKING DEALS (Oct 22 2026; maintainer: "any and all sorts of package deals", "book 2 hours get the last
+  // 30 min free Tuesdays"): the ones on offer, and the package chosen - its length is the session's, its window the starts
+  let PKGS = [], DEALS = [], PKG = null, PKG_PLAYERS = 0;
+  let DURS = [];
+  const priceCache = {}; // cache pricing calls so we don't hammer the server
+  function rebuildDurs() {
+    const all = [
+      {l:'30 min',m:30},{l:'1 hr',m:60},{l:'1.5 hr',m:90},{l:'2 hr',m:120},
+      {l:'2.5 hr',m:150},{l:'3 hr',m:180},{l:'3.5 hr',m:210},{l:'4 hr',m:240}
+    ];
+    DURS = PKG ? all.filter(d => d.m === PKG.minutes) : all.filter(d => d.m >= MIN_SESSION && d.m <= MAX_SESSION);
+  }
+  rebuildDurs();
+  // A LENGTH IS CHOSEN ONLY WHILE THE PAGE OFFERS IT (Oct 27 2026, the review of 015c98e): the package's own length while one is
+  // picked, the facility's lengths (its shortest to its longest session) otherwise. "Book a regular session instead" after a
+  // 3-hour package kept the 3 hours where the longest session is 2: the summary priced a regular 3 hours and the page's own
+  // submit booked it (the server checks 30-240 minutes only). pkgApply drops a length no longer offered, and the details and
+  // summary (updateFormReady) and the submit (submitBooking) treat such a length as not chosen - whatever path left it there
+  function lenOffered(m) { return !!m && DURS.some(d => d.m === m); }
+
+  // ── HELPERS ────────────────────────────────────────────────────────────────
+  const t2m = t => { const[h,m]=t.split(':').map(Number); return h*60+m; };
+  const m2t = m => `${String(Math.floor((m%1440+1440)%1440/60)).padStart(2,'0')}:${String(((m%60)+60)%60).padStart(2,'0')}`;
+
+  // Day index (local calendar day) for a YYYY-MM-DD string.
+  const dayIdx = ds => { const [y,mo,d] = ds.split('-').map(Number); return Math.floor(new Date(y, mo-1, d).getTime()/86400000); };
+  // Express a booking as [startRel, endRel) minutes relative to midnight of selDate.
+  // A previous-night spillover booking gets a negative start; a booking that
+  // crosses midnight out of selDate gets an end > 1440.
+  function bookingRel(bk) {
+    const base = selDate ? dayIdx(selDate) : 0;
+    const sRel = (dayIdx(bk.date) - base) * 1440 + t2m(bk.start_time);
+    const eRel = (dayIdx(bk.end_date || bk.date) - base) * 1440 + t2m(bk.end_time);
+    return { sRel, eRel };
+  }
+  // Does a candidate [candStart, candStart+dur) overlap this booking (relative mins)?
+  function overlapsBooking(candStart, dur, bk) {
+    const { sRel, eRel } = bookingRel(bk);
+    return candStart < eRel && sRel < candStart + dur;
+  }
+  // HOW LONG A BAY IS FREE FROM A START (Oct 27 2026, the review of 015c98e): ONE answer, for the chosen bay's lengths and for
+  // every other bay the cross-bay tip may name. The tip's own loop counted only the bookings that START after the start, so a
+  // bay whose booking began earlier and was still running then read as free - "Tip: Bay 2 has sessions up to 2 hr" sent the
+  // customer to a start greyed out there. A booking running at the start leaves 0; one over by then does not count; the next
+  // one to start caps the rest. The same overlap overlapsBooking (and so slotOk) tests: free >= n exactly when n minutes fit
+  function bayFreeMins(slots, startMins, cap) {
+    let free = cap;
+    for (const bk of (slots || [])) {
+      const { sRel, eRel } = bookingRel(bk);
+      if (eRel <= startMins) continue;            // over before the start
+      if (sRel <= startMins) return 0;            // still running at the start
+      if (sRel - startMins < free) free = sRel - startMins;
+    }
+    return free;
+  }
+  const fmt12 = t => { if(!t)return''; const[h,m]=t.split(':').map(Number); return `${h%12||12}:${String(m).padStart(2,'0')} ${h>=12?'PM':'AM'}`; };
+  const fmtDur = m => m<60?`${m} min`:`${m/60} hr${m/60!==1?'s':''}`;
+  const fmtDate = d => new Date(d+'T12:00:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+
+  // ── RATE LIMIT HANDLER ───────────────────────────────────────────────────
+  const _origFetch = window.fetch;
+  window.fetch = async function(...args) {
+    const res = await _origFetch.apply(this, args);
+    if (res.status === 429) {
+      toast("You're clicking too fast! Please wait a moment and try again.");
+    }
+    return res;
+  };
+
+  // ── INIT ───────────────────────────────────────────────────────────────────
+  // ── COMING BACK FROM A REDIRECT PAYMENT (maintainer, Sep 19 2026) ─────────────────
+  // Klarna, Affirm, Cash App and Amazon Pay are on by default on a normal
+  // Stripe account and every one of them navigates the customer away to pay.
+  // They come back here. Before this there was no handler anywhere in the tree
+  // for Stripe's return - no page read redirect_status or
+  // payment_intent_client_secret - so the card was charged and the customer
+  // landed on an empty booking form: no confirmation, no email, no door code,
+  // and the booking sat pending until the sweeper picked it up minutes later.
+  // /api/bookings/confirm is idempotent and verifies the payment with Stripe
+  // itself, so the safe thing on return is simply to call it.
+  async function handlePaymentReturn() {
+    let id = '', pi = '', status = '';
+    try {
+      const q = new URLSearchParams(location.search);
+      id     = q.get('ba_return') || '';
+      pi     = q.get('payment_intent') || '';
+      status = q.get('redirect_status') || '';
+    } catch (e) {}
+    // A page loaded BEFORE this wave sent return_url: window.location.href, so a
+    // customer mid-flight through the upgrade comes back with only Stripe's own
+    // parameters and nothing of ours. The intent id alone is enough - the server
+    // finds the row from it and still verifies the charge against that row's own
+    // stored intent.
+    if (!id) { try { id = sessionStorage.getItem('baPendingBooking') || ''; } catch (e) {} }
+    if (!id && !pi) return false;
+    try { sessionStorage.removeItem('baPendingBooking'); } catch (e) {}
+    // Take the parameters back out of the address bar so a reload or a shared
+    // link cannot replay this.
+    try { history.replaceState({}, '', location.origin + location.pathname); } catch (e) {}
+
+    if (status && status !== 'succeeded' && status !== 'pending') {
+      toast('That payment was not completed, so no booking was made and nothing was charged. You can try again.');
+      return false;
+    }
+    try {
+      const r = await fetch('/api/bookings/confirm', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        // Both, whenever we have both: the payment id Stripe sent us back with is
+        // what lets the server hand back the name on the confirmation (rule 37 -
+        // a booking id alone never returns a person's name).
+        body: JSON.stringify(Object.assign({}, id ? { bookingId: id } : {}, pi ? { paymentIntentId: pi } : {}))
+      });
+      const d = await r.json().catch(() => ({}));
+      if (r.ok && d.success) { showSuccess('', '', false, d.booking || null); return true; }
+      // A payment still settling (some methods take minutes) is not a failure.
+      if (r.status === 402 && status === 'pending') {
+        toast('Your payment is still going through. We will email your confirmation as soon as it clears - there is nothing more to do.');
+        return false;
+      }
+      toast(d.error || 'We could not finish that booking. If you were charged you will be refunded automatically.');
+    } catch (e) {
+      toast('We could not reach the booking system to finish that payment. If you were charged, your booking will be confirmed automatically within a few minutes.');
+    }
+    return false;
+  }
+
+  (async () => {
+    try {
+      // Anchor the frontend clock to the Pi FIRST, before anything time-related.
+      await syncServerTime();
+      await handlePaymentReturn();
+      // Load logo
+      const logoRes = await fetch('/api/uploads/logo').catch(()=>({ok:false}));
+      if (logoRes.ok) {
+        const logoData = await logoRes.json();
+        if (logoData.hasLogo) {
+          const img = document.getElementById('headerLogo');
+          img.src = logoData.url;
+          img.style.display = 'block';
+          document.getElementById('headerBrandText').style.display = 'none';
+        }
+      }
+
+      // Load hero background
+      const heroRes = await fetch('/api/uploads/hero').catch(()=>({ok:false}));
+      if (heroRes.ok) {
+        const heroData = await heroRes.json();
+        if (heroData.hasHero) {
+          const heroEl = document.getElementById('heroSection');
+          heroEl.style.backgroundImage = `url(${heroData.url})`;
+          heroEl.style.backgroundSize = 'cover';
+          heroEl.style.backgroundPosition = 'center';
+          heroEl.style.position = 'relative';
+          // Add dark overlay for readability
+          heroEl.style.setProperty('--hero-overlay', 'rgba(6,10,6,0.75)');
+        }
+      }
+
+      // Load theme
+      try {
+        const themeRes = await fetch('/api/theme');
+        if (themeRes.ok) {
+          const t = await themeRes.json();
+          const r = document.documentElement.style;
+          // The booking app now inherits the facility's WEBSITE brand, so the
+          // marketing page and the booking screen always match. The extra
+          // roles below arrive with it (headers, borders, buttons).
+          if (t.bgColor)      r.setProperty('--bg', t.bgColor);
+          if (t.surfaceColor) { r.setProperty('--surface', t.surfaceColor); r.setProperty('--surface2', t.altBgColor || (t.surfaceColor+'dd')); }
+          if (t.accentColor)  { r.setProperty('--gold', t.accentColor); r.setProperty('--gold-dim', t.accent2Color || (t.accentColor+'88')); }
+          if (t.textColor)    r.setProperty('--text', t.textColor);
+          if (t.mutedColor)   r.setProperty('--muted', t.mutedColor);
+          if (t.lineColor)    r.setProperty('--border', t.lineColor);
+          if (t.headingColor) r.setProperty('--heading', t.headingColor);
+          if (t.btnColor)     r.setProperty('--btn', t.btnColor);
+          if (t.btnTextColor) r.setProperty('--btn-text', t.btnTextColor);
+          if (t.headerBg)     r.setProperty('--header-bg', t.headerBg);
+          if (t.headerText)   r.setProperty('--header-text', t.headerText);
+          if (t.bgColor) document.body.style.background = t.bgColor;
+          if (t.accentColor) {
+            const meta = document.querySelector('meta[name="theme-color"]');
+            if (meta) meta.setAttribute('content', t.accentColor);
+          }
+        } else if (themeRes.status === 429) {
+          // Rate limited on theme - retry after 5 seconds
+          setTimeout(async () => {
+            try {
+              const retry = await fetch('/api/theme');
+              if (retry.ok) {
+                const t = await retry.json();
+                const r = document.documentElement.style;
+                if (t.bgColor)     r.setProperty('--bg', t.bgColor);
+                if (t.surfaceColor){ r.setProperty('--surface', t.surfaceColor); }
+                if (t.accentColor) { r.setProperty('--gold', t.accentColor); }
+                if (t.textColor)   r.setProperty('--text', t.textColor);
+                if (t.mutedColor)  r.setProperty('--muted', t.mutedColor);
+                if (t.bgColor) document.body.style.background = t.bgColor;
+              }
+            } catch(e) {}
+          }, 5000);
+        } else {
+          console.warn('Theme load failed:', themeRes.status);
+        }
+      } catch(themeErr) {
+        console.warn('Theme fetch error:', themeErr.message);
+      }
+
+      // Load content
+      const contentRes = await fetch('/api/content');
+      if (contentRes.ok) {
+        const c = await contentRes.json();
+        if (c.heroTagline) document.getElementById('heroTitle').innerHTML = c.heroTagline.replace(' ','<br>');
+        if (c.heroDesc)    document.getElementById('heroDesc').textContent = c.heroDesc;
+        // NOTE: the SMS consent label is intentionally NOT overridable at runtime.
+        // Regulatory language is static in this page. (Carrier-compliance requirement.)
+        if (c.policyNotice) {
+          document.getElementById('policyNoticeText').textContent = c.policyNotice;
+          document.getElementById('policyNoticeWrap').style.display = 'block';
+        }
+      }
+
+      // TODAY'S SPECIALS (Oct 20 2026, night; maintainer: "somewhere people see when booking"): the ones the owner put on
+      // this page, on their day - their own words, said once above the booking steps
+      try {
+        const ts = await fetch('/api/website/today');
+        const tj = ts.ok ? await ts.json() : {};
+        const list = Array.isArray(tj.specials) ? tj.specials.filter(x => x && x.title) : [];
+        const box = document.getElementById('todaySpecials');
+        if (box && list.length) {
+          const e = (x) => String(x).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+          box.innerHTML = list.map(x => `<div style="margin:2px 0"><span style="font-weight:700;color:var(--gold)">${/\b(pm|night|tonight|late|close)\b/i.test(x.time + ' ' + x.text + ' ' + x.title) ? 'Tonight' : 'Today'}:</span> <span style="font-weight:600">${e(x.title)}</span>${[x.text, x.price, x.time].filter(Boolean).length ? ' <span style="font-size:13px;color:var(--text2)">- ' + e([x.text, x.price, x.time].filter(Boolean).join(' \u00b7 ')) + '</span>' : ''}</div>`).join('');
+          box.style.display = 'block';
+        }
+      } catch (e) { /* no specials shown - the booking itself never waits on them */ }
+      pkgLoad();
+
+      // Load contact
+      const contactRes = await fetch('/api/contact');
+      if (contactRes.ok) {
+        const c = await contactRes.json();
+        if (c.businessName) {
+          document.getElementById('headerBrand').textContent = c.businessName;
+          document.getElementById('footerBrand').textContent = '© ' + c.businessName;
+        }
+        if (c.hours) {
+          document.getElementById('headerHours').textContent = c.hours;
+          document.getElementById('footerHours').textContent = c.hours;
+        }
+        let html = '';
+        if (c.phone)   html += `<a href="tel:${c.phone}">${c.phone}</a>`;
+        if (c.email)   html += `<a href="mailto:${c.email}">${c.email}</a>`;
+        if (c.address) html += `<span>${c.address}</span>`;
+        if (c.website) html += `<a href="${c.website}" target="_blank">${c.website.replace(/^https?:\/\//,'')}</a>`;
+        document.getElementById('footerContact').innerHTML = html;
+      }
+
+      // ── SEO injection — title, meta, geo, JSON-LD, footer blurb ──────────────
+      try {
+        const seoRes = await fetch('/api/seo');
+        if (seoRes.ok) {
+          const s = await seoRes.json();
+          const name = s.businessName || '';
+          const cityState = [s.city, s.state].filter(Boolean).join(', ');
+          const setC = (id, val) => { const el = document.getElementById(id); if (el && val) el.setAttribute('content', val); };
+          const setHref = (id, val) => { const el = document.getElementById(id); if (el && val) el.setAttribute('href', val); };
+
+          // Title
+          if (name) {
+            const title = cityState
+              ? `${name} — Indoor Golf Simulator in ${cityState}`
+              : `${name} — Indoor Golf Simulator`;
+            document.title = title;
+            setC('ogTitle', title);
+            document.querySelector('meta[name="apple-mobile-web-app-title"]')?.setAttribute('content', name);
+          }
+
+          // Description
+          const desc = s.metaDescription
+            || (cityState
+                ? `Book your indoor golf simulator session at ${name} in ${cityState}. Reserve a bay online 24/7.`
+                : `Book your indoor golf simulator session at ${name} online 24/7.`);
+          setC('metaDescription', desc);
+          setC('ogDesc', desc);
+
+          // Keywords
+          if (cityState || s.city) {
+            const kw = [`golf simulator ${s.city||''}`, `indoor golf ${s.state||''}`, `golf simulator booking ${s.city||''}`, 'indoor golf']
+              .map(k => k.trim()).filter(Boolean).join(', ');
+            setC('metaKeywords', kw);
+          }
+
+          // Canonical + OG url
+          // Canonical must point at THIS page. The bare domain would claim the
+          // booking page is a duplicate of the homepage.
+          if (s.domain) setHref('metaCanonical', s.domain.replace(/\/+$/, '') + '/book');
+
+          // Geo tags
+          if (s.state) setC('metaGeoRegion', 'US-' + s.state.toUpperCase().slice(0,2));
+          if (cityState) setC('metaGeoPlace', cityState);
+          if (s.latitude && s.longitude) {
+            setC('metaGeoPosition', `${s.latitude};${s.longitude}`);
+            setC('metaICBM', `${s.latitude}, ${s.longitude}`);
+          }
+
+          // JSON-LD structured data
+          const ld = {
+            '@context': 'https://schema.org',
+            '@type': 'GolfCourse',
+            name: name || 'Indoor Golf Simulator'
+          };
+          if (s.phone)   ld.telephone = s.phone;
+          if (s.domain)  ld.url = s.domain;
+          if (s.address || s.city || s.state || s.zip) {
+            ld.address = {
+              '@type': 'PostalAddress',
+              streetAddress: s.address || undefined,
+              addressLocality: s.city || undefined,
+              addressRegion: s.state || undefined,
+              postalCode: s.zip || undefined,
+              addressCountry: 'US'
+            };
+          }
+          if (s.latitude && s.longitude) {
+            ld.geo = { '@type': 'GeoCoordinates', latitude: s.latitude, longitude: s.longitude };
+          }
+          const ldEl = document.getElementById('jsonLd');
+          if (ldEl) ldEl.textContent = JSON.stringify(ld);
+
+          // Footer SEO blurb
+          if (s.footerBlurb) {
+            const blurbEl = document.getElementById('seoFooterBlurb');
+            if (blurbEl) blurbEl.textContent = s.footerBlurb;
+          }
+        }
+      } catch(e) { /* SEO is best-effort — never block the page */ }
+
+      // Load booking rules
+      const rulesRes = await fetch('/api/booking-rules');
+      if (rulesRes.ok) {
+        const r = await rulesRes.json();
+        window.BOOK_RULES = r;
+        // Deposits render only where a person will be at the door for THIS
+        // selection: fully staffed always; hybrid when the staffed calendar
+        // covers the arrival; unmanned never.
+        window.staffedAtSel = function(){
+          const R = window.BOOK_RULES; if (!R) return false;
+          if (R.staffedAccess) return true;
+          const w = (R.staffedWindows || []).find(x => x.date === selDate);
+          if (!w) return false;
+          const ws = (w.start_time || '').trim(), we = (w.end_time || '').trim();
+          if (!ws || !we) return true;
+          return selTime >= ws && selTime < we;
+        };
+        if ((r.reviewUrl || '').startsWith('http')) {
+          const _rl = document.getElementById('successReviewLink');
+          if (_rl) { _rl.href = r.reviewUrl; document.getElementById('successReview').style.display = 'block'; }
+        }
+        OPEN_DAYS   = r.openDays || OPEN_DAYS;
+        if (r.openTime)  OPEN  = t2m(r.openTime);
+        if (r.closeTime) CLOSE = t2m(r.closeTime);
+        OPEN24 = !!r.open24Hours;
+        // End cap: the minute by which a session must END. If close is after
+        // midnight (closeNextDay), add 1440. If 24/7, cap is a full day past open.
+        // Closing at midnight (00:00) means END OF DAY (minute 1440), with or
+        // without the after-midnight checkbox. Only true after-midnight closes
+        // (1:00, 2:00 AM) add a day via closeNextDay.
+        const rawClose = t2m(r.closeTime || '23:30');
+        // 24/7: opening and closing times are ignored entirely. Starts run
+        // midnight to 11:30 PM and any duration may cross midnight (the cap
+        // below is generous on purpose - MAX_SESSION is the real limit).
+        if (OPEN24) OPEN = 0;
+        CLOSE_END = OPEN24 ? 2880
+                  : rawClose === 0 ? 1440
+                  : rawClose + (r.closeNextDay ? 1440 : 0);
+        OPEN_SET = OPEN; CLOSE_END_SET = CLOSE_END; DAY_HOURS = r.dayHours || {};
+        if (selDate) useDayHours(selDate);
+        MIN_SESSION = r.minSessionMins || 30;
+        MAX_SESSION = r.maxSessionMins || 240;
+        WINDOW_DAYS = r.windowDays || 30;
+        BOOKING_FLOW = r.bookingFlow || 'bay-first';
+        MEMBERS_ONLY = !!r.membersOnly;
+        WHOLE_FACILITY = !!r.wholeFacility;
+        SMS_AVAILABLE = !!r.smsAvailable;
+        // COHERENCE (maintainer): options that cannot apply are not offered.
+        // No SMS provider, or a members-only club (email carries the load):
+        // the entire texting surface disappears and consent is never sent.
+        const smsSurface = document.getElementById('smsSurface');
+        if (smsSurface) smsSurface.style.display = SMS_AVAILABLE && !MEMBERS_ONLY ? '' : 'none';
+        if (!SMS_AVAILABLE || MEMBERS_ONLY) {
+          const cbx = document.getElementById('smsOptIn');
+          if (cbx) cbx.checked = false;
+          const sub = document.querySelector('.contact-sub, #contactSub');
+          document.querySelectorAll('.step-subtitle').forEach(el => {
+            if (/text if you choose/i.test(el.textContent)) el.textContent = 'Your confirmation & door code arrive by email';
+          });
+        }
+        // WHOLE-FACILITY MODE: no bay to choose - the whole building is the
+        // booking. The bay step hides; 'auto' rides the existing machinery.
+        if (WHOLE_FACILITY) {
+          BOOKING_FLOW = 'time-first'; // the only flow with no bay to pick
+          const bc = document.getElementById('bayChoiceBlock');
+          if (bc) bc.style.display = 'none';
+          const fn = document.getElementById('facilityNotice');
+          if (fn) fn.style.display = 'block';
+        }
+        if (MEMBERS_ONLY) {
+          const n = document.getElementById('membersOnlyNotice');
+          if (n) n.style.display = 'block';
+          const l = document.getElementById('memberPinLabel');
+          if (l) l.textContent = 'Member Code (required to book)';
+          // The Become a Member button only renders when a tier is actually
+          // sellable online; otherwise the honest path is contacting the
+          // facility - never a button into a dead end.
+          fetch('/api/memberships/public').then(x => x.json()).then(tiers => {
+            if (!Array.isArray(tiers) || !tiers.length) {
+              const cta = document.getElementById('membersOnlyCta');
+              if (cta) cta.outerHTML = '<div style="font-size:13px;color:var(--gold)">Contact the facility about becoming a member.</div>';
+            }
+          }).catch(() => {});
+        }
+        STAFFED = !!r.staffedAccess;
+        if (typeof r.codeTiming === 'string') CODE_TIMING = r.codeTiming;
+        if (STAFFED || !CODE_TIMING) applyStaffedCopy();
+        rebuildDurs();
+      }
+
+      // Load bays and waiver
+      const [baysRes, waiverRes] = await Promise.all([
+        fetch('/api/bookings/bays').then(r=>r.json()),
+        fetch('/api/waivers/active').then(r=>r.json())
+      ]);
+      bays = baysRes;
+
+      // ── QR FORCED BAY (time-first flow) ────────────────────────────────
+      // Bay-specific QR codes link to /?bay=<id>. In bay-first mode the card
+      // gets pre-selected (see buildBayCards). In time-first mode there is no
+      // bay picker, so honor the QR by LOCKING the whole flow to that bay:
+      // availability, duration check, and checkout all use it — a customer
+      // adding time stays on the bay they're standing in.
+      if (BOOKING_FLOW === 'time-first') {
+        const qrBay = new URLSearchParams(window.location.search).get('bay');
+        if (qrBay) {
+          FORCED_BAY = bays.find(b => b.id === qrBay && !b.maintenance) || null;
+        }
+      }
+      if (waiverRes.hasWaiver) {
+        activeWaiver = waiverRes;
+        const ws = document.getElementById('waiverStatus');
+        if (ws) {
+          if (waiverRes.collection === 'door') {
+            ws.className = 'waiver-status signed';
+            ws.textContent = 'You will sign the liability waiver when you arrive - nothing to sign online.';
+          } else {
+            ws.className = 'waiver-status required';
+            ws.textContent = 'A liability waiver is required. Click "Confirm & Pay" to review and sign it.';
+          }
+        }
+      }
+
+      buildBayCards();
+      buildDates();
+      initFlow();
+
+      // Load announcement banner
+      try {
+        const annRes = await fetch('/api/announcement');
+        if (annRes.ok) {
+          const ann = await annRes.json();
+          if (ann.enabled && ann.message) {
+            const banner = document.createElement('div');
+            banner.style.cssText = 'background:rgba(201,162,39,0.1);border:1px solid var(--gold);padding:12px 18px;margin-bottom:20px;font-size:13px;color:var(--gold);font-family:"DM Mono",monospace;text-align:center;letter-spacing:0.5px';
+            // W44: the notice may link somewhere (Settings > Notice)
+            if (ann.link && /^(https?:\/\/|\/)/.test(ann.link)) { const l = document.createElement('a'); l.href = ann.link; l.textContent = ann.message; l.style.cssText = 'color:inherit;text-decoration:underline'; if (/^https?:/.test(ann.link)) { l.target = '_blank'; l.rel = 'noopener'; } banner.appendChild(l); }
+            else banner.textContent = ann.message;
+            const anchorEl = BOOKING_FLOW === 'time-first'
+              ? document.getElementById('stepDate')
+              : document.getElementById('bayCards');
+            if (anchorEl) anchorEl.parentNode.insertBefore(banner, anchorEl);
+          }
+        }
+      } catch {}
+    } catch(e) { console.error('Init error:', e); }
+  })();
+
+  // ── FLOW INIT ─────────────────────────────────────────────────────────────
+  function initFlow() {
+    if (BOOKING_FLOW === 'time-first') {
+      document.getElementById('stepBay').style.display = 'none';
+      document.getElementById('stepTfDur').style.display = 'block';
+      document.getElementById('sn2').textContent = '1';
+      document.getElementById('sn3').textContent = '2';
+      document.getElementById('snTfDur').textContent = '3';
+      document.getElementById('sn4').textContent = '4';
+      document.querySelector('#stepTime .step-subtitle').textContent = 'Select a date first';
+      markStep(1, ''); markStep(2, 'active');
+    } else {
+      document.getElementById('stepBay').style.display = 'block';
+      document.getElementById('stepTfDur').style.display = 'none';
+      document.getElementById('sn2').textContent = '2';
+      document.getElementById('sn3').textContent = '3';
+      document.getElementById('sn4').textContent = '4';
+      markStep(1, 'active');
+    }
+  }
+
+  function markSnTfDur(state) {
+    const el = document.getElementById('snTfDur');
+    if (!el) return;
+    el.classList.remove('active', 'done');
+    if (state) el.classList.add(state);
+  }
+
+  // ── BAY CARDS ──────────────────────────────────────────────────────────────
+  function buildBayCards() {
+    const container = document.getElementById('bayCards');
+    container.innerHTML = '';
+    bays.forEach((bay, i) => {
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'bay-card';
+      card.dataset.bayId = bay.id;
+      if (bay.maintenance) {
+        card.style.opacity = '0.4';
+        card.style.pointerEvents = 'none';
+        card.innerHTML = `
+          <div class="bay-icon">⛳</div>
+          <div class="bay-name">${bay.name}</div>
+          <div class="bay-desc" style="color:var(--danger)">Down for maintenance</div>
+        `;
+      } else {
+        const adj = bay.priceAdjustCents || 0;
+        const chips = (bay.features || []).map(f => `<span style="font-size:10.5px;border:1px solid var(--border);color:var(--text2);padding:3px 9px;border-radius:12px;display:inline-block;margin:2px 3px 0 0">${f}</span>`).join('');
+        card.innerHTML = `
+          <div class="bay-check">v</div>
+          <div class="bay-icon">⛳</div>
+          <div class="bay-name">${bay.name}${bay.premium ? ' <span style="font-size:9.5px;letter-spacing:1px;background:var(--gold);color:var(--bg);padding:2px 7px;border-radius:10px;font-weight:800;vertical-align:middle">PREMIUM</span>' : ''}</div>
+          <div class="bay-desc">${bay.description || 'Full swing simulator bay'}</div>
+          ${chips ? `<div style="margin-top:6px">${chips}</div>` : ''}
+          ${adj !== 0 ? `<div style="font-size:11.5px;color:var(--gold);margin-top:6px">${adj > 0 ? '+' : '−'}$${Math.abs(adj * 2 / 100).toFixed(0)}/hour ${adj > 0 ? 'premium' : 'discount'}</div>` : ''}
+        `;
+        card.onclick = () => selectBay(bay, card);
+      }
+      container.appendChild(card);
+    });
+
+    // ── QR BAY PRE-SELECTION ─────────────────────────────────────────────
+    // Bay-specific QR codes on the sim PCs link to /?bay=<id> so a customer
+    // scanning to extend lands with their bay already selected. Skips
+    // maintenance-flagged bays so a QR can't pre-select an unbookable bay.
+    const bayParam = new URLSearchParams(window.location.search).get('bay');
+    if (bayParam) {
+      const match = bays.find(b => b.id === bayParam && !b.maintenance);
+      if (match) {
+        const card = container.querySelector(`.bay-card[data-bay-id="${CSS.escape(bayParam)}"]`);
+        if (card) selectBay(match, card);
+      }
+    }
+  }
+
+  async function selectBay(bay, card) {
+    document.querySelectorAll('.bay-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    selBay = bay; selTime = null; selDur = null;
+    markStep(1,'done'); markStep(2,'active');
+    if (selDate) {
+      await loadAvailability();
+      renderTimes();
+      document.getElementById('stepTime').classList.add('ready');
+    }
+    updateFormReady();
+  }
+
+  // ── DATES ──────────────────────────────────────────────────────────────────
+  function scrollDates(dir) {
+    const el = document.getElementById('dateCards');
+    el.scrollBy({ left: dir * Math.round(el.clientWidth * 0.8), behavior: 'smooth' });
+  }
+  // Mouse wheels scroll vertically; translate that to horizontal on the strip.
+  document.getElementById('dateCards').addEventListener('wheel', (e) => {
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+      e.preventDefault();
+      document.getElementById('dateCards').scrollBy({ left: e.deltaY });
+    }
+  }, { passive: false });
+
+  function buildDates() {
+    const container = document.getElementById('dateCards');
+    container.innerHTML = '';
+    const today = serverNow();
+    const windowDays = WINDOW_DAYS;
+    for (let i=0; i<windowDays; i++) {
+      const d = new Date(today); d.setDate(today.getDate()+i);
+      const dayName = DAY_NAMES[d.getDay()];
+      if (!OPEN_DAYS.includes(dayName)) continue;
+      const ds = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'date-card';
+      card.innerHTML = `
+        <div class="date-dow">${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()]}</div>
+        <div class="date-num">${d.getDate()}</div>
+        <div class="date-mon">${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]}</div>
+      `;
+      card.onclick = () => selectDate(ds, card);
+      container.appendChild(card);
+    }
+  }
+
+  async function selectDate(ds, card) {
+    document.querySelectorAll('.date-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    selDate = ds; selTime = null; selDur = null; useDayHours(ds);
+    markStep(2,'done'); markStep(3,'active');
+    await loadAvailability();
+    renderTimes();
+    if (BOOKING_FLOW === 'time-first') {
+      // No bay required — unlock time step immediately
+      document.getElementById('stepTime').classList.add('ready');
+      // Reset duration + availability step
+      tfAvailableBays = [];
+      document.getElementById('tfDurPills').innerHTML = '';
+      document.getElementById('tfAvailStatus').style.display = 'none';
+      document.getElementById('stepTfDur').classList.remove('ready');
+      markSnTfDur('');
+    } else {
+      if (selBay) document.getElementById('stepTime').classList.add('ready');
+    }
+    updateFormReady();
+  }
+
+  // ── AVAILABILITY ───────────────────────────────────────────────────────────
+  async function loadAvailability() {
+    if (!selDate) return;
+    try {
+      const promises = bays.map(b =>
+        fetch(`/api/bookings/availability?date=${selDate}&bayId=${b.id}`).then(r=>r.json())
+      );
+      const results = await Promise.all(promises);
+      bays.forEach((b,i) => { const r = results[i]; availByBay[b.id] = (r && r.byBay && r.byBay[b.id]) ? r.byBay[b.id] : (Array.isArray(r) ? r : []); });
+      const first = results[0] || {};
+      SHOW_SLOT_PRICES = first.showSlotPrices !== false && !!first.slotPrices;
+      SLOT_PRICES = first.slotPrices || null;
+      // A members-only club has no public customer, so the server sends no
+      // public chip prices at all - never a number nobody here can be charged.
+      MEMBER_RATES_ONLY = first.memberRatesOnly === true;
+      MEMBER_RATES_NOTE = first.memberRatesNote || '';
+      // THE SERVER'S ANSWER, NOT OURS (Sep 19 2026). See slotBooked below.
+      SLOT_FREE = first.slotFree || null;
+    } catch {}
+  }
+
+  // ONE PILL LABEL (maintainer, Sep 19 2026). A member who has identified reads their
+  // own quote for that duration; nobody reads a public price at a members-only
+  // club. Returns null when the page must show the duration with no price.
+  function pillLabel(baseLabel, mins) {
+    if (MEMBER_DUR_QUOTES) {
+      var q = MEMBER_DUR_QUOTES[String(mins)];
+      if (q) return baseLabel + ' - ' + q.label;
+      return null;
+    }
+    if (MEMBER_RATES_ONLY) return null;
+    return undefined;   // no member context and a public facility: use the fetch
+  }
+
+  function getBookedSlots() {
+    if (!selBay) return [];
+    return availByBay[selBay.id] || [];
+  }
+
+  // ── TIME RENDERING ─────────────────────────────────────────────────────────
+  const pkE = (x) => String(x == null ? '' : x).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  async function pkgLoad() {
+    try { const r = await fetch('/api/bookings/packages'); const j = r.ok ? await r.json() : {}; PKGS = Array.isArray(j.packages) ? j.packages : []; DEALS = Array.isArray(j.deals) ? j.deals : []; }
+    catch (e) { PKGS = []; DEALS = []; }
+    pkgRender();
+    // a package's Book button on the website (?package=<id>, Oct 22 2026): that package, picked
+    try { const want = new URLSearchParams(location.search).get('package'); if (want && PKGS.some(p => p.id === want)) pkgPick(want); } catch (e) {}
+  }
+  function pkgRender() {
+    const box = document.getElementById('pkgBox'); if (!box) return;
+    if (!PKGS.length && !DEALS.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
+    let h = '';
+    if (PKG) {
+      const lo = PKG.min_players || 1, hi = PKG.max_players || (lo + 12);
+      const pick = (PKG.price_type === 'per_person' || (PKG.max_players || 0) > 1)
+        ? `<label for="pkgPlayers" style="display:block;font-size:13px;margin:8px 0 4px">Players</label><select id="pkgPlayers" onchange="pkgPlayers(this.value)" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:6px;max-width:160px">${Array.from({ length: hi - lo + 1 }, (_, i) => lo + i).map(n => `<option value="${n}"${n === (PKG_PLAYERS || lo) ? ' selected' : ''}>${n} player${n === 1 ? '' : 's'}</option>`).join('')}</select>` : '';
+      h = `<div style="font-weight:700;color:var(--gold)">Booking the ${pkE(PKG.name)} package</div>
+        <div style="font-size:13px;line-height:1.55;margin:4px 0">${pkE(PKG.length)} of bay time - ${pkE(PKG.price)}${PKG.includes ? ' - includes ' + pkE(PKG.includes) : ''}. Offered ${pkE(PKG.when)}; times it does not cover are greyed out.</div>${pick}
+        <div><button type="button" class="btn-apply" style="margin-top:10px" onclick="pkgClear()">Book a regular session instead</button></div>`;
+    } else {
+      if (DEALS.length) h += `<div style="font-weight:700;color:var(--gold);margin-bottom:4px">Deals</div>` + DEALS.map(d => `<div style="font-size:13px;line-height:1.5;margin:2px 0"><b>${pkE(d.name)}</b> - ${pkE(d.words)}</div>`).join('')
+        + `<div style="font-size:12px;color:var(--muted);margin:2px 0 ${PKGS.length ? 10 : 0}px">Taken off on its own when your booking fits - no code needed.</div>`;
+      if (PKGS.length) h += `<div style="font-weight:700;color:var(--gold);margin-bottom:2px">Packages</div>` + PKGS.map(p => `<div style="border-top:1px solid var(--border,#2a332a);padding:8px 0">
+        <div style="font-weight:600;overflow-wrap:anywhere">${pkE(p.name)} - ${pkE(p.price)}</div>
+        <div style="font-size:13px;line-height:1.5;overflow-wrap:anywhere">${p.words ? pkE(p.words) + '<br>' : ''}${pkE(p.length)} of bay time${p.includes ? ', includes ' + pkE(p.includes) : ''} - ${pkE(p.when)}</div>
+        <button type="button" class="btn-apply" style="margin-top:6px" onclick="pkgPick('${pkE(p.id)}')">Book this package</button></div>`).join('');
+    }
+    box.innerHTML = h; box.style.display = 'block';
+  }
+  // a package chosen (or not): the lengths, the starts and the price follow it
+  function pkgApply() {
+    rebuildDurs(); pkgRender();
+    const hadTime = selTime, hadDur = selDur;
+    // a length the page no longer offers goes - a package's length after "Book a regular session instead" as much as a regular
+    // length after a package is picked (lenOffered; Oct 27 2026, the review of 015c98e)
+    if (selDur && !lenOffered(selDur)) selDur = null;
+    if (PKG && selTime && !pkgFits(t2m(selTime))) { selTime = null; selDur = null; }
+    // bay-first: the length went with its pill - the time step is the one to do again, the details not yet (Oct 27 2026)
+    if (BOOKING_FLOW !== 'time-first' && hadDur && !selDur) { markStep(3, selBay && selDate ? 'active' : ''); markStep(4, ''); }
+    try { if (selDate) renderTimes(); } catch (e) {}
+    // THE STEPS FOLLOW WHAT IS STILL CHOSEN (Oct 27 2026, the review of 74c5428): a package picked after a start it does not
+    // cover cleared the start but left time-first's duration step open under "Session starting at 7:00 PM" with the regular
+    // prices ("2 hr - $80.00" beside "$25 a person"), and a tap on one said "...no bay is free that long from . Please try a
+    // different start time." Now: no start left - the step closes as a new date leaves it (tfDurReset); a start left but no
+    // length - its pills again and no word from a check of a length no longer chosen. And the details step and its summary,
+    // which priced the session no longer chosen, close until one is (updateFormReady)
+    try {
+      if (BOOKING_FLOW === 'time-first') {
+        if (selTime) {
+          buildTfDurPills();
+          if (!selDur) { tfAvailableBays = []; document.getElementById('tfAvailStatus').style.display = 'none'; markSnTfDur('active'); }
+        } else if (hadTime) tfDurReset();
+      }
+    } catch (e) {}
+    if ((hadTime && !selTime) || (hadDur && !selDur)) { tfAvailableBays = []; updateFormReady(); }
+    fetchPrice();
+  }
+  // time-first's duration step with no start chosen: closed, empty, no time named (as a new date leaves it)
+  function tfDurReset() {
+    tfAvailableBays = [];
+    document.getElementById('tfDurPills').innerHTML = '';
+    document.getElementById('tfAvailStatus').style.display = 'none';
+    document.getElementById('stepTfDur').classList.remove('ready');
+    document.getElementById('tfDurSub').textContent = 'Select a start time first';
+    markSnTfDur('');
+  }
+  function pkgPick(id) { PKG = PKGS.find(p => p.id === id) || null; PKG_PLAYERS = PKG ? (PKG.min_players || 1) : 0; pkgApply(); }
+  function pkgClear() { PKG = null; PKG_PLAYERS = 0; pkgApply(); }
+  function pkgPlayers(v) { PKG_PLAYERS = parseInt(v, 10) || 1; pkgPillsRelabel(); fetchPrice(); }
+  window.pkgPick = pkgPick; window.pkgClear = pkgClear; window.pkgPlayers = pkgPlayers;
+  // ONE CHOICE, ONE PRICE (Oct 27 2026; the sandbox's port, its item 6): with a package picked its one length pill read the
+  // regular price of that length from /api/pricing/calculate ("2 hr - $60.00") while the summary said the package's ($225.00 for
+  // 9 players). The pill reads the package's own quote now - the SAME /api/bookings/package-quote the summary reads, worked by the
+  // taxFor the charge uses - for the players picked, before tax as every pill is (the summary's Subtotal line). Nothing of a
+  // member's number or a deal: the package is the deal. Not cached, so it never says an older price than the summary
+  function pkgPill(pill, base) {
+    pill.dataset.pkgBase = base; pill.textContent = base;
+    if (!PKG) return;
+    const id = PKG.id, players = PKG_PLAYERS || PKG.min_players || 1;
+    fetch('/api/bookings/package-quote?id=' + encodeURIComponent(id) + '&players=' + players)
+      .then(r => r.status === 429 ? null : r.json())
+      .then(q => {
+        if (!q || q.error || typeof q.price_cents !== 'number') return;
+        if (!PKG || PKG.id !== id || (PKG_PLAYERS || PKG.min_players || 1) !== players) return;   // (picked again since it asked)
+        pill.textContent = base + ' - $' + (q.price_cents / 100).toFixed(2) + (q.players > 1 ? ' for ' + q.players + ' players' : '');
+      }).catch(() => {});
+  }
+  // the players changed: every package pill on the page says the new price
+  function pkgPillsRelabel() { document.querySelectorAll('.dur-pill[data-pkg-base]').forEach(p => pkgPill(p, p.dataset.pkgBase)); }
+  // A PACKAGE'S LENGTH IS THE PACKAGE'S (Oct 27 2026): where it does not fit from a start, the words - never a shorter session,
+  // which the package refuses ("That package is 2 hours of bay time.")
+  // (never "from ." - a time is named only when there is one; Oct 27 2026)
+  function pkgNoFit(who, ts) { return 'The ' + PKG.name + ' package is ' + PKG.length + ' of bay time, and ' + who + ' that long' + (ts ? ' from ' + fmt12(ts) : '') + '.'; }
+  // THE CLOSE IS SAID AS THE CLOSE (Oct 27 2026, the review of 015c98e): a length that would end after closing time was told
+  // "no bay is free that long" / "Bay 1 is not free that long" while every bay stood empty. The closing time is a fact about the
+  // day, not about a bay - no other bay and no later start helps - so wherever a length does not fit, this one test decides
+  // the reason first, for both flows and for a package's length and a regular one alike (pkgWhyNot, selectTfDur)
+  function endsAfterClose(startMins, mins) { return !OPEN24 && startMins + mins > CLOSE_END; }
+  function closeAt() { return CLOSE_END % 1440 === 0 ? 'midnight' : fmt12(m2t(CLOSE_END)); }
+  // the latest start on this day from which the package still ends by closing - inside its own window, not past - or null
+  function pkgLatestStart() {
+    let best = null;
+    for (let m = OPEN; m + Math.max(PKG.minutes, MIN_SESSION) <= CLOSE_END; m += 30) if (pkgFits(m) && !slotIsPast(m)) best = m;
+    return best;
+  }
+  // why the package's length does not fit from a start, in words: the close when it is the close; otherwise who is not free
+  function pkgWhyNot(who, ts, advice) {
+    if (ts && endsAfterClose(t2m(ts), PKG.minutes)) {
+      const latest = pkgLatestStart();
+      return 'The ' + PKG.name + ' package is ' + PKG.length + ' of bay time, and from ' + fmt12(ts) + ' it would end after closing (' + closeAt() + '). '
+        + (latest !== null ? 'Please pick a start time by ' + fmt12(m2t(latest)) + '.' : 'It does not fit before closing on this day - please pick another day.');
+    }
+    return pkgNoFit(who, ts) + ' ' + advice;
+  }
+  // a chosen package's days, first and last day and start window (the server holds the same - services/packages.js)
+  function pkgFits(sm) {
+    if (!PKG || !selDate) return true;
+    if (PKG.date_from && selDate < PKG.date_from) return false;
+    if (PKG.date_to && selDate > PKG.date_to) return false;
+    const days = String(PKG.days || '').split(',').filter(Boolean);
+    if (days.length && !days.includes(DAY_NAMES[new Date(selDate + 'T12:00:00').getDay()])) return false;
+    const t = m2t(sm);
+    if (PKG.start_from && t < PKG.start_from) return false;
+    if (PKG.start_until && t > PKG.start_until) return false;
+    return true;
+  }
+  function slotOk(sm) {
+    if (!pkgFits(sm)) return false;
+    // A start is allowed only if at least a minimum session fits before close.
+    if (!OPEN24 && sm + MIN_SESSION > CLOSE_END) return false;
+    // Available if the minimum session doesn't overlap an existing booking.
+    const probe = MIN_SESSION;
+    if (BOOKING_FLOW === 'time-first') {
+      const active = FORCED_BAY ? [FORCED_BAY] : bays.filter(b => !b.maintenance);
+      if (active.length === 0) return false;
+      const fromServer = slotFreeFromServer(sm);
+      if (fromServer !== null) return fromServer;
+      return active.some(b => {
+        const slots = availByBay[b.id] || [];
+        return !slots.some(bk => overlapsBooking(sm, probe, bk));
+      });
+    }
+    for (const b of getBookedSlots()) {
+      if (overlapsBooking(sm, probe, b)) return false;
+    }
+    return true;
+  }
+
+  // ── AVAILABILITY IS THE SERVER'S ANSWER, NOT A SECOND IMPLEMENTATION ───────
+  // (maintainer, Sep 19 2026.) This used to fold the raw booking list itself:
+  //     active.every(bay => bay is busy)
+  // which is the same question bookingcore.findConflict answers at create - and
+  // it drifted. In whole-facility mode ONE booking owns the building, so a slot
+  // with one bay blocked is NOT available; `every` said it was. A customer was
+  // offered 10:00, picked a duration, reached checkout and met a 409 there.
+  // /api/bookings/availability now returns slotFree, computed through the real
+  // findConflict, and the page renders it. The local fold stays ONLY as the
+  // fallback for an older server that does not send slotFree - and
+  // test-wholefacility walks the grid and the create route for the same window
+  // and fails if they ever disagree again.
+  function slotFreeFromServer(sm) {
+    if (!SLOT_FREE) return null;
+    const t = String(Math.floor(sm / 60) % 24).padStart(2, '0') + ':' + String(sm % 60).padStart(2, '0');
+    const v = SLOT_FREE[t];
+    return (v === true || v === false) ? v : null;
+  }
+  function slotBooked(sm) {
+    const fromServer = slotFreeFromServer(sm);
+    if (fromServer !== null) return !fromServer;
+    const probe = MIN_SESSION;
+    if (BOOKING_FLOW === 'time-first') {
+      const active = FORCED_BAY ? [FORCED_BAY] : bays.filter(b => !b.maintenance);
+      if (active.length === 0) return true;
+      return active.every(b => {
+        const slots = availByBay[b.id] || [];
+        return slots.some(bk => overlapsBooking(sm, probe, bk));
+      });
+    }
+    return getBookedSlots().some(b => overlapsBooking(sm, probe, b));
+  }
+
+  function slotIsPast(sm) {
+    if (!selDate) return false;
+    return new Date(selDate+'T'+m2t(sm)+':00') <= serverNow();
+  }
+
+  function renderTimes() {
+    const tf = BOOKING_FLOW === 'time-first';
+    if (!selDate || (!selBay && !tf)) { document.getElementById('stepTime').classList.remove('ready'); return; }
+    document.getElementById('stepTime').classList.add('ready');
+    const d = new Date(selDate+'T12:00:00');
+    const dateLabel = d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+    document.getElementById('timeSub').textContent = tf
+      ? `${FORCED_BAY ? FORCED_BAY.name + ' · ' : ''}${dateLabel} · tap a time to continue`
+      : `${selBay.name} · ${dateLabel} · tap a time to see available durations`;
+    // STAFFED HOURS ON THE PAGE (Sep 2026): when the chosen day has a window
+    // where someone is at the counter, say so in the owner's own words and
+    // dot every slot inside it. An always-staffed facility needs no line -
+    // every hour is staffed; unstaffed days render nothing at all.
+    const R0 = window.BOOK_RULES || {};
+    const sw = (!R0.staffedAccess && Array.isArray(R0.staffedWindows)) ? R0.staffedWindows.find(w => w.date === selDate) : null;
+    const inWin = ts => !!sw && ((!sw.start_time && !sw.end_time) || (ts >= sw.start_time && ts < sw.end_time));
+    let sl = document.getElementById('staffedLine');
+    if (!sl) { sl = document.createElement('div'); sl.id = 'staffedLine'; sl.className = 'staffed-line'; const ts0 = document.getElementById('timeSub'); if (ts0 && ts0.parentNode) ts0.parentNode.insertBefore(sl, ts0.nextSibling); }
+    if (sl) { sl.style.display = sw ? '' : 'none'; if (sw) sl.textContent = (R0.staffedLabel || 'Staffed hours') + ' ' + ((!sw.start_time && !sw.end_time) ? 'all day' : fmt12(sw.start_time) + ' – ' + (sw.end_time === '23:59' ? 'midnight' : fmt12(sw.end_time))); }
+    ['gridL','gridM','gridA','gridE'].forEach(id => document.getElementById(id).innerHTML = '');
+    document.getElementById('groupL').style.display = OPEN24 ? '' : 'none';
+    // Start slots are shown for the selected calendar day. The last start is the
+    // latest time a minimum session fits before close; for 24/7 that's the end of
+    // the day (23:30), and the chosen duration may still cross midnight.
+    const lastStart = OPEN24 ? (1440 - 30) : Math.max(OPEN, CLOSE_END - MIN_SESSION);
+    for (let m=OPEN; m<=lastStart; m+=30) {
+      const ts = m2t(m);
+      const past = slotIsPast(m), booked = !past && slotBooked(m), avail = !past && !booked && slotOk(m);
+      const el = document.createElement('button');
+      el.type = 'button';
+      el.className = 'time-slot';
+      el.textContent = fmt12(ts);
+      // THE CHIP IS THIS PERSON'S RATE, or no rate at all (maintainer, Sep 19 2026).
+      // Order: the member's own rate once they have identified; otherwise the
+      // public rate; at a members-only club, neither - the page asks for the
+      // code instead of showing a price nobody there can be charged.
+      // With a package picked, no rate at all (Oct 27 2026): the package's price is the booking's, not a half-hour rate
+      var chipText = null;
+      var mr = (!past && !PKG && MEMBER_DAY_RATES) ? MEMBER_DAY_RATES[ts] : null;
+      if (mr) {
+        if (mr.included) chipText = 'included';
+        else if (typeof mr.per30Cents === 'number') {
+          var mv = mr.per30Cents / 100;
+          chipText = '$' + (mv % 1 ? mv.toFixed(2) : mv);
+        }
+      } else if (!past && !PKG && !MEMBER_RATES_ONLY && SHOW_SLOT_PRICES && SLOT_PRICES && SLOT_PRICES[ts] != null) {
+        var v = Math.max(0, Number(SLOT_PRICES[ts]) + ((selBay && selBay.priceAdjustCents) || 0) / 100);
+        chipText = '$' + (v % 1 ? v.toFixed(2) : v);
+      }
+      if (chipText) {
+        var pr = document.createElement('span');
+        pr.className = 'slot-price';
+        pr.textContent = chipText;
+        el.appendChild(pr);
+      }
+      if (past) el.classList.add('past');
+      else if (booked) el.classList.add('unavail');
+      if (!past && inWin(ts)) el.classList.add('staffed-slot');
+      if (selTime === ts && selDur) el.classList.add('selected');
+      if (avail) el.onclick = () => pickTime(ts);
+      document.getElementById(m<5*60?'gridL':m<12*60?'gridM':m<18*60?'gridA':'gridE').appendChild(el);
+    }
+  }
+
+  function pickTime(ts) {
+    selTime = ts; selDur = null;
+    renderTimes();
+    if (BOOKING_FLOW === 'time-first') {
+      // Show inline duration step instead of modal
+      tfAvailableBays = [];
+      const tfDur = document.getElementById('stepTfDur');
+      tfDur.classList.add('ready');
+      markSnTfDur('active');
+      document.getElementById('tfDurSub').textContent = 'Session starting at ' + fmt12(ts);
+      document.getElementById('tfAvailStatus').style.display = 'none';
+      buildTfDurPills();
+      // Reset form step
+      document.getElementById('stepDetails').classList.remove('ready');
+      document.getElementById('summaryBox').classList.remove('visible');
+      setTimeout(() => tfDur.scrollIntoView({behavior:'smooth',block:'start'}), 80);
+    } else {
+      openDurationModal(ts);
+    }
+  }
+
+  // ── DURATION MODAL ─────────────────────────────────────────────────────────
+  function openDurationModal(timeStr) {
+    if (!selBay || !selDate) return;
+    const bookedSlots = getBookedSlots();
+    // A PACKAGE'S OWN LENGTH DECIDES (Oct 27 2026, the review of 74c5428): a package longer than the facility's longest session
+    // (booking.maxSessionMins) found no length at any start on a wholly free bay and was told "Bay 1 is not free that long" -
+    // a false reason, and no other start helped. The package's length is the session's (rebuildDurs; the time-first step and the
+    // server already take it), so only a booking or the close caps it here
+    const lenCap = PKG ? PKG.minutes : MAX_SESSION;
+    const startMins = t2m(timeStr);
+    // Cap by the bay's own bookings (day-aware): the next one to start, or 0 while one is still running (bayFreeMins)
+    let maxMins = bayFreeMins(bookedSlots, startMins, lenCap);
+    // Cap so the session ENDS by closing time (skipped entirely if 24/7).
+    if (!OPEN24) {
+      const toClose = CLOSE_END - startMins;
+      if (toClose < maxMins) maxMins = toClose;
+    }
+
+    const availDurs = DURS.filter(d => d.m <= maxMins);
+    const blockedDurs = DURS.filter(d => d.m > maxMins);
+
+    document.getElementById('durationModalTitle').textContent = 'Session at ' + fmt12(timeStr);
+    document.getElementById('durationModalSub').textContent = selBay.name + ' · ' + new Date(selDate+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+
+    const pillsContainer = document.getElementById('modalDurationPills');
+    pillsContainer.innerHTML = '';
+    availDurs.forEach(function(dur) {
+      const pill = document.createElement('button');
+      pill.type = 'button';
+      pill.className = 'dur-pill';
+      pill.textContent = dur.l;
+      if (PKG) pkgPill(pill, dur.l);                 // a package picked: the package's own price (pkgPill)
+      else if (selDate && timeStr) {
+        const cacheKey = selDate + '_' + timeStr + '_' + dur.m + '_' + (selBay&&selBay.id||'');
+        const ml = pillLabel(dur.l, dur.m);
+        if (ml !== undefined) {
+          if (ml) pill.textContent = ml;              // the member's own number
+        } else if (Number.isFinite(priceCache[cacheKey])) {
+          pill.textContent = dur.l + ' - $' + (priceCache[cacheKey]/100).toFixed(2);
+        } else {
+          fetch('/api/pricing/calculate?date='+selDate+'&start_time='+timeStr+'&duration='+dur.m+(selBay&&selBay.id?'&bay_id='+encodeURIComponent(selBay.id):''))
+            .then(function(r){
+              if (r.status === 429) {
+                // Rate limited - show duration without price, don't break UI
+                return null;
+              }
+              return r.json();
+            })
+            .then(function(d){
+              if (Number.isFinite(d?.priceCents)) {
+                priceCache[cacheKey] = d.priceCents;
+                pill.textContent = dur.l + ' - $'+(d.priceCents/100).toFixed(2);
+              }
+            })
+            .catch(function(){});
+        }
+      }
+      pill.onclick = function() {
+        selDur = dur.m; selTime = timeStr;
+        closeDurationModal();
+        markStep(3,'done'); markStep(4,'active');
+        updateFormReady();
+        setTimeout(function(){ document.getElementById('stepDetails').scrollIntoView({behavior:'smooth',block:'start'}); }, 80);
+      };
+      pillsContainer.appendChild(pill);
+    });
+    // the package's length does not fit from this start: the modal said nothing at all - it says why now (pkgNoFit)
+    if (PKG && !availDurs.length) {
+      const why = document.createElement('div');
+      why.style.cssText = 'flex-basis:100%;font-size:13px;line-height:1.55;color:var(--gold);overflow-wrap:anywhere';
+      why.textContent = pkgWhyNot(selBay.name + ' is not free', timeStr, 'Please pick another start time.');
+      pillsContainer.appendChild(why);
+    }
+
+    // Cross-bay suggestion
+    // THE TIP NAMES ONLY A BAY THAT GIVES MORE FROM THIS START (Oct 27 2026, the review of 015c98e). Only the first other bay was
+    // read, and only by the bookings starting after the start: a bay with a booking still running then (or one down for
+    // maintenance, which the server refuses) was offered, and its start was greyed after the switch. Now every other bay the
+    // customer can book is read by the same bayFreeMins as this one, capped by the close and the length asked about; a bay is
+    // named only when its start can be tapped there (slotOk's own minimum-session test) and it holds a length this bay cannot -
+    // with a package, the package's whole length (no "up to 1.5 hr" for a 2-hour package). The one holding the most is named
+    const cbEl = document.getElementById('crossBaySuggestion');
+    let tipBay = null;
+    if (blockedDurs.length > 0) {
+      const cap = Math.min(lenCap, OPEN24 ? lenCap : (CLOSE_END - startMins));   // no bay can outlast the close
+      for (const ob of bays) {
+        if (ob.id === selBay.id || ob.maintenance) continue;
+        const slots = availByBay[ob.id] || [];
+        if (bayFreeMins(slots, startMins, Infinity) < MIN_SESSION) continue;   // this start is greyed on that bay
+        const reach = bayFreeMins(slots, startMins, cap);
+        const durs = DURS.filter(function(d){ return d.m <= reach; });
+        if (durs.length > availDurs.length && (!tipBay || reach > tipBay.reach)) tipBay = { bay: ob, reach: reach, best: durs[durs.length - 1] };
+      }
+    }
+    if (tipBay) {
+      document.getElementById('crossBayText').textContent = 'Tip: ' + tipBay.bay.name + ' has sessions up to ' + tipBay.best.l + ' available at this time';
+      document.getElementById('crossBayBtn').textContent = 'Switch to ' + tipBay.bay.name;
+      document.getElementById('crossBayBtn').dataset.bayId = tipBay.bay.id;
+      cbEl.style.display = 'block';
+    } else { cbEl.style.display = 'none'; }
+
+    document.getElementById('durationModal').style.display = 'flex';
+  }
+
+  function closeDurationModal() { document.getElementById('durationModal').style.display = 'none'; }
+
+  // ── TIME-FIRST DURATION + AVAILABILITY ────────────────────────────────────
+  function buildTfDurPills() {
+    const container = document.getElementById('tfDurPills');
+    container.innerHTML = '';
+    DURS.forEach(dur => {
+      const pill = document.createElement('button');
+      pill.type = 'button';
+      pill.className = 'dur-pill';
+      pill.textContent = dur.l;
+      pill.dataset.mins = dur.m;
+      if (PKG) pkgPill(pill, dur.l);                 // a package picked: the package's own price (pkgPill)
+      else if (selDate && selTime) {
+        const cacheKey = selDate + '_' + selTime + '_' + dur.m + '_' + (selBay&&selBay.id||'');
+        if (Number.isFinite(priceCache[cacheKey])) {
+          pill.textContent = dur.l + ' - $' + (priceCache[cacheKey]/100).toFixed(2);
+        } else {
+          fetch('/api/pricing/calculate?date='+selDate+'&start_time='+selTime+'&duration='+dur.m+(selBay&&selBay.id?'&bay_id='+encodeURIComponent(selBay.id):''))
+            .then(r => r.status===429 ? null : r.json())
+            .then(d => {
+              if (Number.isFinite(d?.priceCents)) {
+                priceCache[cacheKey] = d.priceCents;
+                pill.textContent = dur.l + ' - $' + (d.priceCents/100).toFixed(2);
+              }
+            }).catch(()=>{});
+        }
+      }
+      // a length still chosen when the pills are drawn again (a 2-hour package cleared, its 2 hours kept and still "Available")
+      // is the one shown chosen (Oct 27 2026) - not a row of pills with none marked beside "Available"
+      if (selDur === dur.m) { pill.style.borderColor = 'var(--gold)'; pill.style.color = 'var(--gold)'; }
+      pill.onclick = () => selectTfDur(dur.m);
+      container.appendChild(pill);
+    });
+  }
+
+  async function selectTfDur(dur) {
+    // no start chosen (Oct 27 2026): nothing to check and no time to name - the step closes, as with a new date
+    if (!selDate || !selTime) { selDur = null; tfDurReset(); updateFormReady(); return; }
+    selDur = dur;
+    // Highlight the selected pill
+    document.querySelectorAll('#tfDurPills .dur-pill').forEach(p => {
+      const active = parseInt(p.dataset.mins) === dur;
+      p.style.borderColor = active ? 'var(--gold)' : '';
+      p.style.color       = active ? 'var(--gold)' : '';
+    });
+
+    const statusEl = document.getElementById('tfAvailStatus');
+    statusEl.style.display = 'block';
+    statusEl.style.background = 'var(--surface)';
+    statusEl.style.borderColor = 'var(--border)';
+    statusEl.style.color = 'var(--muted)';
+    statusEl.textContent = 'Checking availability...';
+
+    try {
+      const res = await fetch(`/api/bookings/availability-by-time?date=${selDate}&start_time=${selTime}&duration=${dur}${FORCED_BAY ? '&bay=' + encodeURIComponent(FORCED_BAY.id) : ''}`);
+      const data = await res.json();
+
+      // QR forced bay: only that bay counts as available.
+      if (FORCED_BAY && data.available_bays) {
+        data.available_bays = data.available_bays.filter(b => b.id === FORCED_BAY.id);
+      }
+
+      if (data.available_bays && data.available_bays.length > 0) {
+        // Slots open — proceed to checkout
+        tfAvailableBays = data.available_bays;
+        statusEl.style.background = 'rgba(74,201,122,0.08)';
+        statusEl.style.borderColor = 'rgba(74,201,122,0.3)';
+        statusEl.style.color = 'var(--success)';
+        statusEl.textContent = FORCED_BAY
+          ? `Available on ${FORCED_BAY.name}.`
+          : (WHOLE_FACILITY ? 'Available — the entire facility is yours for this time.'
+                            : 'Available — a bay will be assigned at checkout.');
+        markSnTfDur('done');
+        markStep(4, 'active');
+        updateFormReady();
+        setTimeout(() => document.getElementById('stepDetails').scrollIntoView({behavior:'smooth',block:'start'}), 120);
+
+      } else if (PKG) {
+        // A package picked (Oct 27 2026): its length is the package's - no shorter session below (pkgNoFit), its own words
+        tfAvailableBays = []; selDur = null;
+        statusEl.style.background = 'rgba(201,162,39,0.08)';
+        statusEl.style.borderColor = 'rgba(201,162,39,0.4)';
+        statusEl.style.color = 'var(--gold)';
+        statusEl.textContent = pkgWhyNot(WHOLE_FACILITY ? 'the facility is not free' : (FORCED_BAY ? FORCED_BAY.name + ' is not free' : 'no bay is free'), selTime, 'Please try a different start time.');
+        updateFormReady();
+
+      } else if (data.available_durations && data.available_durations.length > 0) {
+        // Requested duration full — offer shorter options
+        tfAvailableBays = []; selDur = null;
+        statusEl.style.background = 'rgba(201,162,39,0.08)';
+        statusEl.style.borderColor = 'rgba(201,162,39,0.4)';
+        statusEl.style.color = 'var(--gold)';
+        // (the close said as the close, Oct 27 2026: "No bays available for 2 hrs" at 10:30 PM read as every bay busy)
+        statusEl.textContent = endsAfterClose(t2m(selTime), dur)
+          ? 'From ' + fmt12(selTime) + ', ' + fmtDur(dur) + ' would end after closing (' + closeAt() + '). Try a shorter session below:'
+          : (WHOLE_FACILITY ? 'The facility is not free for ' : 'No bays available for ') + fmtDur(dur) + ' at this time. Try a shorter session below:';
+        // Replace pills with only the available shorter durations
+        const container = document.getElementById('tfDurPills');
+        container.innerHTML = '';
+        data.available_durations.forEach(m => {
+          const d = DURS.find(d => d.m === m) || { l: fmtDur(m), m };
+          const pill = document.createElement('button');
+      pill.type = 'button';
+          pill.className = 'dur-pill';
+          pill.textContent = d.l;
+          pill.dataset.mins = m;
+          const cacheKey = selDate + '_' + selTime + '_' + m;
+          const ml2 = pillLabel(d.l, m);
+          if (ml2 !== undefined) {
+            if (ml2) pill.textContent = ml2;          // the member's own number
+          } else if (Number.isFinite(priceCache[cacheKey])) {
+            pill.textContent = d.l + ' - $' + (priceCache[cacheKey]/100).toFixed(2);
+          } else {
+            fetch('/api/pricing/calculate?date='+selDate+'&start_time='+selTime+'&duration='+m+(selBay&&selBay.id?'&bay_id='+encodeURIComponent(selBay.id):''))
+              .then(r => r.status===429 ? null : r.json())
+              .then(pd => {
+                if (Number.isFinite(pd?.priceCents)) {
+                  priceCache[cacheKey] = pd.priceCents;
+                  pill.textContent = d.l + ' - $' + (pd.priceCents/100).toFixed(2);
+                }
+              }).catch(()=>{});
+          }
+          pill.onclick = () => selectTfDur(m);
+          container.appendChild(pill);
+        });
+        updateFormReady();
+
+      } else {
+        // Fully booked at this time
+        tfAvailableBays = []; selDur = null;
+        statusEl.style.background = 'rgba(201,74,74,0.08)';
+        statusEl.style.borderColor = 'rgba(201,74,74,0.3)';
+        statusEl.style.color = 'var(--danger)';
+        statusEl.textContent = 'Fully booked at this time. Please try a different start time.';
+        updateFormReady();
+      }
+    } catch(e) {
+      tfAvailableBays = []; selDur = null;
+      statusEl.style.background = 'rgba(201,74,74,0.08)';
+      statusEl.style.borderColor = 'rgba(201,74,74,0.3)';
+      statusEl.style.color = 'var(--danger)';
+      statusEl.textContent = 'Could not check availability. Please try again.';
+      updateFormReady();
+    }
+  }
+
+  function switchToCrossBay() {
+    const bayId = document.getElementById('crossBayBtn').dataset.bayId;
+    const newBay = bays.find(function(b){ return b.id === bayId; });
+    if (!newBay) return;
+    document.querySelectorAll('.bay-card').forEach(function(c){ c.classList.toggle('selected', c.dataset.bayId === bayId); });
+    selBay = newBay; selDur = null; selTime = null;
+    closeDurationModal();
+    loadAvailability().then(function(){ renderTimes(); });
+    document.getElementById('stepTime').scrollIntoView({behavior:'smooth',block:'start'});
+  }
+
+  // ── FORM READY ─────────────────────────────────────────────────────────────
+  function updateFormReady() {
+    // (a length the page does not offer right now is no length chosen - lenOffered, Oct 27 2026)
+    const ready = BOOKING_FLOW === 'time-first'
+      ? !!(selDate && selTime && lenOffered(selDur) && tfAvailableBays.length > 0)
+      : !!(selBay && selDate && selTime && lenOffered(selDur));
+    const detailsEl = document.getElementById('stepDetails');
+    const summaryEl = document.getElementById('summaryBox');
+    if (ready) { detailsEl.classList.add('ready'); summaryEl.classList.add('visible'); }
+    else { detailsEl.classList.remove('ready'); summaryEl.classList.remove('visible'); }
+    if (!ready) return;
+
+    const endM = t2m(selTime)+selDur;
+    const d = new Date(selDate+'T12:00:00');
+    document.getElementById('sumBay').textContent  = BOOKING_FLOW === 'time-first' ? (FORCED_BAY ? FORCED_BAY.name : 'Auto-assigned at checkout') : selBay.name;
+    document.getElementById('sumDate').textContent = d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+    document.getElementById('sumTime').textContent = `${fmt12(selTime)} - ${fmt12(m2t(endM))}`;
+    document.getElementById('sumDur').textContent  = fmtDur(selDur);
+    document.getElementById('sumPrice').textContent = 'Calculating...';
+    fetchPrice();
+  }
+
+  let STAFFED = false;
+  // WHEN THE DOOR CODE ARRIVES, AT THE OWNER'S TIMING (Oct 3 2026): the success screen said "about 15 minutes"
+  // whatever the Door card was set to, while the texts and emails said the owner's minutes. /api/booking-rules
+  // carries the phrase; '' means this facility sends no door code (staffed, or no lock), so none is promised.
+  let CODE_TIMING = 'about 15 minutes before your session';
+  // Staffed facilities: nothing on this page may promise a door code.
+  // Consent label swaps between two FIXED compliant texts (never owner-edited).
+  function applyStaffedCopy() {
+    const sub = document.querySelector('#sn4')?.parentElement?.querySelector('.step-subtitle');
+    if (sub) sub.textContent = 'Your confirmation & reminders - by email, or text if you choose';
+    const bh = document.getElementById('smsBenefitHead');
+    if (bh) bh.textContent = 'Want booking updates by text? It\u2019s optional - email always works too.';
+    document.getElementById('smsOptInHeadline').textContent = 'Text me my booking updates.';
+    document.getElementById('smsOptInUse').textContent = 'booking confirmations, reminders, session-ending notices, and cancellations';
+    document.getElementById('smsOptInFallback').textContent = 'If you do not opt in, your booking updates will be sent to your email instead.';
+  }
+  let LAST_PIN_SESSION = '';
+  // Text -> HTML for server strings dropped into innerHTML (the blend note).
+  function escHtml(t) { const d = document.createElement('div'); d.textContent = t == null ? '' : String(t); return d.innerHTML; }
+  async function fetchPrice() {
+    // Verify-first follow-up: when a verified member picks (or changes) their
+    // session, re-run PIN validation against it so hour limits, day/time/bay
+    // restrictions, and the hybrid over-limit discount reflect THIS session.
+    if (memberResult?.valid && selDate && selTime && selDur) {
+      const key = `${selDate}|${selTime}|${selDur}|${selBay?.id||''}`;
+      if (key !== LAST_PIN_SESSION) { LAST_PIN_SESSION = key; await validateMemberPin(); }
+    }
+    if (!selDate || !selTime || !selDur) return;
+    const pkgRow = document.getElementById('sumPkgRow'), dealRow = document.getElementById('sumDealRow'), mny = (c) => '$' + ((c | 0) / 100).toFixed(2);
+    // A PACKAGE (Oct 22 2026): its own quote - the SAME tax lines the charge uses (services/packages.js taxFor) - and nothing of
+    // a member's price, a code or a deposit on top: the package is the deal
+    if (PKG) {
+      try {
+        const q = await fetch(`/api/bookings/package-quote?id=${encodeURIComponent(PKG.id)}&players=${PKG_PLAYERS || PKG.min_players || 1}`).then(r => r.json());
+        const priceEl = document.getElementById('sumPrice'), subRow = document.getElementById('sumSubtotalRow'), taxRow = document.getElementById('sumTaxRow');
+        const dep = document.getElementById('depositInfo'); if (dep) { dep.style.display = 'none'; dep.innerHTML = ''; }
+        if (dealRow) dealRow.style.display = 'none';
+        { const fr = document.getElementById('sumFreeRow'); if (fr) fr.style.display = 'none'; }
+        if (pkgRow) { document.getElementById('sumPkg').textContent = PKG.name + (q.players > 1 ? ' - ' + q.players + ' players' : '') + (q.includes ? ' - includes ' + q.includes : ''); pkgRow.style.display = ''; }
+        if (q.error) { priceEl.textContent = q.error; window.__CHARGE_TOTAL_CENTS = null; return; }
+        if (q.tax && q.tax.tax_cents > 0) {
+          document.getElementById('sumSubtotal').textContent = mny(q.price_cents);
+          document.getElementById('sumTaxLabel').textContent = 'Tax (' + q.tax.lines.map(l => (q.tax.lines.length > 1 ? l.label + ' ' : '') + l.rate + '%').join(', ') + ')';
+          document.getElementById('sumTax').textContent = mny(q.tax.tax_cents);
+          priceEl.textContent = mny(q.total_cents);
+          if (subRow) subRow.style.display = ''; if (taxRow) taxRow.style.display = '';
+          window.__CHARGE_TOTAL_CENTS = q.total_cents;
+        } else {
+          if (subRow) subRow.style.display = 'none'; if (taxRow) taxRow.style.display = 'none';
+          priceEl.textContent = mny(q.price_cents) + (q.tax_at_checkout ? ' + tax at checkout' : '');
+          window.__CHARGE_TOTAL_CENTS = q.price_cents;
+        }
+      } catch {}
+      return;
+    }
+    if (pkgRow) pkgRow.style.display = 'none';
+    try {
+      const res = await fetch(`/api/pricing/calculate?date=${selDate}&start_time=${selTime}&duration=${selDur}${selBay&&selBay.id?`&bay_id=${encodeURIComponent(selBay.id)}`:''}`);
+      const d = await res.json();
+      // A BOOKING DEAL (Oct 22 2026): its name and what it takes off, on its own line; a member's own price is worked from the
+      // price before it and held to the deal's (the server's member cap) - so the Total is what the card is charged
+      // free things with this session (a free-things deal - Oct 22 2026, night): nothing to pick, picked up at the front desk
+      const freeRow = document.getElementById('sumFreeRow'); if (freeRow) { if (d.freeItems && d.freeItems.words) { document.getElementById('sumFree').textContent = d.freeItems.words; freeRow.style.display = ''; } else freeRow.style.display = 'none'; }
+      if (dealRow) { if (d.deal) { document.getElementById('sumDeal').textContent = d.deal.name + ': -' + mny(d.deal.cents) + ' (was ' + mny(d.originalCents) + ')'; dealRow.style.display = ''; } else dealRow.style.display = 'none'; }
+      const base = (d.deal && memberResult?.valid && d.originalCents) ? d.originalCents : d.priceCents;
+      const taxInfo = d.tax || { enabled: false, rate: 0, label: 'Tax' };   // #8
+      let displayPrice = base;
+      let hasDiscount = false;
+      let guestFee = 0;
+      window.DEPOSIT_ACTIVE = false;
+      window.BOOKING_DEPOSIT = false;
+      window.BLEND_DOOR = false;
+      window.BLEND_QUOTE = null;
+      const depBox = document.getElementById('depositInfo');
+      if (depBox) { depBox.style.display = 'none'; depBox.innerHTML = ''; }
+
+      // FACILITY BOOKING DEPOSIT (non-members): per-half-hour deposit online,
+      // the remainder settles at the door and credits the WHOLE group.
+      if (!(memberResult && memberResult.valid) && window.staffedAtSel && window.staffedAtSel()
+          && window.BOOK_RULES.depositMode === 'per30' && window.BOOK_RULES.depositPer30 > 0) {
+        const depC = Math.min(Math.round(window.BOOK_RULES.depositPer30 * 100) * (selDur / 30), base);
+        if (depC > 0 && depC < base) {
+          window.BOOKING_DEPOSIT = true;
+          displayPrice = depC;
+          const bm = (c) => '$' + (c/100).toFixed(2);
+          let brows = '';
+          for (let n = 1; n <= 4; n++) {
+            brows += '<div style="display:flex;justify-content:space-between;gap:10px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.05)">'
+              + '<span style="color:var(--muted,#8b918b)">' + n + ' golfer' + (n>1?'s':'') + '</span>'
+              + '<span>' + bm(Math.round(base / n)) + '/person</span></div>';
+          }
+          if (depBox) {
+            depBox.innerHTML =
+              '<div style="font-weight:600;color:var(--gold,#c9a227);margin-bottom:4px">Deposit only - ' + bm(depC) + ' today</div>'
+              + '<div>This payment reserves ' + swReserves() + '. The remaining golf settles at the door, and your deposit credits the whole group - split it any way you like when you arrive.</div>'
+              + '<div style="margin-top:10px;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--muted,#8b918b)">Full session ' + bm(base) + ' - at the door per person</div>'
+              + brows;
+            depBox.style.display = 'block';
+          }
+        }
+      }
+
+      // Apply member discount for display
+      // over-limit members may still carry a secondary (hybrid) discount - show it
+      if (memberResult?.valid && !memberResult.restricted && memberResult.discount_type) {
+        if (memberResult.discount_type === 'percentage') {
+          displayPrice = Math.round(base * (1 - memberResult.discount_value / 100));
+        } else if (memberResult.discount_type === 'fixed') {
+          displayPrice = Math.max(0, base - Math.round(memberResult.discount_value * 100));
+        } else if (memberResult.discount_type === 'flat_rate') {
+          displayPrice = Math.round(memberResult.discount_value * 100 * (selDur / 30));
+          if (memberResult.deposit_mode && window.staffedAtSel && window.staffedAtSel()) {
+            // Deposit mode: the member's online charge only reserves the bay.
+            window.DEPOSIT_ACTIVE = true;
+            const dPct = memberResult.share_discount_pct || 0;
+            const money = (c) => '$' + (c/100).toFixed(2);
+            let rows = '';
+            for (let n = 1; n <= 4; n++) {
+              const share = Math.round(base / n);
+              const memberShare = Math.round(share * (1 - dPct/100));
+              rows += '<div style="display:flex;justify-content:space-between;gap:10px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.05)">'
+                + '<span style="color:var(--muted,#8b918b)">' + n + ' golfer' + (n>1?'s':'') + '</span>'
+                + '<span>' + money(share) + '/person' + (dPct>0 ? ' &middot; <span style="color:var(--gold,#c9a227)">member ' + money(memberShare) + '</span>' : '') + '</span>'
+                + '</div>';
+            }
+            if (depBox) {
+              depBox.innerHTML =
+                '<div style="font-weight:600;color:var(--gold,#c9a227);margin-bottom:4px">Deposit only</div>'
+                + '<div>This payment reserves ' + swReserves() + '. Member pricing and each player\'s share are settled at the door based on your final group size; your deposit is credited to your tab when you arrive.</div>'
+                + '<div style="margin-top:10px;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--muted,#8b918b)">At the door (standard rates' + (dPct>0 ? ' &middot; members ' + dPct + '% off their share' : '') + ')</div>'
+                + rows;
+              depBox.style.display = 'block';
+            }
+          }
+        } else if (memberResult.discount_type === 'daily_blend' || (memberResult.discount_type === 'free_hours' && memberResult.blend)) {
+          // METER TIERS (Aug 25): blended, and Free Hours Per Period since the
+          // free-time-first rule (a member never loses the hour they have left).
+          // The page never computes the meter - the
+          // meter lives on the server. validate-pin re-runs for every session
+          // change (see the top of fetchPrice) and returns memberResult.blend
+          // from the same functions create-payment-intent runs, so what is
+          // shown here is what the card is charged (or not charged).
+          const bl = memberResult.blend;
+          const money = (c) => '$' + (c/100).toFixed(2);
+          if (bl && typeof bl.member_cents === 'number') {
+            window.BLEND_QUOTE = bl;
+            if (bl.door_settle) {
+              window.BLEND_DOOR = true;
+              displayPrice = 0;
+              if (depBox) {
+                depBox.innerHTML =
+                  '<div style="font-weight:600;color:var(--gold,#c9a227);margin-bottom:4px">Nothing due now</div>'
+                  + '<div><b>$0 due now</b> - about <b>' + money(bl.door_due_cents) + '</b> on your tab at the facility.</div>'
+                  + (bl.note ? '<div style="margin-top:6px;color:var(--muted,#8b918b)">Member pricing: ' + escHtml(bl.note) + '</div>' : '')
+                  + '<div style="margin-top:6px">Guests settle their share at the counter - the regular price split by heads. Nothing is charged online today; this booking reserves ' + swReserves() + '.</div>';
+                depBox.style.display = 'block';
+              }
+            } else {
+              displayPrice = bl.member_cents;
+              if (depBox) {
+                depBox.innerHTML =
+                  '<div style="font-weight:600;color:var(--gold,#c9a227);margin-bottom:4px">Member pricing</div>'
+                  + '<div>' + (bl.note ? escHtml(bl.note) + ' - ' : '') + 'charged online when you book.</div>';
+                depBox.style.display = 'block';
+              }
+            }
+          }
+        } else if (memberResult.discount_type === 'free_hours') {
+          // verify-first only (no session yet): the server quote arrives with the session
+          const freeMin = memberResult.discount_value * 60;
+          const effectiveFree = Math.min(freeMin, selDur);
+          displayPrice = Math.max(0, Math.round(base - (base / selDur * effectiveFree)));
+        }
+        // SETTLEMENT FOR EVERY TIER STYLE (Aug 25, late): the owner may set any
+        // tier to settle at the door (nothing charged online) or by deposit.
+        // The quote comes from the server (memberResult.settle, the same rules
+        // create-payment-intent runs). The flat-rate deposit tier keeps its own
+        // per-headcount box above; blend keeps its branch.
+        {
+          const st = memberResult.settle;
+          const money = (c) => '$' + (c/100).toFixed(2);
+          if (st && !memberResult.blend && memberResult.discount_type !== 'daily_blend' && !(memberResult.discount_type === 'flat_rate' && st.settlement === 'deposit')) {
+            if (st.door_settle) {
+              window.BLEND_DOOR = true;
+              displayPrice = 0;
+              if (depBox) {
+                depBox.innerHTML =
+                  '<div style="font-weight:600;color:var(--gold,#c9a227);margin-bottom:4px">Nothing due now</div>'
+                  + '<div><b>$0 due now</b> - your member price is <b>' + money(st.member_cents) + '</b>' + (st.note ? ' (' + escHtml(st.note) + ')' : '') + ', settled on your tab at the facility. Bring a group and ' + swSplit() + ' at the counter, your seat at your member rate.</div>'
+                  + '<div style="margin-top:6px">Guests settle their share at the counter. Nothing is charged online today; this booking reserves ' + swReserves() + '.</div>';
+                depBox.style.display = 'block';
+              }
+            } else if (st.deposit) {
+              window.DEPOSIT_ACTIVE = true;
+              displayPrice = st.deposit_cents;
+              if (depBox) {
+                depBox.innerHTML =
+                  '<div style="font-weight:600;color:var(--gold,#c9a227);margin-bottom:4px">Deposit only</div>'
+                  + '<div><b>' + money(st.deposit_cents) + '</b> today holds ' + swYour() + '. Your member price is <b>' + money(st.member_cents) + '</b>' + (st.note ? ' (' + escHtml(st.note) + ')' : '') + '; the balance settles at the door and your deposit is credited to your tab when you arrive.</div>';
+                depBox.style.display = 'block';
+              }
+            }
+          }
+        }
+        hasDiscount = true;
+
+        // Standing member credit auto-applies (mirrors the server: if the
+        // remainder would fall under Stripe's 50-cent minimum, apply less so
+        // the charge is exactly 50 cents).
+        const cNote = document.getElementById('creditNote');
+        if (cNote) { cNote.style.display = 'none'; cNote.textContent = ''; }
+        const creditBal = memberResult.credit_cents || 0;
+        if (creditBal > 0 && displayPrice > 0) {
+          let ca = Math.min(creditBal, displayPrice);
+          const rem = displayPrice - ca;
+          if (rem > 0 && rem < 50) ca = Math.max(0, displayPrice - 50);
+          if (ca > 0) {
+            displayPrice -= ca;
+            if (cNote) {
+              cNote.textContent = 'Member credit applied: -$' + (ca/100).toFixed(2) + (creditBal - ca > 0 ? ' ($' + ((creditBal-ca)/100).toFixed(2) + ' remaining)' : '');
+              cNote.style.display = 'block';
+            }
+          }
+        }
+
+        // Add guest fees - passes cover tier pricing, extra guests pay overflow.
+        const guests = parseInt(document.getElementById('guestCount').value) || 0;
+        const gNote = document.getElementById('guestFeeNote');
+        if (gNote) gNote.textContent = '';
+        if (window.BLEND_DOOR) {
+          if (gNote && guests > 0) gNote.textContent = 'Guests settle their share at the counter - nothing is charged for them online.';
+        } else if (guests > 0 && memberResult.guest_allowed) {
+          // THE GUEST LAW (Sep 1 2026): the server quotes the guests - the same
+          // rule the booking route charges and the counter collects by.
+          let gq = null;
+          try {
+            const pin = document.getElementById('memberPin').value.trim();
+            const qs = new URLSearchParams({ pin, guests: String(guests), date: selDate || '', duration: String(selDur || 60), start_time: selTime || '12:00' });
+            gq = await fetch('/api/members/guest-quote?' + qs.toString()).then(r => r.json());
+          } catch (e) { gq = null; }
+          if (gq && gq.error && !gq.at_counter && gq.over_max > 0) {
+            if (gNote) gNote.textContent = gq.error;
+          } else if (gq && !gq.at_counter) {
+            guestFee = gq.total_cents | 0;
+            displayPrice += guestFee;
+            if (gNote) gNote.textContent = gq.note || '';
+          } else if (gq && gq.at_counter) {
+            if (gNote) gNote.textContent = 'Guests settle at the counter: ' + (gq.note || 'their regular share') + '.';
+          }
+          // Member price cap mirror: at a PUBLIC facility the server never
+          // charges a member more than the standard price for the session. At
+          // a members-only club there is no public price - no cap (G3, Sep 1).
+          if (!MEMBERS_ONLY && (displayPrice - guestFee) > base) {
+            displayPrice = base + guestFee;   // the cap protects the golf; the guest policy rides on top
+            if (gNote) gNote.textContent = 'Golf capped at the standard rate - your membership never costs extra' + (guestFee > 0 ? '; guests as quoted.' : '.');
+          }
+        }
+      }
+
+      // (a member never pays more than the session costs with no code - a booking deal included)
+      if (d.deal && memberResult?.valid && !MEMBERS_ONLY && (displayPrice - guestFee) > d.priceCents) displayPrice = d.priceCents + guestFee;
+
+      // Apply discount code on top
+      if (discountResult?.valid) {
+        displayPrice = discountResult.finalCents !== undefined ? discountResult.finalCents : displayPrice;
+        hasDiscount = true;
+      }
+
+      const priceEl = document.getElementById('sumPrice');
+      const guestNote = guestFee > 0 ? ` <span style="font-size:11px;color:var(--muted)">(incl. $${(guestFee/100).toFixed(2)} guests)</span>` : '';
+      if (window.BLEND_DOOR) {
+        priceEl.innerHTML = `<span style="text-decoration:line-through;color:var(--muted);font-size:14px">$${(base/100).toFixed(2)}</span> <span style="color:var(--success);font-weight:700">$0 due now</span>`;
+      } else if (hasDiscount && displayPrice === 0) {
+        priceEl.innerHTML = `<span style="text-decoration:line-through;color:var(--muted);font-size:14px">$${(base/100).toFixed(2)}</span> <span style="color:var(--success);font-weight:700">FREE</span>`;
+      } else if (hasDiscount && displayPrice < base) {
+        // a genuine saving: the original struck through, the new price in green
+        priceEl.innerHTML = `<span style="text-decoration:line-through;color:var(--muted);font-size:14px">$${(base/100).toFixed(2)}</span> <span style="color:var(--success)">$${(displayPrice/100).toFixed(2)}</span>${guestNote}`;
+      } else if (displayPrice !== base) {
+        // A PRICE ABOVE THE PUBLIC ONE IS NOT A SAVING (Sep 18 2026, a live
+        // customer's screenshot: "$80.00" struck through and "$150.00" in green
+        // as the amount charged). This branch used to test `!==`, so a member
+        // rate HIGHER than the public price rendered in the discount idiom -
+        // struck-through original, success green - which reads as "you saved"
+        // while showing an increase. At a members-only club that is a normal
+        // configuration, not an error: there is no public price to be capped
+        // against (the G3 ruling, mirrored above), so the member rate is simply
+        // the rate. Show it plainly, with no comparison to a number the member
+        // could never have booked at.
+        // It also catches the case that had no branch at all: a total that
+        // differs from base for a reason other than a discount - guest fees on
+        // a member with no golf discount - which fell to the `else` below and
+        // displayed `base`, hiding the fee. Whatever is charged is what shows.
+        priceEl.innerHTML = `$${(displayPrice/100).toFixed(2)}${guestNote}`;
+      } else {
+        priceEl.textContent = `$${(base/100).toFixed(2)}`;
+      }
+
+      // #8: tax shown BEFORE the charge. Computed on the final (post-discount)
+      // amount with the SAME rounding as the server, so the Total here is
+      // exactly what the card is charged. Rows stay hidden when tax is off or $0.
+      const subRow = document.getElementById('sumSubtotalRow');
+      const taxRow = document.getElementById('sumTaxRow');
+      const taxableCents = (typeof displayPrice === 'number' && displayPrice >= 0) ? displayPrice : base;
+      if (taxInfo.enabled && taxInfo.rate > 0 && taxableCents > 0) {
+        const taxCents = Math.round(taxableCents * (taxInfo.rate / 100));
+        const totalCents = taxableCents + taxCents;
+        document.getElementById('sumSubtotal').textContent = `$${(taxableCents/100).toFixed(2)}`;
+        document.getElementById('sumTaxLabel').textContent = `${taxInfo.label} (${taxInfo.rate}%)`;
+        document.getElementById('sumTax').textContent = `$${(taxCents/100).toFixed(2)}`;
+        priceEl.textContent = `$${(totalCents/100).toFixed(2)}`;
+        if (subRow) subRow.style.display = '';
+        if (taxRow) taxRow.style.display = '';
+        window.__CHARGE_TOTAL_CENTS = totalCents;
+      } else {
+        if (subRow) subRow.style.display = 'none';
+        if (taxRow) taxRow.style.display = 'none';
+        window.__CHARGE_TOTAL_CENTS = taxableCents;
+      }
+    } catch {}
+  }
+
+  // ── MEMBERSHIP PIN ─────────────────────────────────────────────────────────
+  async function validateMemberPin() {
+    const pin = document.getElementById('memberPin').value.trim();
+    const status = document.getElementById('memberStatus');
+    const guestWrap = document.getElementById('guestCountWrap');
+    if (!pin) {
+      memberResult = null; MEMBER_DAY_RATES = null; MEMBER_DUR_QUOTES = null;
+      status.style.display='none'; guestWrap.style.display='none';
+      renderTimes(); fetchPrice(); return;
+    }
+    // Verify-first: a session is NOT required. Without one we verify the PIN,
+    // unlock member dates/rates, and re-check limits automatically once a
+    // date, time, and duration are chosen (see fetchPrice).
+    const hasSession = !!(selDate && selTime && selDur);
+    LAST_PIN_SESSION = hasSession ? `${selDate}|${selTime}|${selDur}|${selBay?.id||''}` : '';
+    try {
+      const body = { pin, guest_count: 0 };
+      if (hasSession) { body.date = selDate; body.start_time = selTime; body.duration_minutes = selDur; body.bay_id = selBay?.id; }
+      const res = await fetch('/api/members/validate-pin', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(body)
+      });
+      const d = await res.json();
+      status.style.display = 'block';
+      // THE MEMBER'S OWN PRICES (maintainer, Sep 19 2026), from the same computation
+      // create-payment-intent charges with. Cleared on any answer that is not
+      // a good PIN, so a stale rate can never survive onto the grid.
+      MEMBER_DAY_RATES  = d.valid ? (d.dayRates || null) : null;
+      MEMBER_DUR_QUOTES = d.valid ? (d.durationQuotes || null) : null;
+      try { renderTimes(); } catch (e) {}
+      if (!d.valid) {
+        memberResult = null; guestWrap.style.display='none';
+        status.className='discount-status err';
+        status.textContent = d.message || 'Invalid PIN.';
+      } else if (d.restricted || (d.over_limit && !d.over_limit_secondary)) {
+        memberResult = d;
+        status.className='discount-status err';
+        status.textContent = d.message;
+        guestWrap.style.display='none';
+      } else {
+        memberResult = d;
+        status.className='discount-status ok';
+        // Extended booking window: if this member's tier books further out than the
+        // public window, widen the date picker on the spot so those dates exist.
+        if (d.booking_window_days > WINDOW_DAYS) {
+          WINDOW_DAYS = d.booking_window_days;
+          buildDates();
+        }
+        // Membership waiver state: on file skips the online ask entirely;
+        // expired means the current waiver is re-presented at confirm.
+        try {
+          const ws = document.getElementById('waiverStatus');
+          if (ws && d.waiver && d.waiver.required === false) { /* facility runs waivers off */ }
+          else if (ws && d.waiver && d.waiver.on_file) {
+            ws.className = 'waiver-status signed';
+            ws.textContent = 'Liability waiver on file with your membership - nothing to sign.';
+          } else if (ws && d.waiver && d.waiver.expired && activeWaiver) {
+            ws.className = 'waiver-status required';
+            ws.textContent = 'Your membership waiver has expired - you will sign the current waiver when you confirm.';
+          }
+        } catch(e) {}
+        let msg = (!selDate || !selTime || !selDur)
+          ? (d.message || 'Membership verified.') + ' Pick a bay, date, and time - your member rates apply automatically.'
+          : d.message;
+        if (d.booking_window_days > 0) msg += ` · Book up to ${d.booking_window_days} days out`;
+        if (d.guest_passes_remaining !== null) msg += ` · ${d.guest_passes_remaining} guest pass(es) remaining`;
+        msg += ' · <a href="/my-membership" style="color:inherit;text-decoration:underline">View Portal</a>';
+        status.innerHTML = msg;
+        // Build guest dropdown dynamically based on tier settings
+        if (d.guest_allowed) {
+          const maxGuests = d.guest_max_per_visit > 0 ? d.guest_max_per_visit : 12;   // the facility's cap, or a real list when it sets none
+          const sel = document.getElementById('guestCount');
+          sel.innerHTML = '<option value="0">No guests</option>';
+          for (let i = 1; i <= maxGuests; i++) {
+            let label = i + ' guest' + (i > 1 ? 's' : '');
+            // the price is the server's (guest-quote) - the list only counts
+            sel.innerHTML += `<option value="${i}">${label}</option>`;
+          }
+          guestWrap.style.display = 'block';
+        } else {
+          guestWrap.style.display = 'none';
+        }
+      }
+      fetchPrice();
+    } catch { status.className='discount-status err'; status.style.display='block'; status.textContent='Error checking PIN.'; }
+  }
+
+  // ── DISCOUNT ───────────────────────────────────────────────────────────────
+  async function applyDiscount() {
+    const code = document.getElementById('discountCode').value.trim();
+    const phone = document.getElementById('inputPhone').value.trim();
+    const status = document.getElementById('discountStatus');
+    if (!code) return;
+    if (!selDate || !selTime || !selDur) {
+      status.className = 'discount-status err'; status.style.display='block';
+      status.textContent = 'Please select a date, time and duration first.'; return;
+    }
+    try {
+      const res = await fetch('/api/pricing/validate-code', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ code, phone: phone||'0000000000', date:selDate, start_time:selTime, duration_minutes:selDur })
+      });
+      const d = await res.json();
+      status.style.display = 'block';
+      if (d.valid) {
+        discountResult = d;
+        status.className = 'discount-status ok';
+        status.textContent = 'Code applied! You save $'+(d.discountCents/100).toFixed(2) + (d.doorCheck ? '. Bring it with you: ' + d.doorCheck + ' - it is checked at the front desk.' : '');
+        fetchPrice();
+      } else {
+        discountResult = null;
+        status.className = 'discount-status err';
+        status.textContent = d.message;
+        fetchPrice();
+      }
+    } catch { status.textContent = 'Error checking code.'; }
+  }
+
+  // ── WAIVER ─────────────────────────────────────────────────────────────────
+  // 'Offered' mode (waiver audit, Sep 1 2026): the server says show:true,
+  // enforce:false - the modal must then have a way past it, or "offered" is
+  // "required" with extra words. The server never rejects the unsigned booking.
+  let waiverOptional = false, waiverRenewalUntil = '';
+  function openWaiverModal() {
+    if (!activeWaiver) return true;
+    const waiverUrl = `/api/waivers/file/${activeWaiver.filename}`;
+    document.getElementById('waiverPdfLink').href = waiverUrl;
+    document.getElementById('waiverModalSub').textContent = `${activeWaiver.name} - Version ${activeWaiver.version}` + (waiverRenewalUntil ? ` - your waiver on file runs out on ${waiverRenewalUntil}. Sign the new one now, or later` : (waiverOptional ? ' - offered, not required' : ''));
+    document.getElementById('btnWaiverSkip').textContent = waiverRenewalUntil ? `Later - still valid until ${waiverRenewalUntil}` : 'Continue without signing';
+    document.getElementById('btnWaiverSkip').classList.toggle('show', waiverOptional);
+    document.getElementById('waiverSignName').value = document.getElementById('inputName').value.trim();
+    document.getElementById('waiverCheckbox').checked = false;
+    document.getElementById('btnWaiverSign').disabled = true;
+    document.getElementById('waiverModal').classList.add('show');
+    return false;
+  }
+
+  function checkWaiverReady() {
+    const name = document.getElementById('waiverSignName').value.trim();
+    const checked = document.getElementById('waiverCheckbox').checked;
+    document.getElementById('btnWaiverSign').disabled = !(name.length > 1 && checked);
+  }
+
+  function skipWaiver() {
+    if (!waiverOptional) return;
+    waiverAccepted = true; waiverSignedName = '';
+    document.getElementById('waiverModal').classList.remove('show');
+    const ws = document.getElementById('waiverStatus');
+    if (ws) { ws.className = 'waiver-status required'; ws.textContent = waiverRenewalUntil ? ('Waiver on file until ' + waiverRenewalUntil + ' - remember to sign the new one.') : 'Liability waiver offered - not signed.'; }
+    proceedWithBooking();
+  }
+
+  function acceptWaiver() {
+    waiverAccepted = true;
+    waiverSignedName = document.getElementById('waiverSignName').value.trim();
+    document.getElementById('waiverModal').classList.remove('show');
+    const ws = document.getElementById('waiverStatus');
+    if (ws) { ws.className = 'waiver-status signed'; ws.textContent = 'Waiver signed by ' + waiverSignedName; }
+    proceedWithBooking();
+  }
+
+  // ── SUBMIT ─────────────────────────────────────────────────────────────────
+  async function submitBooking() {
+    const name  = document.getElementById('inputName').value.trim();
+    const phone = document.getElementById('inputPhone').value.trim();
+    const email = document.getElementById('inputEmail').value.trim();
+    if (!name)  return toast('Please enter your name.');
+    if (!phone) return toast('Please enter your mobile number.');
+    if (!email) return toast('Please enter your email address.');
+    // (a length the page does not offer right now is no length chosen - lenOffered, Oct 27 2026)
+    if (BOOKING_FLOW === 'time-first') {
+      if (!selDate||!selTime||!lenOffered(selDur)||!tfAvailableBays.length) return toast('Please complete all steps.');
+    } else {
+      if (!selBay||!selDate||!lenOffered(selDur)||!selTime) return toast('Please complete all steps.');
+    }
+    if (MEMBERS_ONLY && !memberResult) {
+      toast('This is a members-only facility - enter your member code to book, or tap Become a Member above.');
+      const pinEl = document.getElementById('memberPin');
+      if (pinEl) { pinEl.focus(); pinEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+      return;
+    }
+    if (activeWaiver && !waiverAccepted) {
+      // Server-authoritative decision: membership coverage and door/hybrid
+      // collection skip the modal; anything else (or any error) asks here.
+      let ask = true;
+      try {
+        const pin = document.getElementById('memberPin').value.trim();
+        const q = new URLSearchParams({ date: selDate || '', start_time: selTime || '' });
+        if (pin) q.set('pin', pin);
+        const nd = await fetch('/api/waivers/needed?' + q.toString()).then(r=>r.json());
+        ask = !!nd.show;
+        waiverOptional = !!nd.show && !nd.enforce;
+        waiverRenewalUntil = (nd.source === 'renewal_due' && nd.member_waiver && nd.member_waiver.expires_at) ? nd.member_waiver.expires_at : '';
+        if (nd.doc && nd.doc.id) { activeWaiver = Object.assign({}, activeWaiver, nd.doc, { hasWaiver: true }); }
+        const ws = document.getElementById('waiverStatus');
+        if (!ask && ws) {
+          if (nd.source === 'membership_on_file') { ws.className='waiver-status signed'; ws.textContent='Liability waiver on file with your membership - nothing to sign.'; }
+          else if (nd.source === 'door') { ws.className='waiver-status signed'; ws.textContent='You will sign the liability waiver when you arrive.'; }
+          else if (nd.source === 'renewal_door') { ws.className='waiver-status required'; ws.textContent='Your waiver on file runs out on ' + ((nd.member_waiver && nd.member_waiver.expires_at) || 'soon') + ' - you will sign a fresh one when you arrive.'; }
+        }
+      } catch(e) { ask = true; }
+      if (ask) { openWaiverModal(); return; }
+    }
+    proceedWithBooking();
+  }
+
+  async function proceedWithBooking() {
+    const name  = document.getElementById('inputName').value.trim();
+    const phone = document.getElementById('inputPhone').value.trim();
+    const email = document.getElementById('inputEmail').value.trim();
+    // the one place a booking leaves the page (after the waiver too): never with a length the page does not offer right now
+    // (lenOffered, Oct 27 2026) - the details close and the customer picks a length again
+    if (!lenOffered(selDur)) { updateFormReady(); return toast('Please complete all steps.'); }
+    setLoading(true);
+    try {
+      const res = await fetch('/api/bookings/create-payment-intent', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          name, phone, email, date:selDate, start_time:selTime,
+          duration_minutes:selDur,
+          bay_id: BOOKING_FLOW === 'time-first' ? (FORCED_BAY ? FORCED_BAY.id : 'auto') : selBay.id,
+          waiver_id: activeWaiver ? activeWaiver.id : null,
+          signature_name: waiverSignedName || null,
+          waiver_guardian_for: (waiverSignedName && document.getElementById('waiverGuardianCheck')?.checked)
+            ? (document.getElementById('waiverGuardianName')?.value.trim() || null) : null,
+          discount_code: document.getElementById('discountCode').value.trim() || null,
+          member_pin: document.getElementById('memberPin').value.trim() || null,
+          guest_count: parseInt(document.getElementById('guestCount').value) || 0,
+          sms_consent: document.getElementById('smsOptIn')?.checked || false,
+          package_id: PKG ? PKG.id : undefined, players: PKG ? (PKG_PLAYERS || PKG.min_players || 1) : undefined
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) { setLoading(false); return toast(data.error || 'Booking failed.'); }
+
+      pendingBookingId = data.bookingId;
+      // Store resolved bay name for time-first success screen
+      if (data.bayName) resolvedBayName = data.bayName;
+
+      window.LAST_BOOKING = data;
+      if (data.devMode) {
+        document.getElementById('payment-element').innerHTML = '';
+        stripeInst = null; stripeElements = null;
+        document.getElementById('btnBook').querySelector('.btn-text').textContent = 'Confirm & Pay';
+        document.getElementById('btnBook').onclick = submitBooking;
+        setLoading(false);
+        showSuccess(name, phone, document.getElementById('smsOptIn')?.checked === true);
+        return;
+      }
+
+      // THE PAGE CANNOT ASK FOR MONEY IT CANNOT TAKE (maintainer, Sep 19 2026).
+      // Stripe Elements needs js.stripe.com in THIS browser. A content
+      // blocker, a filtered DNS or a dead network leaves the page drawn
+      // perfectly with no Stripe at all, and this line used to throw
+      // "Can't find variable: Stripe" into a red box at Confirm & Pay - a
+      // raw variable error, to a customer, with no idea what to do. One live
+      // members-only club could not take a single booking because of it.
+      if (typeof window.Stripe !== 'function') {
+        const ok = await ensurePaymentLibrary();
+        if (!ok) { setLoading(false); payLibFailed(); return; }
+      }
+      if (!stripeInst) stripeInst = Stripe(data.publishableKey);
+      stripeElements = stripeInst.elements({ clientSecret: data.clientSecret, appearance: cardLook() });
+      const payEl = stripeElements.create('payment');
+      document.getElementById('payment-element').innerHTML = '';
+      payEl.mount('#payment-element');
+
+      document.getElementById('btnBook').querySelector('.btn-text').textContent = 'Complete Payment';
+      document.getElementById('btnBook').onclick = confirmPayment;
+      setLoading(false);
+    } catch(err) { setLoading(false); toast('Error: ' + err.message); }
+  }
+
+  // ONE RETRY, THEN THE TRUTH. A blip on the way to js.stripe.com should not
+  // cost somebody their tee time, so we ask for it once more before giving up.
+  let _payLibTried = false;
+  // THE CARD FORM WEARS THE FACILITY'S OWN COLOURS (Oct 20 2026): Stripe draws it in its own frame, where a CSS variable means
+  // nothing - "var(--gold)" was ignored and the box was dark green whatever colours the owner chose. The colours the page
+  // resolved from /api/theme are read off it and handed over as plain values; a light surface gets Stripe's light theme.
+  function cardLook() {
+    const cv = (k, d) => (getComputedStyle(document.documentElement).getPropertyValue(k) || '').trim() || d;
+    const lum = (hex) => { const h = String(hex).replace('#', ''); if (!/^[0-9a-f]{6}$/i.test(h)) return 0; return [0, 2, 4].map(i => parseInt(h.substr(i, 2), 16) / 255).map(c => c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)).reduce((a, c, i) => a + c * [0.2126, 0.7152, 0.0722][i], 0); };
+    const surface = cv('--surface', '#161e16'), dark = lum(surface) < 0.4;
+    return { theme: dark ? 'night' : 'stripe', variables: { colorPrimary: cv('--gold', '#c9a227'), colorBackground: surface, colorText: cv('--text', dark ? '#e8ede8' : '#1d2421'), borderRadius: '0px' } };
+  }
+  function ensurePaymentLibrary() {
+    return new Promise(resolve => {
+      if (typeof window.Stripe === 'function') return resolve(true);
+      if (_payLibTried) return resolve(false);
+      _payLibTried = true;
+      const sc = document.createElement('script');
+      sc.src = 'https://js.stripe.com/v3/';
+      let done = false;
+      const finish = ok => { if (done) return; done = true; resolve(ok && typeof window.Stripe === 'function'); };
+      sc.onload  = () => finish(true);
+      sc.onerror = () => finish(false);
+      setTimeout(() => finish(false), 8000);
+      document.head.appendChild(sc);
+    });
+  }
+
+  // What the customer reads instead of a variable name. It says what happened,
+  // that they were NOT charged, and the two things that actually fix it.
+  let _payLibReported = false;
+  function payLibFailed() {
+    const box = document.getElementById('payment-element');
+    if (box) {
+      box.innerHTML = '<div style="border:1px solid var(--danger,#c94a4a);background:rgba(201,74,74,0.08);'
+        + 'padding:14px;line-height:1.5;font-size:13.5px">'
+        + '<div style="font-weight:700;margin-bottom:6px">We could not load our card payment form</div>'
+        + '<div>Your browser could not reach our payment provider, so we have <b>not</b> taken this booking and '
+        + '<b>nothing has been charged</b>. This is almost always an ad or content blocker, or a network that '
+        + 'blocks payment scripts.</div>'
+        + '<div style="margin-top:8px">Turn off any content blocker for this site and reload, or try another '
+        + 'browser or another network. Your time slot is still available.</div>'
+        + '</div>';
+    }
+    const btn = document.getElementById('btnBook');
+    if (btn) {
+      btn.disabled = true;
+      const t = btn.querySelector('.btn-text');
+      if (t) t.textContent = 'Card payment unavailable';
+    }
+    toast('We could not load the card payment form - nothing was charged.');
+    // Tell the unit, so the OWNER learns their booking page is turning people
+    // away instead of finding out from a customer weeks later (rule 23).
+    if (!_payLibReported) {
+      _payLibReported = true;
+      try { fetch('/api/bookings/payment-library-unreachable', { method: 'POST' }).catch(function(){}); } catch (e) {}
+    }
+  }
+
+  async function confirmPayment() {
+    // The second door: even if the button was reached, never call into a
+    // library that is not there (maintainer, Sep 19 2026).
+    if (typeof window.Stripe !== 'function' || !stripeInst) { payLibFailed(); return; }
+    setLoading(true);
+    try {
+      // THE WAY BACK (maintainer, Sep 19 2026). The intent is created with Stripe's
+      // account defaults, which on a normal account include klarna, affirm,
+      // cashapp and amazon_pay - all FULL-REDIRECT methods (verified live:
+      // confirming with klarna returns next_action redirect_to_url). Picking
+      // one navigates the customer away, and `window.location.href` brought
+      // them back to a booking page that read none of Stripe's return
+      // parameters, so their card was charged and nothing happened. We carry
+      // OUR OWN booking id in the return url, so the handler below never
+      // depends on what Stripe chooses to append, and stash it as well in case
+      // the url is rewritten.
+      try { sessionStorage.setItem('baPendingBooking', pendingBookingId || ''); } catch (e) {}
+      const backTo = location.origin + location.pathname + '?ba_return=' + encodeURIComponent(pendingBookingId || '');
+      const result = await stripeInst.confirmPayment({
+        elements: stripeElements,
+        confirmParams: { return_url: backTo },
+        redirect: 'if_required'
+      });
+      if (result.error) { setLoading(false); return toast(result.error.message); }
+
+      const res = await fetch('/api/bookings/confirm', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ bookingId: pendingBookingId, paymentIntentId: result.paymentIntent?.id })
+      });
+      const data = await res.json();
+      setLoading(false);
+      if (!res.ok) return toast(data.error || 'Confirmation failed.');
+      try { sessionStorage.removeItem('baPendingBooking'); } catch (e) {}
+      showSuccess(document.getElementById('inputName').value.trim(), document.getElementById('inputPhone').value.trim());
+    } catch(err) { setLoading(false); toast('Payment error: ' + err.message); }
+  }
+
+  // free things that came with it (a free-things deal - Oct 22 2026): said on the screen as in the email, picked up at the front desk
+  const freeOf = (sm) => (window.LAST_BOOKING && window.LAST_BOOKING.freeItems) || (sm && sm.freeItems) || '';
+  function showSuccess(name, phone, texted, summary) {
+      const sub = document.getElementById('successSub');
+      const armor = document.getElementById('successArmor');
+      // a booking made inside the code's lead is texted within minutes (the reply's doorCodeNote says so)
+      const soon = !!((window.LAST_BOOKING && window.LAST_BOOKING.doorCodeNote) || (summary && summary.doorCodeNote));
+      // the confirm answer's own words win: a page back from Klarna has not read the facility's rules yet (the review)
+      const staffed = (summary && typeof summary.staffed === 'boolean') ? summary.staffed : STAFFED;
+      const when = soon ? 'within a few minutes' : ((summary && typeof summary.codeTiming === 'string') ? summary.codeTiming : CODE_TIMING);
+      if (sub) sub.textContent = texted
+        ? (staffed ? 'Your session is confirmed. Your confirmation is in your email (and by text). Just come on in - staff will get you set up.'
+          : when ? 'Your session is confirmed. Your confirmation is in your email, and your door code will arrive by text ' + when + ' (with an email copy of everything).'
+          : 'Your session is confirmed. Your confirmation is in your email (and by text).')
+        : (staffed ? 'Your session is confirmed. Check your email for your confirmation. Just come on in - staff will get you set up.'
+          : when ? 'Your session is confirmed. Check your email for your confirmation - your door code will arrive there ' + when + '.'
+          : 'Your session is confirmed. Check your email for your confirmation.');
+      if (window.DEPOSIT_ACTIVE && sub) sub.textContent = 'Deposit received - your bay is reserved. Member pricing and each player\'s share are settled at the door by your final group size; your deposit is credited to your tab when you arrive.';
+      else if (window.BOOKING_DEPOSIT && sub) sub.textContent = 'Deposit received - your bay is reserved. The remaining golf settles at the door and your deposit credits the whole group.';
+      // Blended member, door settlement: nothing was charged - say so, and say what lands on the tab.
+      const lb = window.LAST_BOOKING;
+      if (lb && lb.doorSettle && sub) sub.textContent = 'Your bay is reserved - nothing was charged today. About $' + ((lb.doorDueCents || 0)/100).toFixed(2) + ' of member golf' + (lb.blendNote ? ' (' + lb.blendNote + ')' : '') + ' lands on your tab at check-in, and guests settle their share at the counter. Your confirmation is in your email.';
+      if (armor) armor.innerHTML = 'Don&#39;t see it? Check spam/junk and add our email to your contacts. You can also view your booking any time at <a href="/my-booking" style="color:var(--gold)">/my-booking</a>.';
+    // A RETURNING CUSTOMER HAS NO SELECTION STATE (maintainer, Sep 19 2026, the redirect
+    // review). Klarna, Affirm, Cash App and Amazon Pay send the customer away to
+    // pay and bring them back to a FRESH page load: selBay, selTime, selDur and
+    // selDate are all null, because THIS page never picked anything. t2m(selTime)
+    // threw TypeError right here, the throw was swallowed by the return handler's
+    // own catch, and a customer whose booking WAS confirmed and emailed got the
+    // toast "We could not reach the booking system to finish that payment" over an
+    // empty booking form - an invitation to pay twice. The confirm answer carries
+    // the row's own values for exactly this case; the in-page path still draws from
+    // the selection it made. Two rules now: the SCREEN goes up before any row is
+    // built, so a missing value can never hide a confirmation again, and every row
+    // is omitted rather than rendered from nothing.
+    const scr = document.getElementById('successScreen');
+    if (scr) scr.classList.add('visible');
+    window.scrollTo({top:0,behavior:'smooth'});
+    const sm = summary || null;
+    const rows = [];
+    const esc = v => String(v == null ? '' : v).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+    const row = (k, v) => { if (v) rows.push('<div class="success-row"><span class="sk">' + k + '</span><span>' + esc(v) + '</span></div>'); };
+    row('Name', name || (sm && sm.name) || '');
+    row('Bay', sm ? (sm.bay_name || '') : (BOOKING_FLOW === 'time-first'
+      ? (resolvedBayName || 'Your assigned bay')
+      : ((selBay && selBay.name) || '')));
+    const theDate = sm ? sm.date : selDate;
+    row('Date', theDate ? fmtDate(theDate) : '');
+    const stT  = sm ? sm.start_time : selTime;
+    const mins = sm ? Number(sm.duration_minutes || 0) : selDur;
+    if (stT) {
+      const etT = sm ? (sm.end_time || '') : (mins ? m2t(t2m(stT) + mins) : '');
+      row('Time', fmt12(stT) + (etT ? ' - ' + fmt12(etT) : ''));
+    }
+    row('Duration', mins ? fmtDur(mins) : '');
+    if (window.DEPOSIT_ACTIVE || window.BOOKING_DEPOSIT) rows.push('<div class="success-row"><span class="sk">Payment</span><span>Deposit - balance settled at the door</span></div>');
+    // A LATE BOOKING'S CODE IS MINUTES AWAY, AND THE SCREEN SAYS SO (feature/door-interface):
+    // the reply carries doorCodeNote when the booking was made inside its own code lead.
+    // (the customer back from Klarna's page has it on the confirm answer, not on a create reply)
+    const codeNote = (window.LAST_BOOKING && window.LAST_BOOKING.doorCodeNote) || (sm && sm.doorCodeNote) || '';
+    if (codeNote) rows.push('<div class="success-row"><span class="sk">Door code</span><span>' + String(codeNote).replace(/[<>&]/g, '') + '</span></div>');
+    row('Comes with', freeOf(sm));
+    row('Bring', (window.LAST_BOOKING && window.LAST_BOOKING.doorCheck) || (sm && sm.doorCheck) || '');
+    if (window.LAST_BOOKING && window.LAST_BOOKING.doorSettle) rows.push('<div class="success-row"><span class="sk">Payment</span><span>Nothing due now - about $' + ((window.LAST_BOOKING.doorDueCents || 0)/100).toFixed(2) + ' settles at the door</span></div>');
+    const det = document.getElementById('successDetails');
+    if (det) det.innerHTML = rows.join('\n');
+  }
+
+  function resetBooking() {
+    selBay=selDate=selDur=selTime=null; availByBay={}; stripeInst=null; stripeElements=null; pendingBookingId=null;
+    waiverAccepted=false; waiverSignedName=''; discountResult=null; memberResult=null;
+    tfAvailableBays=[]; resolvedBayName='';
+    document.getElementById('durationModal').style.display='none';
+    document.getElementById('discountCode').value='';
+    document.getElementById('discountStatus').style.display='none';
+    document.getElementById('memberPin').value='';
+    document.getElementById('memberStatus').style.display='none';
+    document.getElementById('guestCountWrap').style.display='none';
+    document.getElementById('guestCount').value='0';
+    document.getElementById('waiverStatus').className='waiver-status';
+    if (activeWaiver) { document.getElementById('waiverStatus').className='waiver-status required'; document.getElementById('waiverStatus').textContent='A liability waiver is required. Click "Confirm & Pay" to review and sign it.'; }
+    document.getElementById('successScreen').classList.remove('visible');
+    document.getElementById('inputName').value='';
+    document.getElementById('inputPhone').value='';
+    document.getElementById('inputEmail').value='';
+    document.getElementById('smsOptIn').checked=false;
+    const pe = document.getElementById('payment-element');
+    if (pe) pe.innerHTML='';
+    // Reset time-first duration step
+    document.getElementById('tfDurPills').innerHTML='';
+    document.getElementById('tfAvailStatus').style.display='none';
+    document.getElementById('stepTfDur').classList.remove('ready');
+    markSnTfDur('');
+    document.querySelectorAll('.bay-card').forEach(c=>c.classList.remove('selected'));
+    document.querySelectorAll('.date-card').forEach(c=>c.classList.remove('selected'));
+    [1,2,3,4].forEach(n=>{ const el=document.getElementById('sn'+n); if(el) el.className='step-num'+(n===1?' active':''); });
+    document.getElementById('stepTime').classList.remove('ready');
+    document.getElementById('stepDetails').classList.remove('ready');
+    document.getElementById('summaryBox').classList.remove('visible');
+    document.getElementById('btnBook').querySelector('.btn-text').textContent='Confirm & Pay';
+    document.getElementById('btnBook').onclick=submitBooking;
+    ['gridL','gridM','gridA','gridE'].forEach(id=>document.getElementById(id).innerHTML='');
+    buildBayCards();
+    buildDates();
+    initFlow();
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  // ── UTILS ──────────────────────────────────────────────────────────────────
+  function markStep(n,state) {
+    const el=document.getElementById('sn'+n);
+    if(el){ el.classList.remove('active','done'); if(state) el.classList.add(state); }
+  }
+
+  function setLoading(on) {
+    const b=document.getElementById('btnBook');
+    b.classList.toggle('loading',on); b.disabled=on;
+  }
+
+  let toastTimer;
+  function toast(msg) {
+    const el=document.getElementById('toast');
+    el.textContent=msg; el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer=setTimeout(()=>el.classList.remove('show'),4000);
+  }
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch(()=>{});
+    });
+  }
+
+// Delivery-expectation note: answers "where will my stuff arrive" at the moment of decision.
+(function(){
+  const cb = document.getElementById('smsOptIn'), note = document.getElementById('deliveryNote');
+  if (!cb || !note) return;
+  const upd = () => { note.textContent = cb.checked
+    ? (STAFFED ? 'Texts enabled. You will get your confirmation and reminders by text, plus an email copy.' : 'Texts enabled. You will get your confirmation and door code by text, plus an email copy of everything.')
+    : 'Check your email. Your confirmation and door code will be sent to your email.'; };
+  cb.addEventListener('change', upd); upd();
+})();
+</script>
+</body>
+</html>

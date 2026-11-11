@@ -1,0 +1,2 @@
+#!/bin/sh
+exec /opt/ba-core/node-v26.13.0/bin/node /usr/local/lib/ba-core/ba-core-mcp.js "$@"

@@ -1,0 +1,30 @@
+[Unit]
+Description=BA Core booking service
+After=network.target
+ConditionPathExists=/var/lib/ba-core/app/server.js
+
+[Service]
+Type=exec
+User=ba-core
+Group=ba-core
+WorkingDirectory=/var/lib/ba-core/app
+Environment=BA_CORE_COMMUNITY=1
+Environment=NODE_ENV=production
+Environment=PATH=/opt/ba-core/node-v26.13.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ExecStart=/opt/ba-core/node-v26.13.0/bin/node /var/lib/ba-core/app/server.js
+Restart=always
+RestartSec=2s
+TimeoutStopSec=20s
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/ba-core/app -/media/ba-core
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+
+[Install]
+WantedBy=multi-user.target

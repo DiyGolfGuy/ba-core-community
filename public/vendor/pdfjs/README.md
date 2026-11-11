@@ -1,0 +1,1 @@
+pdf.js 6.3.289 (Mozilla, Apache-2.0 - see LICENSE), the legacy build: pdf.min.mjs, pdf.worker.min.mjs and the standard fonts. Vendored Sep 10 2026 (W45) so a PDF page renders on the unit itself - no CDN, nothing leaves the LAN. Carried in every full pack. Update by replacing these files from the npm tarball (pdfjs-dist/legacy/build) and bumping this line.

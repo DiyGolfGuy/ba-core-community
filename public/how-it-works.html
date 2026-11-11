@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How It Works — {{BUSINESS_NAME}}</title>
+  <meta name="description" content="How booking and playing at {{BUSINESS_NAME}} works - book online, get your door code, walk in and play.">
+  <meta property="og:title" content="How It Works — {{BUSINESS_NAME}}">
+  <meta property="og:description" content="How booking and playing at {{BUSINESS_NAME}} works - book online, get your door code, walk in and play.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="{{BUSINESS_NAME}}">
+  <meta property="og:url" content="{{SITE_URL}}/how-it-works">
+  <meta property="og:image" content="{{OG_IMAGE}}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="{{OG_IMAGE}}">
+  <link rel="canonical" href="{{SITE_URL}}/how-it-works">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link rel="icon" type="image/png" href="/icons/icon-192.png">
+  <link rel="stylesheet" href="/site.css">
+  <script src="/site-chrome.js" defer></script>
+  <style>
+    /* Sep 5 2026: the site's own design system (site.css, the 13 brand roles).
+       Step text renders through the shared formatter; its accent is the brand accent. */
+    .page-wrap { max-width:760px; margin:0 auto; padding:clamp(40px,7vh,80px) clamp(20px,5vw,48px) clamp(60px,8vh,100px); }
+    .page-title { font-size:clamp(36px,6vw,64px); font-weight:700; line-height:1.05; margin:10px 0 16px; }
+    .page-title em { font-style:italic; color:var(--accent); }
+    .page-intro { font-size:16px; color:var(--muted); line-height:1.8; font-weight:300; margin-bottom:48px; max-width:560px; }
+    .steps { display:flex; flex-direction:column; }
+    .step-item { display:flex; gap:24px; padding:30px 0; border-bottom:1px solid var(--line); }
+    .step-item:last-child { border-bottom:none; }
+    .step-left { display:flex; flex-direction:column; align-items:center; flex-shrink:0; width:48px; }
+    .step-icon { width:48px; height:48px; border-radius:50%; background:var(--btn); color:var(--btnText); font-family:var(--font-display); font-weight:700; font-size:21px; display:flex; align-items:center; justify-content:center; }
+    .step-line { width:1px; background:var(--line); flex:1; margin-top:8px; min-height:20px; }
+    .step-item:last-child .step-line { display:none; }
+    .step-right { flex:1; padding-top:6px; min-width:0; }
+    .step-title { font-family:var(--font-display); color:var(--heading); font-size:22px; font-weight:700; margin-bottom:8px; }
+    .step-body { font-size:15.5px; color:var(--muted); line-height:1.8; font-weight:300; }
+    .step-body strong { color:var(--heading); font-weight:600; }
+    .step-body a { color:var(--accent); }
+    .cta-section { margin-top:52px; text-align:center; padding:40px 24px; background:var(--card); border:1px solid var(--line); border-radius:12px; }
+    .cta-title { font-family:var(--font-display); color:var(--heading); font-size:28px; font-weight:700; margin-bottom:10px; }
+    .cta-sub { font-size:14.5px; color:var(--muted); margin-bottom:24px; line-height:1.6; }
+    @media(max-width:500px) { .step-item { gap:16px; } .step-left { width:38px; } .step-icon { width:38px; height:38px; font-size:17px; } }
+  </style>
+  <script src="/markup.js"></script>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<header class="siteHead" id="siteHead" data-name="{{BUSINESS_NAME}}"></header>
+
+<main class="page-wrap" id="main-content">
+  <div class="mono">Your Guide</div>
+  <h1 class="page-title">How It<br><em>Works</em></h1>
+  <p class="page-intro">Everything you need to know about booking and playing. Simple, automated, and ready when you are.</p>
+
+  <div class="steps" id="stepsMount">
+    <div style="color:var(--muted);font-family:var(--font-mono);font-size:12px">Loading...</div>
+  </div>
+  <script>
+  // Steps come from the owner's editable content (Admin > Messaging > How It
+  // Works page) - nothing on this page is hardcoded to any one facility's rules.
+  (async () => {
+    try {
+      const r = await fetch('/api/content/how-it-works');
+      const d = await r.json();
+      const esc = s => String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      // step text: the SAME formatter the landing page uses; escaped if /markup.js failed to load
+      const markup = t => window.BAMarkup ? BAMarkup.markupToHtml(t) : esc(t);
+      const mount = document.getElementById('stepsMount');
+      mount.innerHTML = (d.steps || []).map((s, i) => `
+        <div class="step-item">
+          <div class="step-left"><div class="step-icon" aria-hidden="true">${i + 1}</div><div class="step-line"></div></div>
+          <div class="step-right">
+            <h2 class="step-title">${esc(s.title)}</h2>
+            <div class="step-body">${markup(s.body)}</div>
+          </div>
+        </div>`).join('');
+    } catch (e) {
+      document.getElementById('stepsMount').innerHTML = '<div class="step-item"><div class="step-right"><div class="step-body">Could not load this page. Please refresh.</div></div></div>';
+    }
+  })();
+  </script>
+
+  <div class="cta-section">
+    <div class="cta-title">Ready to Play?</div>
+    <p class="cta-sub">Book online any time — pick your slot, get your door code, and play.</p>
+    <a href="/book" class="siteBtn">Book a Bay</a>
+  </div>
+</main>
+
+<footer class="siteFoot" id="siteFoot" data-name="{{BUSINESS_NAME}}"></footer>
+</body>
+</html>

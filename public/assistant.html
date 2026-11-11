@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Setup assistant</title>
+<meta name="robots" content="noindex">
+<!-- BA Core 2 AI (branch feature/ai-edition). The owner's setup chat, built from the mock maintainer approved on Oct 20 2026 ("i
+     like its good ui ... i do like the light chat UI and walk through and the this is how it looks as they build it"):
+     the chat on the left, the owner's own website on the right, changing as each answer is saved; on a phone, a tab to
+     flip between them (rule 13). Light, like the mock. -->
+<style>
+:root { --bg:#eef1ef; --panel:#ffffff; --soft:#f7f9f8; --ink:#17201b; --muted:#4f5b55; --line:#d5dcd8; --line2:#e3e8e5; --brand:#1f6b47; --brand-ink:#ffffff; --brand-soft:#e4f1ea; --note-bg:#fff1dd; --note-ink:#8a4b00; --note-line:#f0c98e; --chip:#ffffff; }
+* { box-sizing: border-box; }
+html, body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+body { min-height:100dvh; }
+.wrap { min-height:100dvh; display:flex; flex-wrap:wrap; gap:20px; padding:20px; align-items:stretch; }
+.chat { flex:1 1 470px; max-width:560px; min-width:0; background:var(--panel); border:1px solid var(--line); border-radius:14px; display:flex; flex-direction:column; overflow:hidden; height:calc(100dvh - 40px); }
+.site { flex:999 1 560px; min-width:0; display:flex; flex-direction:column; gap:12px; height:calc(100dvh - 40px); }
+.chat header { display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; padding:14px 16px; border-bottom:1px solid var(--line2); }
+.badge { width:36px; height:36px; border-radius:10px; background:var(--brand); color:var(--brand-ink); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; flex:0 0 auto; }
+.title { flex:1 1 150px; min-width:0; }
+.title h1 { font-size:16px; margin:0; }
+.title p { font-size:13px; color:var(--muted); margin:2px 0 0; }
+.pill { font-size:12px; font-weight:600; color:var(--brand); background:var(--brand-soft); border-radius:999px; padding:6px 10px; white-space:nowrap; text-decoration:none; }
+#log { flex:1 1 auto; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:12px; background:var(--soft); }
+.b { max-width:88%; padding:11px 14px; font-size:15px; white-space:pre-wrap; overflow-wrap:anywhere; }
+.ai { align-self:flex-start; background:var(--panel); border:1px solid var(--line2); border-radius:4px 14px 14px 14px; }
+.owner { align-self:flex-end; background:var(--brand); color:var(--brand-ink); border-radius:14px 4px 14px 14px; }
+.note { align-self:center; font-size:13px; color:var(--muted); text-align:center; max-width:92%; }
+.src { align-self:flex-start; font-size:12px; color:var(--muted); margin-top:-6px; max-width:88%; }
+.thumbs { align-self:flex-end; display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; max-width:88%; }
+.thumbs figure { margin:0; position:relative; }
+.thumbs img { width:84px; height:62px; object-fit:cover; border-radius:8px; display:block; border:1px solid var(--line2); }
+.thumbs figcaption { position:absolute; left:4px; top:4px; background:rgba(0,0,0,.6); color:#fff; font-size:11px; font-weight:700; border-radius:6px; padding:1px 6px; }
+.card { align-self:flex-start; max-width:92%; background:var(--panel); border:1px solid var(--brand); border-radius:12px; padding:14px; display:flex; flex-direction:column; gap:10px; }
+.card .kicker { font-size:12px; font-weight:700; color:var(--brand); letter-spacing:.04em; }
+.card p { margin:0; }
+.card .row { display:flex; gap:8px; flex-wrap:wrap; }
+.card .done { color:var(--muted); font-size:14px; }
+.card input[type=password], .card input[type=text], .card input[inputmode] { display:block; width:100%; padding:10px; border-radius:10px; border:1px solid var(--line); background:var(--soft); color:var(--ink); font:inherit; }
+button, .btn { font:inherit; font-weight:600; border-radius:10px; padding:0 16px; min-height:44px; border:1px solid #b9c4be; background:var(--panel); color:var(--ink); cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; }
+button.go, .btn.go { background:var(--brand); color:var(--brand-ink); border-color:var(--brand); }
+button:disabled { opacity:.5; cursor:default; }
+/* THE QUICK ANSWERS, ONE ROW THAT SCROLLS (maintainer, Oct 25 2026, on his phone: "Make this as scroll along the bottom. Its to much
+   information here and to big on a phone"): one line just above the message box, swiped sideways (a wheel scrolls it on a computer);
+   the edge with more to see fades, so the row looks like it scrolls (rule 13) */
+.chips { display:flex; gap:8px; flex-wrap:nowrap; overflow-x:auto; overflow-y:hidden; overscroll-behavior-x:contain; -webkit-overflow-scrolling:touch; scroll-snap-type:x proximity; scrollbar-width:none; }
+.chips::-webkit-scrollbar { display:none; }
+.chips:empty { display:none; }
+.chips button { flex:0 0 auto; white-space:nowrap; scroll-snap-align:start; border-radius:999px; border-color:var(--brand); color:var(--brand); background:var(--chip); font-size:14px; padding:0 14px; }
+.chips.more-r { -webkit-mask-image:linear-gradient(to right, #000 calc(100% - 44px), transparent); mask-image:linear-gradient(to right, #000 calc(100% - 44px), transparent); }
+.chips.more-l { -webkit-mask-image:linear-gradient(to right, transparent, #000 44px); mask-image:linear-gradient(to right, transparent, #000 44px); }
+.chips.more-l.more-r { -webkit-mask-image:linear-gradient(to right, transparent, #000 44px, #000 calc(100% - 44px), transparent); mask-image:linear-gradient(to right, transparent, #000 44px, #000 calc(100% - 44px), transparent); }
+.composer { border-top:1px solid var(--line2); padding:12px 14px calc(12px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:10px; background:var(--panel); }
+/* the box to type in (maintainer, Oct 23 2026: "the text box for the chat its kinda small ... it needs to show more i think and be a bit
+   bigger"): its own row the width of the chat, three lines to start (two on a phone), growing with what is typed up to about
+   a third of the screen; the buttons in a row under it. 16px, so a phone does not zoom in on it (rule 13) */
+form { display:flex; flex-direction:column; gap:8px; margin:0; }
+textarea { display:block; width:100%; min-width:0; font:inherit; font-size:16px; line-height:1.45; padding:11px 13px; border-radius:10px; border:1px solid #b9c4be; background:var(--panel); color:var(--ink); resize:none; min-height:calc(3 * 1.45em + 24px); max-height:min(36dvh, 300px); overflow-y:auto; }
+textarea:focus { outline:2px solid var(--brand); outline-offset:1px; border-color:var(--brand); }
+.tools { display:flex; gap:8px; align-items:center; }
+.tools .grow { flex:1 1 auto; }
+.icon { width:44px; padding:0; flex:0 0 auto; }
+#send { width:64px; }
+/* the microphone while it listens (Oct 21 2026, voice): plainly on, and the same size as the other buttons */
+#mic.rec { background:var(--brand); color:#fff; }
+#speak[aria-pressed="true"] { background:var(--brand-soft); color:var(--brand); }
+#mic.rec svg { animation:micpulse 1.2s ease-in-out infinite; }
+@keyframes micpulse { 50% { opacity:.45; } }
+@media (prefers-reduced-motion: reduce) { #mic.rec svg { animation:none; } }
+button.pill { border:0; cursor:pointer; font-family:inherit; }
+.sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+.sitehead { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.sitehead h2 { font-size:16px; margin:0; }
+.sitehead p { font-size:13px; color:var(--muted); margin:0; }
+#updated { margin-left:auto; font-size:13px; font-weight:600; color:var(--note-ink); background:var(--note-bg); border:1px solid var(--note-line); border-radius:999px; padding:6px 12px; }
+.frame { flex:1 1 auto; background:var(--panel); border:1px solid var(--line); border-radius:14px; overflow:hidden; display:flex; flex-direction:column; min-height:0; }
+.bar { display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:10px 14px; background:#f1f3f2; border-bottom:1px solid var(--line2); }
+.dots { display:flex; gap:6px; } .dots span { width:10px; height:10px; border-radius:50%; background:#d3d9d6; display:block; }
+.bar .addr { flex:1 1 auto; text-align:center; font-size:13px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.bar a { font-size:13px; color:var(--brand); }
+.stage { flex:1 1 auto; min-height:0; display:flex; justify-content:center; background:#e9edeb; }
+#siteFrame { border:0; width:100%; height:100%; min-height:0; background:#fff; }
+.frame.phone #siteFrame { width:390px; max-width:100%; border-left:1px solid var(--line); border-right:1px solid var(--line); box-shadow:0 0 0 8px #1d2420; border-radius:4px; }
+.seg { display:inline-flex; border:1px solid #b9c4be; border-radius:10px; overflow:hidden; }
+.seg button { min-height:34px; border:0; border-radius:0; padding:0 10px; font-size:13px; font-weight:600; background:var(--panel); }
+.seg button[aria-pressed="true"] { background:var(--brand); color:var(--brand-ink); }
+.pointBtn { min-height:34px; font-size:13px; padding:0 10px; }
+.pointBtn[aria-pressed="true"] { background:#2f80ed; border-color:#2f80ed; color:#fff; }
+.about { display:flex; align-items:center; gap:8px; align-self:flex-start; font-size:13px; font-weight:600; color:#174a8c; background:#e6f0fd; border:1px solid #b6d0f5; border-radius:999px; padding:4px 6px 4px 12px; }
+.about[hidden] { display:none; }
+.about button { min-height:28px; width:28px; padding:0; border-radius:50%; font-size:13px; }
+.undo { margin-left:8px; min-height:32px; padding:0 12px; font-size:13px; border-radius:999px; border-color:var(--brand); color:var(--brand); }
+.undone { color:var(--muted); }
+.tabs { display:none; }
+@media (max-width: 959px) {
+  /* the page is the screen's height exactly, the tabs on top and the chat (or the site) filling the rest - the chat had its own
+     height of the screen less 65px AND grew to fill a page as tall as the screen under the tabs, so its message bar sat 65px
+     below the bottom of a phone (Oct 23 2026) */
+  body { height:100dvh; min-height:0; display:flex; flex-direction:column; }
+  .wrap { padding:0; gap:0; flex-direction:column; flex-wrap:nowrap; flex:1 1 auto; min-height:0; }
+  .tabs { display:flex; flex:0 0 auto; gap:6px; padding:10px 12px; background:var(--panel); border-bottom:1px solid var(--line2); position:sticky; top:0; z-index:2; }
+  .tabs button { flex:1 1 0; }
+  .tabs button[aria-selected="true"] { background:var(--brand); color:var(--brand-ink); border-color:var(--brand); }
+  .chat, .site { max-width:none; border-radius:0; border-left:0; border-right:0; height:auto; min-height:0; flex:1 1 auto; }
+  textarea { min-height:calc(2 * 1.45em + 24px); }
+  .site { padding:12px; }
+  body[data-tab="chat"] .site, body[data-tab="site"] .chat { display:none; }
+}
+</style>
+</head>
+<body data-tab="chat">
+<div class="tabs" role="tablist" aria-label="Chat or your website">
+  <button type="button" role="tab" id="tabChat" aria-selected="true" aria-controls="chatPanel">Chat</button>
+  <button type="button" role="tab" id="tabSite" aria-selected="false" aria-controls="sitePanel">Your site <span id="tabDot" class="sr">- updated</span></button>
+</div>
+<div class="wrap">
+  <section class="chat" id="chatPanel" aria-label="Setup assistant">
+    <header>
+      <div class="badge" aria-hidden="true">BA</div>
+      <div class="title"><h1>Setup assistant</h1><p id="step">Getting ready...</p></div>
+      <span class="pill" id="who">Checking the AI connection</span>
+      <a class="pill" href="/admin" aria-label="Open the admin page">Admin</a>
+    </header>
+    <main id="log" aria-live="polite" aria-label="Conversation with your assistant"></main>
+    <div class="composer">
+      <div class="about" id="about" hidden></div>
+      <div class="chips" id="chips" aria-label="Quick answers"></div>
+      <form id="composer" autocomplete="off">
+        <label for="say" class="sr">Message to your assistant</label>
+        <textarea id="say" rows="2" placeholder="Type, or tap an answer above. A key pasted here is saved, not sent."></textarea>
+        <div class="tools">
+          <input type="file" id="photos" accept="image/jpeg,image/png,image/webp" multiple class="sr" tabindex="-1" aria-hidden="true">
+          <button type="button" class="icon" id="attach" aria-label="Add photos for your website">
+            <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"></rect><circle cx="9" cy="10" r="2"></circle><path d="M21 16l-5-5-8 8"></path></svg>
+          </button>
+          <button type="button" class="icon" id="mic" aria-label="Talk instead of typing" aria-pressed="false" hidden>
+            <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0"></path><path d="M12 18v3"></path></svg>
+          </button>
+          <!-- replies read aloud by this phone's own voice (Oct 21 2026): beside the microphone, never in the header - a pill
+               there squeezed the title to one word a line and ran off the edge -->
+          <button type="button" class="icon" id="speak" aria-label="Read replies aloud: off" title="Read replies aloud: off" aria-pressed="false" hidden>
+            <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7"></path><path d="M18.5 5.5a9 9 0 0 1 0 13"></path></svg>
+          </button>
+          <span class="grow"></span>
+          <button id="send" class="go icon" type="submit" aria-label="Send">
+            <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg>
+          </button>
+        </div>
+      </form>
+    </div>
+  </section>
+  <section class="site" id="sitePanel" aria-label="Your website, live">
+    <div class="sitehead">
+      <h2>Your website, live</h2>
+      <p>Changes show here the moment they are saved.</p>
+      <span id="updated" hidden></span>
+    </div>
+    <div class="frame" id="frameBox">
+      <div class="bar"><div class="dots" aria-hidden="true"><span></span><span></span><span></span></div><div class="addr" id="addr">your site</div>
+        <div class="seg" id="views" role="group" aria-label="Which view of the change" hidden></div>
+        <div class="seg" role="group" aria-label="Look at it on"><button type="button" id="vwComputer" aria-pressed="true">Computer</button><button type="button" id="vwPhone" aria-pressed="false">Phone</button></div>
+        <button type="button" id="point" class="pointBtn" aria-pressed="false">Point at a part</button>
+        <a href="/landing" id="openView" target="_blank" rel="noopener">Open</a></div>
+      <div class="stage"><iframe id="siteFrame" title="Your website as it is right now" src="about:blank"></iframe></div>
+    </div>
+  </section>
+</div>
+<script src="/site-layout.js"></script>
+<script src="/flyer.js"></script>
+<script src="/assistant-apply.js"></script>
+<script src="/assistant.js"></script>
+</body>
+</html>

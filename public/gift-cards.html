@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gift Cards — {{BUSINESS_NAME}}</title>
+<meta name="description" content="Give the gift of golf at {{BUSINESS_NAME}}{{IN_CITY_STATE}} — digital gift cards delivered by email, never expire.">
+<meta property="og:title" content="Gift Cards — {{BUSINESS_NAME}}">
+<meta property="og:description" content="Give the gift of golf at {{BUSINESS_NAME}}{{IN_CITY_STATE}} — digital gift cards delivered by email, never expire.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="{{BUSINESS_NAME}}">
+<meta property="og:url" content="{{SITE_URL}}/gift-cards">
+<meta property="og:image" content="{{OG_IMAGE}}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="{{OG_IMAGE}}">
+<link rel="canonical" href="{{SITE_URL}}/gift-cards">
+<link rel="icon" type="image/png" href="/icons/icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/site.css">
+<script src="/site-chrome.js" defer></script>
+<style>
+ /* Sep 5 2026: the site's own design (site.css) - --gold/--border/--panel are its brand aliases */
+ .gcWrap{max-width:520px;margin:0 auto;padding:28px 16px 60px}
+ h1{font-family:var(--font-display,Georgia),serif;color:var(--heading)}
+ .amounts{display:flex;gap:8px;margin:14px 0}
+ .amt{flex:1;border:1px solid var(--border,#3a4436);border-radius:8px;padding:13px 0;text-align:center;font-weight:700;font-size:15px;cursor:pointer;background:none;color:var(--text,#e8e6da)}
+ .amt.sel{background:var(--btn);color:var(--btnText);border-color:var(--btn)}
+ label{display:block;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted,#9aa094);margin:14px 0 5px}
+ input,textarea{width:100%;box-sizing:border-box;background:var(--panel,#111a11);border:1px solid var(--border,#2a332a);color:var(--text,#e8e6da);padding:11px;border-radius:5px;font-size:15px;font-family:inherit}
+ .pay{width:100%;box-sizing:border-box;margin-top:16px;background:var(--btn);color:var(--btnText);border:none;padding:14px;font-weight:700;border-radius:6px;font-size:16px;cursor:pointer}
+ .err{color:#d08770;font-size:13px;margin-top:10px;display:none}
+ #done{display:none;text-align:center;padding:30px 0}
+ #done .code{font-family:var(--font-mono);font-size:24px;letter-spacing:3px;background:var(--headerBg);color:var(--accent);padding:14px 18px;border-radius:8px;margin:16px 0}
+ #cardWrap{margin-top:14px;display:none}
+
+/* Accessibility: a visible keyboard focus ring. Removing the outline for
+   looks leaves keyboard users unable to see where they are on the page. */
+:focus-visible{outline:3px solid #5b9bd5 !important;outline-offset:2px !important;border-radius:2px}
+.skip-link{position:absolute;left:-9999px;top:0;background:#5b9bd5;color:#08131d;padding:10px 16px;z-index:9999;font-weight:600}
+.skip-link:focus{left:0}
+</style>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<header class="siteHead" id="siteHead" data-name="{{BUSINESS_NAME}}"></header>
+<main class="gcWrap" id="main-content">
+<div id="form">
+  <h1>Give the Gift of Golf</h1>
+  <p style="font-size:14px;color:var(--muted,#9aa094)">A {{BUSINESS_NAME}} gift card, delivered by email. Balance carries over. Never expires.</p>
+  <div class="amounts" id="amts">
+    <button class="amt" data-c="2500">$25</button>
+    <button class="amt sel" data-c="5000">$50</button>
+    <button class="amt" data-c="10000">$100</button>
+    <button class="amt" data-c="0">Other</button>
+  </div>
+  <div id="otherWrap" style="display:none"><label for="otherAmt">Amount (USD)</label><input id="otherAmt" type="number" min="5" max="1000" step="1" placeholder="75"></div>
+  <label for="toEmail">Send To (their email)</label><input id="toEmail" type="email" autocomplete="email">
+  <label for="fromName">From (your name)</label><input id="fromName" maxlength="60">
+  <label for="msg">Message (optional)</label><textarea id="msg" rows="2" maxlength="300"></textarea>
+  <div id="cardWrap"><label>Card details</label><div id="payElement"></div></div>
+  <button class="pay" id="payBtn">Continue</button>
+  <div class="err" id="err"></div>
+</div>
+<div id="done">
+  <h1>Sent!</h1>
+  <p>The gift card is on its way to <span id="sentTo"></span>.</p>
+  <div class="code" id="codeOut"></div>
+  <p id="keepNote" style="font-size:13px;color:var(--muted,#9aa094)">Keep this code as your copy of the purchase.</p>
+</div>
+</main>
+<footer class="siteFoot" id="siteFoot" data-name="{{BUSINESS_NAME}}"></footer>
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+let CENTS = 5000, stripe = null, elements = null;
+document.querySelectorAll('.amt').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.amt').forEach(x => x.classList.remove('sel'));
+  b.classList.add('sel');
+  CENTS = parseInt(b.dataset.c);
+  document.getElementById('otherWrap').style.display = CENTS === 0 ? 'block' : 'none';
+});
+function amountCents(){
+  if (CENTS > 0) return CENTS;
+  return Math.round((parseFloat(document.getElementById('otherAmt').value) || 0) * 100);
+}
+function fail(m){ const e = document.getElementById('err'); e.textContent = m; e.style.display = 'block'; }
+// STILL BEING PAID (Oct 3 2026): Klarna, Cash App or a bank payment may not have finished when the buyer is back here.
+// The card is issued and emailed the moment the payment completes - the buyer is told that, not "you will be refunded".
+// No code is on this screen, so "Keep this code" goes (the review); and a facility that sends no email cannot promise one.
+function pendingDone(toEmail, emails){
+  const who = (toEmail || '').trim() || document.getElementById('toEmail').value.trim() || 'the email you gave';
+  document.getElementById('form').style.display = 'none';
+  document.querySelector('#done h1').textContent = 'Payment processing';
+  const p = document.querySelector('#done p');
+  p.textContent = emails === false
+    ? 'Your payment is still being completed. Once it goes through, the facility has your gift card code - ask them for it.'
+    : 'Your payment is still being completed. The gift card will be emailed to ' + who + ' as soon as it goes through - there is nothing more to do.';
+  document.getElementById('codeOut').style.display = 'none';
+  const keep = document.getElementById('keepNote'); if (keep) keep.style.display = 'none';
+  document.getElementById('done').style.display = 'block';
+}
+function finish(code, toEmail){
+  document.getElementById('form').style.display = 'none';
+  // A buyer back from a redirect has an EMPTY form: take the address the server
+  // read off the intent, and only fall back to the field (maintainer, Sep 19 2026).
+  document.getElementById('sentTo').textContent = (toEmail || '').trim() || document.getElementById('toEmail').value.trim() || 'your email';
+  document.getElementById('codeOut').textContent = code || 'Delivered by email';
+  document.getElementById('done').style.display = 'block';
+}
+document.getElementById('payBtn').onclick = async () => {
+  document.getElementById('err').style.display = 'none';
+  const body = { amount_cents: amountCents(),
+    to_email: document.getElementById('toEmail').value.trim(),
+    from_name: document.getElementById('fromName').value.trim(),
+    message: document.getElementById('msg').value.trim() };
+  if (elements) {
+    // second click: confirm the card payment
+    // A WAY BACK, OR THE BUYER GETS AN INTEGRATION ERROR (maintainer, Sep 19 2026).
+    // routes/gifts.js creates this intent with Stripe's account defaults, which
+    // include klarna / affirm / cashapp / amazon_pay - all of them redirect the
+    // buyer away. With no return_url at all, Stripe.js refuses and the customer
+    // reads a raw integration message. Same shape as the booking page's fix:
+    // carry the buyer back here, and finish on arrival.
+    const { error, paymentIntent } = await stripe.confirmPayment({
+      elements,
+      confirmParams: { return_url: location.origin + location.pathname + '?gc_return=1' },
+      redirect: 'if_required'
+    });
+    if (error) return fail(error.message);
+    const r = await fetch('/api/gifts/confirm', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ payment_intent_id: paymentIntent.id }) }).then(x => x.json());
+    if (r.success) finish(r.code); else if (r.pending) pendingDone(r.to_email, r.emails); else fail(r.error || 'Something went wrong.');
+    return;
+  }
+  const r = await fetch('/api/gifts/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body) }).then(x => x.json()).catch(() => null);
+  if (!r) return fail('Network problem — please try again.');
+  if (r.error) return fail(r.error);
+  if (r.devMode) return finish(r.code);
+  if (r.clientSecret) {
+    stripe = Stripe(r.publishableKey);
+    elements = stripe.elements({ clientSecret: r.clientSecret });
+    elements.create('payment').mount('#payElement');
+    document.getElementById('cardWrap').style.display = 'block';
+    document.getElementById('payBtn').textContent = 'Pay $' + (amountCents() / 100).toFixed(2);
+  }
+};
+// COMING BACK FROM A REDIRECT GIFT PURCHASE (maintainer, Sep 19 2026). /api/gifts/confirm
+// verifies the payment with Stripe itself and dedupes on the intent id, so the
+// safe thing on return is simply to call it with what Stripe appended.
+(async function gcReturn(){
+  try {
+    const q = new URLSearchParams(location.search);
+    if (!q.get('gc_return')) return;
+    const pi = q.get('payment_intent');
+    const st = q.get('redirect_status');
+    try { history.replaceState({}, '', location.origin + location.pathname); } catch (e) {}
+    if (!pi) return;
+    if (st && st !== 'succeeded' && st !== 'pending') {
+      if (typeof fail === 'function') fail('That payment was not completed, so no gift card was issued and nothing was charged.');
+      return;
+    }
+    const r = await fetch('/api/gifts/confirm', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ payment_intent_id: pi }) }).then(x => x.json()).catch(() => ({}));
+    if (r && r.success && typeof finish === 'function') finish(r.code, r.to_email);
+    else if (r && r.pending) pendingDone(r.to_email, r.emails);
+    else if (typeof fail === 'function') fail((r && r.error) || 'We could not finish that purchase here. If your payment went through, the gift card will be emailed as soon as we see it.');
+  } catch (e) {}
+})();
+</script>
+</body></html>

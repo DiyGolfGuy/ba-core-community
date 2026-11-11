@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coming Soon</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Mono&family=Outfit:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:#060a06; color:#e8ede8; font-family:var(--font-body,system-ui,sans-serif); min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:40px 24px; }
+    body::before { content:''; position:fixed; inset:0; background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(74,154,74,0.08) 0%,transparent 70%); pointer-events:none; }
+    .icon { font-size:56px; margin-bottom:24px; }
+    .name { font-family:var(--font-display,Georgia,serif); font-size:clamp(28px,6vw,52px); font-weight:700; margin-bottom:12px; }
+    .tagline { font-size:clamp(14px,2vw,18px); color:#a0aaa0; font-weight:300; margin-bottom:40px; max-width:480px; line-height:1.7; }
+    .badge { font-family:var(--font-mono,ui-monospace,monospace); font-size:11px; letter-spacing:3px; text-transform:uppercase; color:#c9a227; border:1px solid rgba(201,162,39,0.3); padding:8px 20px; display:inline-block; margin-bottom:40px; }
+    .divider { width:60px; height:1px; background:rgba(201,162,39,0.3); margin:0 auto 32px; }
+    .message { font-size:14px; color:#5a6a5a; font-family:var(--font-mono,ui-monospace,monospace); letter-spacing:1px; }
+  
+/* Accessibility: a visible keyboard focus ring. Removing the outline for
+   looks leaves keyboard users unable to see where they are on the page. */
+:focus-visible{outline:3px solid #5b9bd5 !important;outline-offset:2px !important;border-radius:2px}
+.skip-link{position:absolute;left:-9999px;top:0;background:#5b9bd5;color:#08131d;padding:10px 16px;z-index:9999;font-weight:600}
+.skip-link:focus{left:0}
+</style>
+</head>
+<body>
+<main id="main">
+  <div class="icon">⛳</div>
+  <div class="name" id="bizName">Opening Soon</div>
+  <div class="tagline" id="bizTagline">We're setting up our booking system. Check back soon to reserve your session.</div>
+  <div class="badge">Coming Soon</div>
+  <div class="divider"></div>
+  <div class="message" id="bizContact"></div>
+
+  </main>
+<script>
+    fetch('/api/contact').then(r=>r.json()).then(c=>{
+      if (c.businessName) document.getElementById('bizName').textContent = c.businessName;
+      if (c.phone || c.email) {
+        document.getElementById('bizContact').textContent = [c.phone, c.email].filter(Boolean).join('  |  ');
+      }
+    }).catch(()=>{});
+  </script>
+</body>
+</html>

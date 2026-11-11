@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Events — {{BUSINESS_NAME}}</title>
+<meta name="description" content="Upcoming events at {{BUSINESS_NAME}}{{IN_CITY_STATE}}.">
+<meta property="og:title" content="Events — {{BUSINESS_NAME}}">
+<meta property="og:description" content="Upcoming events at {{BUSINESS_NAME}}{{IN_CITY_STATE}}.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="{{BUSINESS_NAME}}">
+<meta property="og:url" content="{{SITE_URL}}/events">
+<meta property="og:image" content="{{OG_IMAGE}}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="{{OG_IMAGE}}">
+<link rel="canonical" href="{{SITE_URL}}/events">
+<link rel="icon" type="image/png" href="/icons/icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/site.css">
+<script src="/site-chrome.js" defer></script>
+<style>
+h1{font-size:clamp(34px,5vw,52px);margin:12px 0 34px}
+.ev{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:26px;display:flex;gap:24px;margin-bottom:22px;align-items:flex-start}
+.ev img{width:150px;height:150px;object-fit:cover;border-radius:6px;flex-shrink:0}
+.ev .d{font-family:var(--font-mono);color:var(--accent2);font-size:13px;letter-spacing:2px}
+.ev .t{font-family:var(--font-display);font-size:24px;font-weight:600;color:var(--heading);margin:6px 0}
+.ev .x{color:var(--muted);font-size:16px;line-height:1.55;font-weight:300}
+.ev a{color:var(--accent2);font-weight:600;text-decoration:none}
+.empty{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:40px;text-align:center;color:var(--muted);font-size:17px;font-weight:300}
+@media(max-width:600px){.ev{flex-direction:column}.ev img{width:100%;height:auto;aspect-ratio:16/9}}
+</style>
+<script src="/markup.js"></script>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<header class="siteHead" id="siteHead" data-name="{{BUSINESS_NAME}}"></header>
+<main class="siteMain" id="main-content">
+  <div class="mono">What's Happening</div>
+  <h1>Upcoming Events</h1>
+  <div id="list" aria-live="polite"><div class="empty">Loading events...</div></div>
+</main>
+<footer class="siteFoot" id="siteFoot" data-name="{{BUSINESS_NAME}}"></footer>
+<script>
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+// Owner-written event text: the SAME formatter the landing page uses (bullets,
+// dividers, headings, bold). Escaped plain text if the script ever fails to load.
+function markup(t){return window.BAMarkup?BAMarkup.markupToHtml(t):esc(t);}
+// Phone-sized flyer when the server has renditions for it (Sep 5 2026).
+function flyer(src, images){
+  const info = images && images[src]; const alt = '';
+  if(!info || !info.sizes || !info.sizes.length) return `<img src="${esc(src)}" alt="${alt}" loading="lazy" decoding="async">`;
+  const base = src.replace(/\.[A-Za-z0-9]+$/, '');
+  const set = t => info.sizes.map(w => `${base}.w${w}.${t} ${w}w`).join(', ');
+  return `<picture><source type="image/webp" srcset="${set('webp')}" sizes="(max-width:600px) 100vw, 150px"><img src="${base}.w480.jpg" srcset="${set('jpg')}" sizes="(max-width:600px) 100vw, 150px" alt="${alt}" loading="lazy" decoding="async"></picture>`;
+}
+function render(d){
+  const list=document.getElementById('list'); const evs=d.events||[];
+  if(!evs.length){list.innerHTML='<div class="empty">Nothing on the calendar right now - check back soon, or book a bay any time.</div>';return;}
+  list.innerHTML='';
+  evs.forEach(e=>{
+    const dt=new Date(e.event_date+'T00:00:00');
+    const lbl=dt.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'}).toUpperCase();
+    const div=document.createElement('div');div.className='ev';
+    div.innerHTML=(e.flyer?flyer(e.flyer, d.images):'')+
+      `<div><div class="d">${lbl}</div><div class="t">${esc(e.title)}</div>`+
+      (e.description?`<div class="x">${markup(e.description)}</div>`:'')+
+      (e.link?`<p style="margin-top:10px"><a href="${esc(e.link)}">More details &#8250;</a></p>`:'')+`</div>`;
+    list.appendChild(div);
+  });
+}
+if(window.BA_SITE){ render(window.BA_SITE); }
+else fetch('/api/website/content').then(r=>r.json()).then(render).catch(()=>{document.getElementById('list').innerHTML='<div class="empty">Could not load events. Please try again shortly.</div>';});
+</script>
+</body>
+</html>

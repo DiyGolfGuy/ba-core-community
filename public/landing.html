@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>
+// QR compatibility shim: bay-specific QR codes link to /?bay=<id>. If this
+// page is ever the homepage, forward those scans straight to the booking app
+// with the query intact so every printed/on-screen QR keeps working.
+(function(){ if (new URLSearchParams(location.search).get('bay')) location.replace('/book' + location.search); })();
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/png" href="/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <meta name="theme-color" content="#c9a227">
+<title>{{SITE_TITLE}}</title>
+<meta name="description" content="{{META_DESCRIPTION}}">
+<meta property="og:title" content="{{SITE_TITLE}}">
+<meta property="og:description" content="{{META_DESCRIPTION}}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="{{BUSINESS_NAME}}">
+<meta property="og:url" content="{{SITE_URL}}">
+<meta property="og:image" content="{{OG_IMAGE}}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{SITE_TITLE}}">
+<meta name="twitter:description" content="{{META_DESCRIPTION}}">
+<meta name="twitter:image" content="{{OG_IMAGE}}">
+<link rel="stylesheet" href="/site.css">
+<script src="/site-layout.js"></script>
+<script src="/site-style.js"></script>
+<script src="/site-chrome.js" defer></script>
+<script src="/signup.js"></script>
+<meta name="geo.placename" content="{{CITY_STATE}}">
+<link rel="canonical" href="{{SITE_URL}}">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,500&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SportsActivityLocation","name":"{{BUSINESS_NAME}}",
+"address":{"@type":"PostalAddress","streetAddress":"{{ADDRESS}}","addressLocality":"{{CITY}}","addressRegion":"{{STATE}}","postalCode":"{{ZIP}}"},
+"url":"{{SITE_URL}}","telephone":"{{PHONE}}",
+"amenityFeature":[{"@type":"LocationFeatureSpecification","name":"Golf Simulators"},{"@type":"LocationFeatureSpecification","name":"Online Booking"},{"@type":"LocationFeatureSpecification","name":"Self-Service Access"}]}
+</script>
+<style>
+:root{
+  /* the default preset is pine-dark everywhere (server, editor, this file) - Sep 5 2026 */
+  --bg:#0d1810; --bg2:#111f15; --card:#16241a; --line:#24382a;
+  --text:#c8d2c4; --muted:#8fa08c; --heading:#eef3ea; --accent:#c9a227; --accent2:#d8b544;
+  --btn:#c9a227; --btnText:#14301d; --headerBg:#0a130d; --headerText:#eef3ea;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body,system-ui,sans-serif);background:var(--bg);color:var(--text);overflow-x:hidden}
+img{display:block;max-width:100%}
+h1,h2,h3{font-family:var(--font-display,Georgia,serif);color:var(--heading);letter-spacing:var(--heading-spacing,-.5px);text-transform:var(--heading-transform,none);font-weight:var(--heading-weight,700);font-style:var(--heading-style,normal)}
+.mono{font-family:var(--font-mono,ui-monospace,monospace);letter-spacing:4px;font-size:13px;color:var(--accent);text-transform:uppercase}
+.wrap{max-width:var(--wrap,1120px);margin:0 auto;padding:0 24px}
+section{padding:var(--section-pad,84px) 0}
+.reveal{opacity:var(--reveal-o,0);transform:var(--reveal-t,translateY(26px));transition:opacity .7s ease,transform .7s ease}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion: reduce){ .reveal{opacity:1;transform:none;transition:none} html{scroll-behavior:auto} }
+
+/* ── header / hero ── */
+header{position:relative;min-height:var(--hero-height,92vh);display:flex;flex-direction:column;background:#101d13;color:#fff}
+.heroImgs{position:absolute;inset:0;overflow:hidden}
+.heroImgs img,.heroImgs video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.6s ease}
+picture{display:contents}
+/* ── blocks (wave B) ── */
+.siteAnn{background:var(--accent);color:var(--btnText);text-align:center;padding:9px 16px;font-size:14px;font-weight:600;position:relative;z-index:6}
+.blk{padding:var(--section-pad,84px) 0} .blk .wrap>.mono{margin-bottom:6px}
+.blk h2{font-size:calc(clamp(30px,3.6vw,46px) * var(--heading-scale,1));margin:8px 0 18px}
+.blk .lead{font-size:calc(17.5px * var(--text-scale,1));line-height:var(--text-lines,1.65);color:var(--muted);font-weight:var(--text-weight,300);max-width:720px}
+.blk.alt,.detail.alt{background:var(--bg2)}
+/* a section's own look (Oct 20 2026): the dark band reads the header's pair, which the theme's contrast check measures */
+.blk.dark,.detail.dark{background:var(--headerBg);color:var(--headerText);--bg2:var(--headerBg);--heading:var(--headerText);--text:var(--headerText);--accent:var(--headerText);--accent2:var(--headerText);--muted:color-mix(in srgb,var(--headerText) 84%,var(--headerBg));--card:color-mix(in srgb,var(--headerText) 8%,var(--headerBg));--line:color-mix(in srgb,var(--headerText) 24%,var(--headerBg))}
+.blk.center .wrap>.mono,.blk.center .wrap>h2,.blk.center p{text-align:center}.blk.center .lead{margin-left:auto;margin-right:auto;text-align:center}.blk.center .wrap>div[style],.blk.center .rates,.blk.center .inq{margin-left:auto;margin-right:auto}.blk.center .socialRow,.blk.center .quotes{justify-content:center}
+.faqItem{border-bottom:1px solid var(--line)} .faqItem summary{cursor:pointer;list-style:none;padding:16px 0;font-weight:600;color:var(--heading);font-size:calc(18px * var(--text-scale,1));display:flex;justify-content:space-between;gap:12px} .faqItem summary::after{content:'+';color:var(--accent);font-size:22px;line-height:1} .faqItem[open] summary::after{content:'\2212'} .faqItem .a{padding:0 0 16px;color:var(--muted);font-size:calc(16px * var(--text-scale,1));line-height:var(--text-lines,1.6);font-weight:var(--text-weight,300)}
+.rates{width:100%;border-collapse:collapse;margin-top:14px;max-width:720px} .rates td{padding:12px 0;border-bottom:1px solid var(--line);font-size:calc(16.5px * var(--text-scale,1))} .rates td:last-child{text-align:right;color:var(--heading);font-weight:600;white-space:nowrap} .rates .when{color:var(--muted);font-size:14px;display:block;margin-top:2px}
+.quotes{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;margin-top:20px} .quote{background:var(--card);border:1px solid var(--line);border-radius:var(--radius,10px);padding:22px;box-shadow:var(--card-shadow,none)} .quote .q{font-family:var(--font-display,Georgia,serif);font-style:italic;color:var(--heading);font-size:calc(18px * var(--text-scale,1));line-height:var(--text-lines,1.5)} .quote .w{margin-top:10px;color:var(--accent2);font-size:14px;font-weight:600}
+.ctaBand{background:var(--headerBg);color:var(--headerText);text-align:center;padding:64px 20px} .ctaBand h2{color:var(--headerText);margin:0 0 10px} .ctaBand p{color:var(--headerText);opacity:.8;font-size:17px;font-weight:var(--text-weight,300);max-width:600px;margin:0 auto 22px}
+.inq{max-width:620px;margin-top:18px;display:grid;gap:12px} .inq label{display:block;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:5px} .inq input,.inq textarea{width:100%;background:var(--card);border:1px solid var(--line);color:var(--text);padding:12px;border-radius:var(--radius,6px);font-family:inherit;font-size:16px} .inq input:focus,.inq textarea:focus{border-color:var(--accent);outline:none} .inq .two{display:grid;grid-template-columns:1fr 1fr;gap:12px} @media(max-width:520px){.inq .two{grid-template-columns:1fr}} .inq .trap{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden} .inq .msg{font-size:15px;color:var(--accent2);min-height:20px}
+.socialRow{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px} .socialRow a{display:inline-flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius,8px);padding:12px 18px;color:var(--heading);text-decoration:none;font-weight:600} .socialRow svg{width:20px;height:20px;fill:currentColor}
+.specials{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:18px;margin-top:20px} .special{background:var(--card);border:1px solid var(--line);border-radius:var(--radius,10px);box-shadow:var(--card-shadow,none);overflow:hidden;position:relative} .special.today{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset} .special img{width:100%;aspect-ratio:16/9;object-fit:cover} .special .si{padding:18px 20px} .special .tag{display:inline-block;background:var(--accent);color:var(--btnText);font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;border-radius:999px;padding:3px 10px;margin-bottom:8px} .special .d{font-family:var(--font-mono,ui-monospace,monospace);font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--accent2)} .special .t{font-family:var(--font-display,Georgia,serif);font-size:22px;font-weight:600;color:var(--heading);margin:6px 0} .special .x{color:var(--muted);font-size:calc(15.5px * var(--text-scale,1));line-height:var(--text-lines,1.55);font-weight:var(--text-weight,300)} .special .p{margin-top:10px;font-weight:700;color:var(--heading);font-size:18px}
+.menuList{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:2px 34px;margin-top:18px;max-width:980px} .mi{padding:12px 0;border-bottom:1px dashed var(--line)} .mn{display:flex;justify-content:space-between;gap:12px;font-weight:600;color:var(--heading);font-size:17px} .mp{color:var(--accent2);white-space:nowrap} .mx{color:var(--muted);font-size:calc(15px * var(--text-scale,1));margin-top:3px;line-height:var(--text-lines,1.5);font-weight:var(--text-weight,300)}
+.cardGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:20px;margin-top:22px} .cardItem{background:var(--card);border:1px solid var(--line);border-radius:var(--radius,10px);overflow:hidden;box-shadow:var(--card-shadow,none);display:flex;flex-direction:column} .cardItem img{width:100%;aspect-ratio:4/3;object-fit:cover} .ci{padding:18px 20px} .ci .t{font-family:var(--font-display,Georgia,serif);font-weight:600;color:var(--heading);font-size:20px} .ci .p{color:var(--accent2);font-weight:700;margin-top:4px} .ci .x{color:var(--muted);font-size:calc(15.5px * var(--text-scale,1));line-height:var(--text-lines,1.55);margin-top:8px;font-weight:var(--text-weight,300)} .ci a.more{display:inline-block;margin-top:12px;color:var(--accent2);font-weight:600;text-decoration:none}
+.bannerBand{position:relative;padding:calc(var(--section-pad,84px) + 30px) 0;text-align:center;background:var(--headerBg);overflow:hidden} .bannerBand img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:0} .bannerBand .shade{position:absolute;inset:0;background:var(--hero-shade,linear-gradient(180deg,rgba(8,14,9,.55) 0%,rgba(8,14,9,.25) 45%,rgba(8,14,9,.72) 100%))} .bannerBand .wrap{position:relative;z-index:2} .bannerBand .mono{color:var(--accent);margin-bottom:8px} .bannerBand h2{color:#fdfcf6;font-size:calc(clamp(32px,4.4vw,56px) * var(--heading-scale,1));margin:0 0 12px} .bannerBand p{color:#e7ebe4;font-size:clamp(16px,1.9vw,20px);font-weight:var(--text-weight,300);max-width:640px;margin:0 auto 24px;line-height:var(--text-lines,1.55)}
+.blk.center .specials,.blk.center .cardGrid{justify-content:center}.blk.center .menuList{margin-left:auto;margin-right:auto}
+.menuGroup{margin-top:26px} .menuGroup h3{margin:0;font-family:var(--font-display,Georgia,serif);font-size:calc(22px * var(--heading-scale,1));color:var(--heading);font-weight:var(--heading-weight,700);font-style:var(--heading-style,normal);text-transform:var(--heading-transform,none);letter-spacing:var(--heading-spacing,normal)} .menuGroup .menuList{margin-top:6px}
+.menuTabs{display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--line);margin-top:18px;scrollbar-width:thin} .menuTabs button{background:none;border:0;border-bottom:3px solid transparent;color:var(--muted);font:inherit;font-weight:600;font-size:16px;padding:11px 14px;cursor:pointer;white-space:nowrap;flex-shrink:0} .menuTabs button[aria-selected=true]{color:var(--heading);border-bottom-color:var(--accent)} .menuTabs button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.menuJump{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px} .menuJump a{border:1px solid var(--line);border-radius:var(--btn-radius,999px);padding:6px 12px;color:var(--text);text-decoration:none;font-size:14px}
+.vidBlk video{width:100%;max-width:960px;border-radius:var(--img-radius,10px);display:block;margin-top:18px;background:#000}
+.vidToggle{margin-top:10px;background:transparent;border:1px solid var(--line);color:var(--heading);padding:8px 14px;border-radius:6px;cursor:pointer;font:inherit;font-size:14px} .vidToggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.previewTag{position:fixed;left:12px;bottom:12px;z-index:99;background:var(--accent);color:var(--btnText);font-size:12px;font-weight:700;padding:6px 10px;border-radius:4px;display:none}
+.heroImgs .on{opacity:1}
+header.noPhoto,.offer.noImg{background:var(--headerBg)}
+.offer.flyerSlide{background:var(--headerBg);align-items:center;justify-content:center}
+.offer.flyerSlide img.flyerImg{position:relative;inset:auto;width:auto;height:auto;max-width:min(92vw,620px);max-height:88%;object-fit:contain;border-radius:12px;box-shadow:0 20px 50px rgba(0,0,0,.35)}
+body.pageMode header#hero{min-height:var(--page-top-height,46vh)}
+body.pageMode .heroBody .cta,body.pageMode .scrollHint{display:none}
+body.pageMode #offers,body.pageMode #steps,body.pageMode #staffed,body.pageMode #gallery,body.pageMode #eventsTeaser,body.pageMode #membershipsSec,body.pageMode #promo,body.pageMode #visit,body.pageMode #detailSections{display:none!important}
+a.brandHome{color:inherit;text-decoration:none;display:inline-flex;align-items:center}
+.heroShade{position:absolute;inset:0;background:var(--hero-shade,linear-gradient(180deg,rgba(8,14,9,.55) 0%,rgba(8,14,9,.25) 45%,rgba(8,14,9,.72) 100%))}
+.topbar{position:relative;z-index:3;display:flex;align-items:center;justify-content:space-between;padding:22px 34px;background:var(--topbar-bg,transparent);flex-wrap:wrap;row-gap:10px;column-gap:14px}
+.topbar .name{display:flex;align-items:center;gap:12px;font-family:var(--font-mono,ui-monospace,monospace);letter-spacing:4px;font-size:15px;color:#f2efe2}
+.topbar .name img{height:44px;width:auto}
+.topbar a.book{background:var(--btn);color:var(--btnText);font-weight:600;padding:11px 22px;border-radius:var(--btn-radius,4px);text-decoration:none;font-size:15px;display:inline-block;white-space:nowrap;flex-shrink:0;text-transform:var(--btn-transform);letter-spacing:var(--btn-letters)}
+/* the menu's shape is the owner's (site-style.js menuStyle / phoneBar, Oct 20 2026): each rule below falls back to the site
+   as built when the property is not set */
+.topbar .navlinks{display:var(--nav-links,flex);align-items:center;gap:4px;flex-wrap:wrap}
+.topbar .menuBtn{display:var(--nav-btn-wide,none);align-items:center;justify-content:center;background:transparent;border:1px solid rgba(255,255,255,.4);color:#f2efe2;border-radius:6px;width:42px;height:38px;font-size:20px;line-height:1;cursor:pointer;margin-left:8px}
+.heroDrawer{display:var(--nav-drawer-wide,none);position:relative;z-index:4;max-height:0;overflow:hidden;transition:max-height .28s ease;background:rgba(8,14,9,.92)}
+.heroDrawer.open{max-height:70vh;overflow:auto}
+.heroDrawer a{display:block;padding:14px 26px;color:#f2efe2;text-decoration:none;font-size:16px;border-bottom:1px solid rgba(255,255,255,.08)}
+.navTabs{display:var(--nav-tabs,none);position:relative;z-index:3;flex-wrap:wrap;gap:2px;padding:0 26px;background:var(--topbar-bg,rgba(8,14,9,.35))}
+.navTabs a{flex-shrink:0;color:#f2efe2;text-decoration:none;font-size:15px;font-weight:600;letter-spacing:.5px;padding:12px 14px;border-bottom:3px solid transparent;white-space:nowrap}
+.navTabs a[aria-current=page]{border-bottom-color:var(--accent)}
+.navTabs a:hover{background:rgba(255,255,255,.08)}
+.phoneBar{display:none}
+@media(max-width:760px){
+  .topbar .navlinks{display:none}
+  .topbar .menuBtn{display:var(--nav-btn-phone,inline-flex)}
+  .heroDrawer{display:block}
+  .navTabs{flex-wrap:nowrap;overflow-x:auto;padding:0 12px;scrollbar-width:thin}
+  .phoneBar{display:var(--phonebar,none);position:fixed;left:0;right:0;bottom:0;z-index:60;gap:4px;background:var(--headerBg);border-top:1px solid rgba(255,255,255,.12);padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
+  .phoneBar a{flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:center;min-height:48px;padding:0 6px;color:var(--headerText);text-decoration:none;font-size:14px;font-weight:600;border-radius:var(--btn-radius,6px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .phoneBar a.book{background:var(--btn);color:var(--btnText)}
+  .phoneBar a[aria-current=page]{text-decoration:underline;text-underline-offset:5px}
+  body{padding-bottom:var(--phonebar-pad,0)}
+}
+.heroBody{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;justify-content:center;align-items:var(--hero-items,center);text-align:var(--hero-text,center);padding:40px var(--hero-pad-x,24px)}
+.heroBody .tag{font-family:var(--font-mono,ui-monospace,monospace);letter-spacing:6px;font-size:14px;color:var(--accent);margin-bottom:18px;text-transform:uppercase}
+.heroBody h1{color:#fdfcf6;font-size:calc(clamp(42px,7vw,84px) * var(--heading-scale,1));font-weight:var(--heading-weight,700);line-height:1.02;max-width:900px}
+.heroBody .sub{margin-top:22px;font-size:clamp(17px,2.3vw,23px);color:#d7dcd2;font-weight:var(--text-weight,300);max-width:640px;line-height:var(--text-lines,1.55)}
+.heroBody .cta{margin-top:38px;display:flex;gap:14px;flex-wrap:wrap;justify-content:var(--hero-items,center)}
+.btn{display:inline-block;padding:15px 34px;border-radius:var(--btn-radius,4px);text-decoration:none;font-weight:600;font-size:17px;text-transform:var(--btn-transform);letter-spacing:var(--btn-letters)}
+.btn.gold{background:var(--btn);color:var(--btnText)}
+.btn.ghost{border:1px solid rgba(255,255,255,.55);color:#fdfcf6}
+.scrollHint{position:relative;z-index:2;text-align:center;padding-bottom:26px;color:#cfd6ca;font-size:13px;letter-spacing:3px;font-family:var(--font-mono,ui-monospace,monospace)}
+
+/* ── sticky book bar ── */
+.stickyBar{position:fixed;top:0;left:0;right:0;z-index:50;background:var(--headerBg);color:var(--headerText);display:var(--sticky-display,flex);align-items:center;justify-content:space-between;padding:12px 26px;transform:translateY(-110%);transition:transform .35s ease;box-shadow:0 4px 18px rgba(0,0,0,.25);flex-wrap:wrap;row-gap:8px;column-gap:12px}
+.stickyBar.show{transform:none}
+.stickyBar .n{font-family:var(--font-mono,ui-monospace,monospace);letter-spacing:3px;font-size:13px}
+.stickyBar a{background:var(--btn);color:var(--btnText);font-weight:600;padding:9px 20px;border-radius:var(--btn-radius,4px);text-decoration:none;font-size:14px;display:inline-block;white-space:nowrap;flex-shrink:0;text-transform:var(--btn-transform);letter-spacing:var(--btn-letters)}
+
+/* ── offers slideshow ── */
+#offers{padding:0;position:relative;height:96vh;min-height:560px;background:#0c1810;color:#fff;overflow:hidden}
+.offer{position:absolute;inset:0;opacity:0;transition:opacity 1.1s ease;display:flex;align-items:flex-end;cursor:pointer}
+.offer.on{opacity:1}
+.offer img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.offer .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,14,9,.16) 30%,rgba(8,14,9,.78) 100%)}
+.offer .txt{position:relative;z-index:2;padding:60px 8vw 90px;max-width:820px}
+.offer .lbl{font-family:var(--font-mono,ui-monospace,monospace);letter-spacing:5px;font-size:13px;color:var(--accent);text-transform:uppercase}
+.offer h2{color:#fdfcf6;font-size:calc(clamp(34px,4.6vw,58px) * var(--heading-scale,1));margin:12px 0 12px}
+.offer p{color:#d7dcd2;font-size:clamp(16px,1.9vw,20px);font-weight:var(--text-weight,300);line-height:var(--text-lines,1.55)}
+.offerDots{position:absolute;bottom:34px;right:44px;z-index:3;display:flex;gap:10px}
+.offerDots button{width:11px;height:11px;border-radius:50%;border:1px solid rgba(255,255,255,.7);background:transparent;cursor:pointer;padding:0}
+.offerDots button.on{background:var(--accent);border-color:var(--accent)}
+
+/* ── detail sections ── */
+.detail .wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
+.detail:nth-of-type(even) .wrap{direction:rtl}
+.detail:nth-of-type(even) .wrap>*{direction:ltr}
+.detail h2{font-size:calc(clamp(30px,3.6vw,46px) * var(--heading-scale,1));margin:12px 0 18px}
+.detail p,.detail .secText{font-size:calc(17.5px * var(--text-scale,1));line-height:var(--text-lines,1.65);color:var(--muted);font-weight:var(--text-weight,300);margin-bottom:14px}
+.detail .secText h4{color:var(--heading);font-weight:600;font-size:19px}
+.detail img{border-radius:var(--img-radius,8px);box-shadow:0 18px 44px rgba(20,40,25,.16);width:100%;aspect-ratio:4/3;object-fit:cover}
+.callout{margin-top:20px;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:var(--radius,6px);padding:16px 20px;box-shadow:var(--card-shadow,none)}
+.callout .t{font-weight:600;color:var(--heading);font-size:16px}
+.callout .x{font-size:calc(15px * var(--text-scale,1));color:var(--muted);margin-top:4px;line-height:var(--text-lines,1.5)}
+.detail a.more{color:var(--accent2);font-weight:600;text-decoration:none;font-size:16px}
+@media(max-width:840px){.detail .wrap{grid-template-columns:1fr;gap:30px}}
+
+/* ── steps ── */
+#steps{background:var(--bg2)}
+#steps .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:26px;margin-top:40px}
+.step .n{width:46px;height:46px;border-radius:50%;background:var(--btn);color:var(--btnText);font-family:var(--font-display,Georgia,serif);font-weight:700;font-size:21px;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.step .t{font-weight:600;color:var(--heading);font-size:calc(18px * var(--text-scale,1));margin-bottom:6px}
+.step .x{font-size:calc(15px * var(--text-scale,1));color:var(--muted);line-height:var(--text-lines,1.5);font-weight:var(--text-weight,300)}
+@media(max-width:840px){#steps .grid{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){#steps .grid{grid-template-columns:1fr}}
+
+/* ── staffed ── */
+#staffed .cols{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:36px}
+#staffed .col{background:var(--card);border:1px solid var(--line);border-radius:var(--radius,8px);padding:26px;box-shadow:var(--card-shadow,none)}
+#staffed .col h3{font-size:22px;margin-bottom:10px}
+#staffed .col p{color:var(--muted);font-size:calc(16px * var(--text-scale,1));line-height:var(--text-lines,1.55);font-weight:var(--text-weight,300)}
+#staffedList{margin-top:16px}
+#staffedList .row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:calc(15.5px * var(--text-scale,1))}
+#staffedList .row .d{font-weight:500;color:var(--heading)}
+#staffedList .row .h{font-family:var(--font-mono,ui-monospace,monospace);font-size:14px;color:var(--accent2)}
+@media(max-width:760px){#staffed .cols{grid-template-columns:1fr}}
+
+/* ── gallery ── */
+#gallery{background:var(--bg2)}
+.galWrap{position:relative;margin-top:36px}
+.galTrack{display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-bottom:8px}
+.galTrack::-webkit-scrollbar{display:none}
+.galItem{flex:0 0 min(78vw,560px);scroll-snap-align:center}
+.galItem img{width:100%;aspect-ratio:3/2;object-fit:cover;border-radius:var(--img-radius,8px)}
+.galItem .cap{font-size:calc(14px * var(--text-scale,1));color:var(--muted);margin-top:8px}
+.galNav{position:absolute;top:38%;width:46px;height:46px;border-radius:50%;background:var(--card);border:1px solid var(--line);font-size:20px;color:var(--heading);cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.12)}
+.galNav.prev{left:-10px}.galNav.next{right:-10px}
+.galCount{text-align:center;margin-top:14px;font-family:var(--font-mono,ui-monospace,monospace);font-size:13px;color:var(--muted);letter-spacing:2px}
+
+/* ── events / promo / visit ── */
+.eventCard{margin-top:32px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius,10px);box-shadow:var(--card-shadow,none);padding:28px;display:flex;gap:26px;align-items:center}
+.eventCard img{width:170px;aspect-ratio:1;object-fit:cover;border-radius:var(--img-radius,6px)}
+.eventCard .d{font-family:var(--font-mono,ui-monospace,monospace);color:var(--accent2);font-size:14px;letter-spacing:2px}
+.eventCard .t{font-size:24px;font-weight:600;color:var(--heading);font-family:var(--font-display,Georgia,serif);margin:6px 0}
+.eventCard .x{color:var(--muted);font-size:calc(16px * var(--text-scale,1));line-height:var(--text-lines,1.55);font-weight:var(--text-weight,300)}
+.eventCard a{color:var(--accent2);font-weight:600;text-decoration:none}
+@media(max-width:640px){.eventCard{flex-direction:column;align-items:flex-start}}
+#promo{background:var(--headerBg);color:var(--headerText);text-align:center}
+#promo .lbl{font-family:var(--font-mono,ui-monospace,monospace);letter-spacing:5px;font-size:13px;color:var(--accent)}
+#promo h2{color:var(--headerText);font-size:calc(clamp(28px,3.4vw,42px) * var(--heading-scale,1));margin:12px 0}
+#promo p{color:#cfd6ca;font-size:calc(17px * var(--text-scale,1));font-weight:var(--text-weight,300);max-width:560px;margin:0 auto 20px}
+#promo .code{display:inline-block;border:1px dashed var(--accent);color:var(--accent);font-family:var(--font-mono,ui-monospace,monospace);letter-spacing:4px;font-size:19px;padding:12px 26px;border-radius:4px}
+#visit .wrap{display:grid;grid-template-columns:1fr 1fr;gap:46px;align-items:start}
+#visit .info p{font-size:calc(17px * var(--text-scale,1));color:var(--muted);line-height:var(--text-lines,1.7);font-weight:var(--text-weight,300)}
+#visit .info .line{font-weight:500;color:var(--heading)}
+#visit iframe{width:100%;height:340px;border:0;border-radius:var(--img-radius,8px)}
+@media(max-width:760px){#visit .wrap{grid-template-columns:1fr}}
+#finalCta{background:var(--bg2);text-align:center}
+#finalCta h2{font-size:calc(clamp(30px,4vw,50px) * var(--heading-scale,1))}
+footer{background:var(--headerBg);color:#aebbab;text-align:center;padding:30px 20px;font-size:14px}
+footer a{color:var(--accent);text-decoration:none}
+@media (max-width:480px){ .stickyBar .n,.topbar .name{letter-spacing:2px;font-size:12.5px} .stickyBar{padding-left:16px;padding-right:16px} }
+
+/* Accessibility: a visible keyboard focus ring. Removing the outline for
+   looks leaves keyboard users unable to see where they are on the page. */
+:focus-visible{outline:3px solid #5b9bd5 !important;outline-offset:2px !important;border-radius:2px}
+.skip-link{position:absolute;left:-9999px;top:0;background:#5b9bd5;color:#08131d;padding:10px 16px;z-index:9999;font-weight:600}
+.skip-link:focus{left:0}
+</style>
+</head>
+<body>
+<a href="#main" class="skip-link">Skip to main content</a>
+<span id="main-content" tabindex="-1"></span>
+
+<div class="siteAnn" id="siteAnn" style="display:none"></div>
+<div class="previewTag" id="previewTag">PREVIEW - unsaved changes</div>
+<div class="stickyBar" id="stickyBar"><span class="n">{{BUSINESS_NAME}}</span><span style="display:flex;align-items:center;gap:12px;flex-shrink:0"><a href="/memberships" id="memNavSticky" style="display:none;margin-right:14px;background:none;color:var(--accent)">Memberships</a><a href="/book">Book Now</a></span></div>
+
+<main id="main">
+<header id="hero">
+  <div class="heroImgs" id="heroImgs"></div>
+  <div class="heroShade"></div>
+  <div class="topbar">
+    <span class="name" id="brandName"><span id="brandLogoSlot"></span><span>{{BUSINESS_NAME}}</span></span>
+    <span class="navlinks" id="navLinks"></span>
+    <span style="display:flex;align-items:center"><a class="book" href="/book">Book Now</a><button class="menuBtn" id="heroMenuBtn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="heroDrawer" style="display:none">&#9776;</button></span>
+  </div>
+  <div class="heroDrawer" id="heroDrawer"></div>
+  <nav class="navTabs" id="navTabs" aria-label="Pages"></nav>
+  <div class="heroBody">
+    <div class="tag" id="heroTag">Indoor Golf, On Your Schedule</div>
+    <h1 id="heroHeadline">Play Anytime. Book in Seconds.</h1>
+    <div class="sub" id="heroSub">State-of-the-art golf simulators with true self-service access. Book online, get your door code, and play.</div>
+    <div class="cta">
+      <a class="btn gold" id="heroCta" href="/book">Book a Bay</a>
+      <a class="btn ghost" id="heroCta2" href="/memberships" style="display:none">Memberships</a>
+      <a class="btn ghost" href="#membershipsSec" id="memNavCta" style="display:none">Check Out Our Memberships</a>
+      <a class="btn ghost" href="#offers">See What We Offer</a>
+    </div>
+  </div>
+  <div class="scrollHint" id="scrollHint" hidden></div>
+</header>
+
+<section id="offers"></section>
+
+<div id="detailSections"></div>
+
+<section id="steps">
+  <div class="wrap">
+    <div class="mono">How It Works</div>
+    <h2 id="stepsTitle" style="font-size:clamp(30px,3.6vw,46px);margin-top:12px">Book. Enter. Play.</h2>
+    <div class="grid" id="stepsGrid"></div>
+  </div>
+</section>
+
+<section id="staffed">
+  <div class="wrap">
+    <div class="mono">When To Find Us</div>
+    <h2 id="staffedTitle" style="font-size:clamp(30px,3.6vw,46px);margin-top:12px">Staffed Hours &amp; Self-Service</h2>
+    <p id="staffedP" style="margin-top:14px;color:var(--muted);font-size:17px;font-weight:300;max-width:640px">Book anytime, day or night. On staffed days someone is on site to help.</p>
+    <div class="cols">
+      <div class="col"><h3>Staffed Days — Coming Up</h3><div id="staffedList"></div></div>
+      <div class="col"><h3>All Other Times</h3><p id="selfServiceText">Fully self-service. Book online and your unique door code arrives by email (or text if you opt in). Let yourself in - your bay is powered up and ready when you arrive.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="gallery">
+  <div class="wrap">
+    <div class="mono">The Facility</div>
+    <h2 style="font-size:clamp(30px,3.6vw,46px);margin-top:12px">Take a Look Around</h2>
+    <div class="galWrap">
+      <button class="galNav prev" onclick="galSlide(-1)" aria-label="Previous">&#8249;</button>
+      <div class="galTrack" id="galTrack"></div>
+      <button class="galNav next" onclick="galSlide(1)" aria-label="Next">&#8250;</button>
+    </div>
+    <div class="galCount" id="galCount"></div>
+  </div>
+</section>
+
+<section id="eventsTeaser" style="display:none">
+  <div class="wrap">
+    <div class="mono">Coming Up</div>
+    <h2 style="font-size:clamp(30px,3.6vw,46px);margin-top:12px">Next Event</h2>
+    <div class="eventCard" id="eventCard"></div>
+    <p style="margin-top:18px"><a href="/events" style="color:var(--accent2);font-weight:600;text-decoration:none">See all events &#8250;</a></p>
+  </div>
+</section>
+
+<section id="membershipsSec" style="display:none">
+  <div class="inner" style="max-width:1100px;margin:0 auto;padding:90px 22px">
+    <div class="kicker" id="memKicker">JOIN THE CLUB</div>
+    <h2 class="sectionTitle" id="memTitle">Memberships</h2>
+    <p id="memIntro" style="color:var(--muted);max-width:640px;font-size:17px;line-height:1.7;margin:14px 0 34px"></p>
+    <div id="memCards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px"></div>
+  </div>
+</section>
+
+<section id="promo" style="display:none">
+  <div class="wrap">
+    <div class="lbl" id="promoLabel">FIRST VISIT?</div>
+    <h2 id="promoTitle">Your First Session, On Us to Sweeten</h2>
+    <p id="promoText">Use this code at checkout.</p>
+    <div class="code" id="promoCode">WELCOME</div>
+  </div>
+</section>
+
+<section id="visit">
+  <div class="wrap">
+    <div class="info">
+      <div class="mono">Visit</div>
+      <h2 style="font-size:clamp(30px,3.6vw,46px);margin:12px 0 18px">Find Us</h2>
+      <p><span class="line">{{BUSINESS_NAME}}</span><br>{{ADDRESS}}<br>{{CITY_STATE_ZIP}}</p>
+      <div id="hoursBlock" style="margin-top:14px;display:none">
+        <div style="font-family:var(--font-mono,ui-monospace,monospace);font-size:12px;letter-spacing:3px;color:var(--accent2);text-transform:uppercase;margin-bottom:6px">Hours</div>
+        <div id="hoursBody" style="font-size:16.5px;line-height:1.7;color:var(--muted);font-weight:300"></div>
+      </div>
+      <p style="margin-top:14px" id="visitContact">{{PHONE}}<br>{{EMAIL}}</p>
+    </div>
+    <div id="mapSlot"></div>
+  </div>
+</section>
+
+<section id="finalCta">
+  <div class="wrap">
+    <h2 id="finalTitle">Ready to Play?</h2>
+    <p id="finalText" style="color:var(--muted);font-size:18px;font-weight:300;margin:14px 0 28px">Pick your time. Get your code. Tee off.</p>
+    <a class="btn gold" id="bottomCta" href="/book">Book a Bay</a>
+  </div>
+</section>
+
+<div id="layoutEnd"></div>
+</main>
+<footer class="siteFoot" id="siteFoot" data-name="{{BUSINESS_NAME}}"><div class="in"><div class="links"><a href="/book">Book a Bay</a> <a href="/events">Events</a> <a href="/privacy">Privacy Policy</a> <a href="/sms-terms">SMS Terms</a><span id="footExtra"></span></div><div class="copy">&copy; <span id="yr"></span> {{BUSINESS_NAME}}</div></div></footer>
+
+<nav class="phoneBar" id="phoneBar" aria-label="Quick links"></nav>
+<script>
+const BOOK_URL = '/book';
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+document.getElementById('yr').textContent = new Date().getFullYear();
+
+// Labeled SVG placeholder so the owner sees exactly what photo goes where.
+function ph(label, w, h) {
+  w = w || 1200; h = h || 800;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="100%" height="100%" fill="#22402c"/><rect x="8" y="8" width="${w-16}" height="${h-16}" fill="none" stroke="#b08a1d" stroke-width="2" stroke-dasharray="10 8"/><text x="50%" y="50%" fill="#cfd6ca" font-family="monospace" font-size="${Math.round(w/32)}" text-anchor="middle" dominant-baseline="middle">${label}</text></svg>`;
+  return 'data:image/svg+xml,' + encodeURIComponent(svg);
+}
+
+// ── THEME PRESETS (also used by the admin editor) ────────────────────────────
+const PRESETS = {
+  'fairway-light': {bg:'#f5f3ea',bg2:'#edeadd',card:'#fffef8',line:'#e2ddcb',text:'#3a4436',muted:'#657163',heading:'#1c3a26',accent:'#866914',accent2:'#765c12',btn:'#1c3a26',btnText:'#f7f5ec',headerBg:'#14301d',headerText:'#f2efe2'},
+  'pine-dark':   {bg:'#0d1810',bg2:'#111f15',card:'#16241a',line:'#24382a',text:'#c8d2c4',muted:'#8fa08c',heading:'#eef3ea',accent:'#c9a227',accent2:'#d8b544',btn:'#c9a227',btnText:'#14301d',headerBg:'#0a130d',headerText:'#eef3ea'},
+  'navy-copper': {bg:'#f4f5f7',bg2:'#e9ecf0',card:'#ffffff',line:'#dde2e9',text:'#3a4350',muted:'#666f7d',heading:'#152238',accent:'#9c5e33',accent2:'#8f5228',btn:'#152238',btnText:'#f4f5f7',headerBg:'#101a2b',headerText:'#eef1f6'},
+  'charcoal-red':{bg:'#f6f5f3',bg2:'#ecebe7',card:'#ffffff',line:'#e0ded8',text:'#3d3d3b',muted:'#6f6f6c',heading:'#232323',accent:'#b23a30',accent2:'#8f2d25',btn:'#232323',btnText:'#f6f5f3',headerBg:'#1b1b1b',headerText:'#f1efeb'},
+  'slate-teal':  {bg:'#f3f6f5',bg2:'#e7edeb',card:'#ffffff',line:'#dbe4e1',text:'#39443f',muted:'#64716c',heading:'#16332b',accent:'#1c7e67',accent2:'#166a56',btn:'#16332b',btnText:'#f3f6f5',headerBg:'#122822',headerText:'#edf3f0'},
+  'sand-forest': {bg:'#f7f2e7',bg2:'#efe7d4',card:'#fffdf6',line:'#e6dcc4',text:'#4a4636',muted:'#716e5d',heading:'#2e4426',accent:'#667428',accent2:'#5f6e22',btn:'#2e4426',btnText:'#f7f2e7',headerBg:'#24361e',headerText:'#f2efe0'},
+  'midnight-ice':{bg:'#0e1116',bg2:'#141922',card:'#1a212c',line:'#26303e',text:'#c3ccd8',muted:'#8794a4',heading:'#eef3f8',accent:'#5ab0d8',accent2:'#7cc4e4',btn:'#5ab0d8',btnText:'#0e1116',headerBg:'#0a0d12',headerText:'#eef3f8'},
+  'plum-gold':   {bg:'#f6f3f6',bg2:'#ece5ec',card:'#fffdff',line:'#e2d8e2',text:'#443a44',muted:'#756a75',heading:'#3a1f3a',accent:'#866914',accent2:'#765c12',btn:'#3a1f3a',btnText:'#f6f3f6',headerBg:'#2b172b',headerText:'#f2ecf2'}
+};
+// ── THE SITE'S STYLE IN THE LIVE PREVIEW (Oct 20 2026): the server puts the saved style in <style
+// id="ba-theme">; here every place is set again from what the editor or the setup chat holds - a place back at the site as
+// built is set to 'initial', which makes each page rule fall back to its own built-in value (public/site-style.js).
+function applyDesign(design) {
+  const S = window.BASiteStyle; if (!S) return;
+  const want = S.vars(design || {}), r = document.documentElement.style;
+  Object.keys(S.STYLE).forEach(k => S.STYLE[k].choices.forEach(c => Object.keys(c[2]).forEach(v => r.setProperty(v, want[v] !== undefined ? want[v] : 'initial'))));
+}
+// a section's own background and alignment (site-layout.js LOOKS): 'auto' is the section as its kind always drew
+function blockLook(sec, b) {
+  if (b.bg === 'plain') sec.classList.remove('alt');
+  else if (b.bg === 'alt') sec.classList.add('alt');
+  else if (b.bg === 'dark') { sec.classList.remove('alt'); sec.classList.add('dark'); }
+  if (b.align === 'center') sec.classList.add('center');
+}
+function applyTheme(theme) {
+  if (!theme) return;
+  let colors = null;
+  if (theme.custom && theme.colors) colors = theme.colors;
+  else if (theme.preset && PRESETS[theme.preset]) colors = PRESETS[theme.preset];
+  if (!colors) return; /* unknown preset = keep what the server injected */
+  const map = {bg:'--bg',bg2:'--bg2',card:'--card',line:'--line',text:'--text',muted:'--muted',heading:'--heading',accent:'--accent',accent2:'--accent2',btn:'--btn',btnText:'--btnText',headerBg:'--headerBg',headerText:'--headerText'};
+  for (const k in map) if (colors[k]) document.documentElement.style.setProperty(map[k], colors[k]);
+}
+
+// ── FONTS IN THE LIVE PREVIEW (Sep 17 2026) ──────────────────────────────────
+// Colours have always repainted as the owner clicks; fonts had to do the same
+// or Typography would be the one card in the editor where you pick something
+// and the preview does not move until you save. The stacks are the server's
+// (services/theme FONTS) mirrored here, held in lockstep by test-website-pages,
+// and the webfont itself is fetched on demand so a preview shows the REAL face
+// rather than a fallback.
+const FONT_STACKS = {
+  system:       {stack:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif", g:null},
+  outfit:       {stack:"'Outfit',system-ui,-apple-system,'Segoe UI',sans-serif", g:'Outfit:wght@300;400;500;600;700;800'},
+  inter:        {stack:"'Inter',system-ui,-apple-system,'Segoe UI',sans-serif", g:'Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,700'},
+  montserrat:   {stack:"'Montserrat',system-ui,'Segoe UI',sans-serif", g:'Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,700'},
+  poppins:      {stack:"'Poppins',system-ui,'Segoe UI',sans-serif", g:'Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,700'},
+  worksans:     {stack:"'Work Sans',system-ui,'Segoe UI',sans-serif", g:'Work+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,700'},
+  sourcesans:   {stack:"'Source Sans 3',system-ui,'Segoe UI',sans-serif", g:'Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,700'},
+  nunitosans:   {stack:"'Nunito Sans',system-ui,'Segoe UI',sans-serif", g:'Nunito+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,700'},
+  raleway:      {stack:"'Raleway',system-ui,'Segoe UI',sans-serif", g:'Raleway:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,700'},
+  oswald:       {stack:"'Oswald',Impact,system-ui,sans-serif", g:'Oswald:wght@300;400;500;600;700'},
+  playfair:     {stack:"'Playfair Display',Georgia,serif", g:'Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,700'},
+  lora:         {stack:"'Lora',Georgia,serif", g:'Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700'},
+  merriweather: {stack:"'Merriweather',Georgia,serif", g:'Merriweather:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,700'},
+  baskerville:  {stack:"'Libre Baskerville',Georgia,serif", g:'Libre+Baskerville:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700'},
+  cormorant:    {stack:"'Cormorant Garamond',Garamond,Georgia,serif", g:'Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,700'},
+  bitter:       {stack:"'Bitter',Georgia,serif", g:'Bitter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,700'},
+  dmmono:       {stack:"'DM Mono',ui-monospace,Menlo,monospace", g:'DM+Mono:ital,wght@0,300;0,400;0,500;1,400'},
+  jetbrains:    {stack:"'JetBrains Mono',ui-monospace,Menlo,monospace", g:'JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,700'},
+  spacemono:    {stack:"'Space Mono',ui-monospace,Menlo,monospace", g:'Space+Mono:ital,wght@0,400;0,700;1,400;1,700'},
+  plexmono:     {stack:"'IBM Plex Mono',ui-monospace,Menlo,monospace", g:'IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,700'},
+  manrope:      {stack:"'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif", g:'Manrope:wght@300;400;500;600;700;800'},
+  jakarta:      {stack:"'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif", g:'Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,700'},
+  rubik:        {stack:"'Rubik',system-ui,-apple-system,'Segoe UI',sans-serif", g:'Rubik:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,700'},
+  lexend:       {stack:"'Lexend',system-ui,-apple-system,'Segoe UI',sans-serif", g:'Lexend:wght@300;400;500;600;700;800'},
+  sora:         {stack:"'Sora',system-ui,-apple-system,'Segoe UI',sans-serif", g:'Sora:wght@300;400;500;600;700;800'},
+  spacegrotesk: {stack:"'Space Grotesk',system-ui,-apple-system,'Segoe UI',sans-serif", g:'Space+Grotesk:wght@300;400;500;600;700'},
+  josefin:      {stack:"'Josefin Sans',system-ui,-apple-system,'Segoe UI',sans-serif", g:'Josefin+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,700'},
+  barlow:       {stack:"'Barlow',system-ui,-apple-system,'Segoe UI',sans-serif", g:'Barlow:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,700'},
+  kanit:        {stack:"'Kanit',system-ui,-apple-system,'Segoe UI',sans-serif", g:'Kanit:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,700'},
+  archivo:      {stack:"'Archivo',system-ui,-apple-system,'Segoe UI',sans-serif", g:'Archivo:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,700'},
+  bebas:        {stack:"'Bebas Neue',Impact,system-ui,sans-serif", g:'Bebas+Neue:wght@400'},
+  anton:        {stack:"'Anton',Impact,system-ui,sans-serif", g:'Anton:wght@400'},
+  teko:         {stack:"'Teko',Impact,system-ui,sans-serif", g:'Teko:wght@300;400;500;600;700'},
+  barlowcond:   {stack:"'Barlow Condensed',Impact,system-ui,sans-serif", g:'Barlow+Condensed:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,700'},
+  sairacond:    {stack:"'Saira Condensed',Impact,system-ui,sans-serif", g:'Saira+Condensed:wght@300;400;500;600;700;800'},
+  archivoblack: {stack:"'Archivo Black',Impact,system-ui,sans-serif", g:'Archivo+Black:wght@400'},
+  russo:        {stack:"'Russo One',Impact,system-ui,sans-serif", g:'Russo+One:wght@400'},
+  righteous:    {stack:"'Righteous',Impact,system-ui,sans-serif", g:'Righteous:wght@400'},
+  alfaslab:     {stack:"'Alfa Slab One',Impact,system-ui,sans-serif", g:'Alfa+Slab+One:wght@400'},
+  abril:        {stack:"'Abril Fatface',Impact,system-ui,sans-serif", g:'Abril+Fatface:wght@400'},
+  dmserif:      {stack:"'DM Serif Display',Georgia,serif", g:'DM+Serif+Display:ital,wght@0,400;1,400'},
+  cinzel:       {stack:"'Cinzel',Georgia,serif", g:'Cinzel:wght@400;500;600;700;800'},
+  bodoni:       {stack:"'Bodoni Moda',Georgia,serif", g:'Bodoni+Moda:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,700'},
+  fraunces:     {stack:"'Fraunces',Georgia,serif", g:'Fraunces:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,700'},
+  robotoslab:   {stack:"'Roboto Slab',Georgia,serif", g:'Roboto+Slab:wght@300;400;500;600;700;800'},
+  dancing:      {stack:"'Dancing Script',cursive", g:'Dancing+Script:wght@400;500;600;700', kind:'script'},
+  greatvibes:   {stack:"'Great Vibes',cursive", g:'Great+Vibes:wght@400', kind:'script'},
+  pacifico:     {stack:"'Pacifico',cursive", g:'Pacifico:wght@400', kind:'script'},
+};
+function applyFonts(fonts) {
+  if (!fonts) return;
+  const pick = (id, dflt) => FONT_STACKS[id] ? id : dflt;
+  let heading = pick(fonts.heading, 'playfair'), body = pick(fonts.body, 'outfit'), accent = pick(fonts.accent, 'dmmono');
+  if (FONT_STACKS[body].kind === 'script') body = 'outfit';   // never a script face for the words - as the server (theme.resolveFonts)
+  if (fonts.matchAll) { heading = body; accent = body; }
+  const r = document.documentElement.style;
+  r.setProperty('--font-display', FONT_STACKS[heading].stack);
+  r.setProperty('--font-body',    FONT_STACKS[body].stack);
+  r.setProperty('--font-mono',    FONT_STACKS[accent].stack);
+  const plain = fonts.accentStyle === 'plain';
+  r.setProperty('--kicker-spacing',   plain ? '0' : '4px');
+  r.setProperty('--kicker-transform', plain ? 'none' : 'uppercase');
+  r.setProperty('--brand-spacing',    plain ? '.5px' : '3px');
+  const fams = [];
+  for (const id of [heading, body, accent]) { const g = FONT_STACKS[id].g; if (g && !fams.includes(g)) fams.push(g); }
+  const href = fams.length ? 'https://fonts.googleapis.com/css2?' + fams.map(x => 'family=' + x).join('&') + '&display=swap' : '';
+  let link = document.getElementById('ba-fonts');
+  if (!href) { if (link) link.remove(); return; }
+  if (!link) { link = document.createElement('link'); link.id = 'ba-fonts'; link.rel = 'stylesheet'; document.head.appendChild(link); }
+  if (link.getAttribute('href') !== href) link.setAttribute('href', href);
+}
+
+// ── DEFAULT CONTENT (placeholders until the owner saves their own) ───────────
+const DEFAULTS = {
+  hero: { tag:'Indoor Golf, On Your Schedule', headline:'Play Anytime. Book in Seconds.',
+    sub:'State-of-the-art golf simulators with true self-service access. Book online, get your door code, and play.',
+    images:[], video:'', videoMobile:'', poster:'', showLogo:true,
+    ctaText:'Book a Bay', ctaLink:'/book', buttons:null,
+    scrollHint:false, scrollHintText:'SCROLL' },
+  offers: { enabled:true, slides:[
+    {label:'The Bays',   title:'Tour-Level Simulators',   text:'Practice, play, and compete on premium launch monitor technology.', img:''},
+    {label:'Book Online',title:'Reserve in Seconds',      text:'Real-time availability. Pick your bay, pick your time, pay online.', img:''},
+    {label:'Self-Service',title:'Your Own Door Code',     text:'A unique entry code arrives by email - or by text if you opt in. Walk in and play.', img:''},
+    {label:'Leagues',    title:'Weekly Play & Events',    text:'Join a league night or bring your crew for a private event.', img:''},
+    {label:'Open Late',  title:'On Your Schedule',        text:'Morning rounds or midnight sessions - book what works for you.', img:''}
+  ]},
+  sections: { items:[
+    {enabled:true,title:'The Simulators',p1:'Play world-famous courses on accurate, tour-grade technology. Every bay is fully equipped - clubs welcome, balls provided.',p2:'',img:'',calloutTitle:'',calloutText:'',linkText:'',linkUrl:''},
+    {enabled:true,title:'More Than Golf',p1:'Bring the group. Multi-sport games, closest-to-the-pin contests, and a space built for a great night out.',p2:'',img:'',calloutTitle:'',calloutText:'',linkText:'',linkUrl:''},
+    {enabled:false,title:'',p1:'',p2:'',img:'',calloutTitle:'',calloutText:'',linkText:'',linkUrl:''},
+    {enabled:false,title:'',p1:'',p2:'',img:'',calloutTitle:'',calloutText:'',linkText:'',linkUrl:''}
+  ]},
+  steps: { enabled:true, title:'Book. Enter. Play.', items:[
+    {title:'Book Online', text:'Pick your bay, date, and time. Pay securely at checkout.'},
+    {title:'Sign Once',   text:'Your waiver is handled at booking - nothing at the door.'},
+    {title:'Get Your Code',text:'Your unique door code arrives by email - or by text if you opt in.'},
+    {title:'Walk In & Play',text:'Your bay is powered on and ready when you arrive.'}
+  ]},
+  staffed: { enabled:true, title:'Staffed Hours & Self-Service',
+    p1:'Book anytime, day or night. On staffed days someone is on site to help.',
+    selfText:'Fully self-service. Book online and your unique door code arrives by email (or text if you opt in). Let yourself in - your bay is powered up and ready when you arrive.' },
+  gallery: { items:[] },
+  memberships: { enabled: true, kicker: 'JOIN THE CLUB', title: 'Memberships', intro: '' },
+  promo: { enabled:false, label:'FIRST VISIT?', title:'', text:'', code:'' },
+  visit: { email:'', phone:'', showMap:true },
+  settings: { eventsEnabled:true, galleryEnabled:true }
+};
+
+const deep = (a,b) => { const o = JSON.parse(JSON.stringify(a)); for (const k in (b||{})) o[k] = b[k]; return o; };
+
+// ── RENDER ───────────────────────────────────────────────────────────────────
+let C = {}, STAFFED = [], NEXT_EVENT = null, HOURS = null, IMAGES = {}, NAV = null, RATES = [], ANN = null, TODAY = null, MENU_LIVE = [], SPECIALS_LIVE = [], PACKAGES_LIVE = [];
+// the facility's own day of the week (the server's date; the visitor's own clock only when the server sent none)
+const facilityDow = () => (TODAY ? new Date(TODAY + 'T12:00:00') : new Date()).getDay();
+const PREVIEW = new URLSearchParams(location.search).get('preview') === '1';
+// THE EDITOR'S OWN PREVIEW shows the owner what photo goes where; everywhere else - the public page and the assistant's live
+// view (live=1) - a top of the page or a slide with no photo is the site's own colour, never a labelled placeholder (BA Core 2
+// AI, Oct 20 2026: a page built by talking read "HERO PHOTO - your best wide shot" behind its headline until a photo came)
+const EDITOR_VIEW = PREVIEW && new URLSearchParams(location.search).get('live') !== '1';
+// A PAGE MADE OF SECTIONS (Oct 20 2026, late; maintainer: "pages not pages ... so people can really make it feel like there own
+// site"): the server draws a page of the owner's own with THIS page when it holds sections (window.BA_PAGE) - its own top
+// (its title, its words, its photo or the site's header colour), then its sections drawn by renderBlock exactly as the
+// homepage's, then the closing band and the footer. The homepage's built-in parts stay on the homepage.
+const PAGE_SLUG = (window.BA_PAGE && String(window.BA_PAGE.slug || '').toLowerCase()) || '';
+function thisPage() { return PAGE_SLUG ? (C.pages || []).find(p => p && String(p.slug || '').toLowerCase() === PAGE_SLUG) || null : null; }
+function homeHref() { return (NAV && NAV.homepage === 'landing') ? '/' : '/landing'; }
+
+// PHOTOS SIZED FOR PHONES (maintainer, Sep 5 2026). The server keeps 480/960/1600
+// renditions (JPEG + WebP) beside every upload and publishes an index; this
+// builds <picture> + srcset from it so a phone downloads the small file.
+// Anything without renditions (an old upload, a placeholder) is a plain <img>.
+function pic(src, sizes, o) {
+  o = o || {};
+  const alt = escAttr(o.alt || '');
+  const eager = o.eager ? ' fetchpriority="high"' : ' loading="lazy"';
+  const cls = o.cls ? ` class="${o.cls}"` : '';
+  const info = IMAGES[src];
+  if (!info || !info.sizes || !info.sizes.length) return `<img src="${escAttr(src)}" alt="${alt}"${cls}${eager} decoding="async">`;
+  const base = src.replace(/\.[A-Za-z0-9]+$/, '');
+  const set = t => info.sizes.map(w => `${base}.w${w}.${t} ${w}w`).join(', ');
+  const fallback = `${base}.w${Math.min(960, info.sizes[info.sizes.length - 1])}.jpg`;
+  const dims = info.w && info.h ? ` width="${info.w}" height="${info.h}"` : '';
+  return `<picture><source type="image/webp" srcset="${set('webp')}" sizes="${sizes}"><img src="${escAttr(fallback)}" srcset="${set('jpg')}" sizes="${sizes}" alt="${alt}"${cls}${dims}${eager} decoding="async"></picture>`;
+}
+
+function renderHero(h) {
+  document.getElementById('heroTag').textContent = h.tag || '';
+  document.getElementById('heroHeadline').textContent = h.headline || '';
+  document.getElementById('heroSub').innerHTML = markup(h.sub || '');
+  // A-wave 13 (maintainer, Sep 15 2026): the scroll hint is the owner's - their words, and
+  // theirs to ask for. OFF unless they do: people know how to scroll, and on a short
+  // first screen it points at nothing.
+  const sh = document.getElementById('scrollHint');
+  if (sh) { const on = h.scrollHint === true; sh.hidden = !on; sh.textContent = on ? (h.scrollHintText || 'SCROLL') : ''; }
+  const slot = document.getElementById('heroImgs');
+  slot.innerHTML = '';
+  // #5 (pilot facility spec): serve the MOBILE rendition on phones (falls back to the
+  // desktop video if no mobile one is set), and use ATTRIBUTE forms for
+  // autoplay - iOS ignores v.muted=... set as a JS property and refuses to
+  // autoplay without muted+playsinline present as real attributes.
+  const vidSrc = (innerWidth <= 860) ? (h.videoMobile || h.video || '') : (h.video || '');
+  const useVideo = vidSrc && !REDUCED;
+  if (useVideo) {
+    const v = document.createElement('video');
+    v.src = vidSrc; if (h.poster) v.poster = h.poster;
+    v.setAttribute('muted', ''); v.setAttribute('autoplay', '');
+    v.setAttribute('loop', ''); v.setAttribute('playsinline', '');
+    v.muted = true; v.loop = true; v.autoplay = true; v.playsInline = true;
+    v.className = 'on'; slot.appendChild(v); document.getElementById('hero').classList.remove('noPhoto');
+    const pl = v.play(); if (pl && pl.catch) pl.catch(() => {});   // ignore autoplay-block, poster shows
+    return;
+  }
+  const imgs = (h.images && h.images.length ? h.images : EDITOR_VIEW ? [ph('HERO PHOTO 1 - your best wide shot',1600,1000), ph('HERO PHOTO 2',1600,1000), ph('HERO PHOTO 3',1600,1000)] : []).slice(0,3);
+  document.getElementById('hero').classList.toggle('noPhoto', !imgs.length);
+  imgs.forEach((src,i) => { const wrap = document.createElement('span'); wrap.innerHTML = pic(src, '100vw', { eager: i === 0, cls: i === 0 ? 'on' : '' }); slot.appendChild(wrap.firstElementChild); });
+  if (imgs.length > 1 && !REDUCED) {
+    let i = 0;
+    setInterval(() => { const els = slot.querySelectorAll('img'); els[i].classList.remove('on'); i = (i+1)%els.length; els[i].classList.add('on'); }, 6000);
+  }
+}
+
+function renderOffers(o) {
+  const sec = document.getElementById('offers');
+  // (a flyer's slide carries its deal's, package's or event's last day - after it, the slide is left out on its own; Oct 22 2026)
+  const today = TODAY || new Date().toISOString().slice(0, 10);
+  const usable = (o.slides || []).filter(s => s && s.enabled !== false && !(s.until && s.until < today) && ((s.title || '').trim() || (s.label || '').trim() || (s.text || '').trim()));
+  if (!o.enabled || !usable.length) { sec.style.display = 'none'; return; }
+  sec.style.display = '';
+  sec.innerHTML = '';
+  const slides = usable.slice(0,5);
+  slides.forEach((s,i) => {
+    const d = document.createElement('div');
+    // a special's flyer (Oct 20 2026, late): the card shown whole on the header colour - its words are in it
+    if (s.flyer) {
+      d.className = 'offer flyerSlide' + (i===0?' on':'');
+      d.innerHTML = `<img class="flyerImg" src="${escAttr(s.flyer)}" alt="${escAttr([s.title, s.text].filter(Boolean).join(' - '))}"${i===0?'':' loading="lazy"'}>`;
+      d.onclick = () => { const t = document.querySelectorAll('#detailSections .detail')[Math.min(i, document.querySelectorAll('#detailSections .detail').length-1)]; if (t) t.scrollIntoView({behavior: REDUCED?'auto':'smooth'}); };
+      sec.appendChild(d);
+      return;
+    }
+    const img = s.img || (EDITOR_VIEW ? ph('OFFER PHOTO '+(i+1)+' - '+(s.label||''),1600,1000) : '');
+    d.className = 'offer' + (i===0?' on':'') + (img ? '' : ' noImg');
+    d.innerHTML = `${img ? pic(img, '100vw', { eager: i === 0 }) : ''}<div class="shade"></div>
+      <div class="txt"><div class="lbl">${esc(s.label)}</div><h2>${esc(s.title)}</h2><div>${markup(s.text)}</div></div>`;
+    d.onclick = () => { const t = document.querySelectorAll('#detailSections .detail')[Math.min(i, document.querySelectorAll('#detailSections .detail').length-1)]; if (t) t.scrollIntoView({behavior: REDUCED?'auto':'smooth'}); };
+    sec.appendChild(d);
+  });
+  const dots = document.createElement('div'); dots.className = 'offerDots';
+  slides.forEach((_,i) => { const b = document.createElement('button'); if (i===0) b.className='on';
+    b.onclick = e => { e.stopPropagation(); showOffer(i); }; dots.appendChild(b); });
+  sec.appendChild(dots);
+  let cur = 0, timer = null;
+  window.showOffer = n => {
+    const els = sec.querySelectorAll('.offer'), ds = dots.querySelectorAll('button');
+    els[cur].classList.remove('on'); ds[cur].classList.remove('on');
+    cur = n % els.length; els[cur].classList.add('on'); ds[cur].classList.add('on');
+  };
+  if (!REDUCED && slides.length > 1) timer = setInterval(() => showOffer((cur+1)%slides.length), 6500);
+  let sx = null;
+  sec.addEventListener('touchstart', e => sx = e.touches[0].clientX, {passive:true});
+  sec.addEventListener('touchend', e => { if (sx===null) return; const dx = e.changedTouches[0].clientX - sx;
+    if (Math.abs(dx) > 50) { if (timer) clearInterval(timer); showOffer((cur + (dx<0?1:slides.length-1)) % slides.length); } sx = null; }, {passive:true});
+}
+
+function renderSections(s) {
+  const host = document.getElementById('detailSections');
+  host.innerHTML = '';
+  (s.items || []).forEach((it, i) => {
+    if (!it.enabled) return;
+    const sec = document.createElement('section');
+    sec.className = 'detail reveal';
+    sec.innerHTML = `<div class="wrap">
+      <div>
+        <div class="mono">${esc(it.kicker || 'What We Offer')}</div>
+        <h2>${esc(it.title)}</h2>
+        ${it.p1 ? `<div class="secText">${markup(it.p1)}</div>` : ''}
+        ${it.p2 ? `<div class="secText">${markup(it.p2)}</div>` : ''}
+        ${it.calloutTitle || it.calloutText ? `<div class="callout"><div class="t">${esc(it.calloutTitle)}</div><div class="x">${esc(it.calloutText)}</div></div>` : ''}
+        ${it.linkText && it.linkUrl ? `<p style="margin-top:16px"><a class="more" href="${escAttr(it.linkUrl)}">${esc(it.linkText)} &#8250;</a></p>` : ''}
+      </div>
+      ${pic(it.img || ph('SECTION PHOTO '+(i+1)+' - '+(it.title||''),1200,900), '(max-width:840px) 100vw, 45vw', { alt: it.title || '' })}
+    </div>`;
+    host.appendChild(sec);
+  });
+}
+
+function renderSteps(st) {
+  const sec = document.getElementById('steps');
+  if (!st.enabled) { sec.style.display = 'none'; return; }
+  document.getElementById('stepsTitle').textContent = st.title || 'Book. Enter. Play.';
+  const g = document.getElementById('stepsGrid'); g.innerHTML = '';
+  (st.items || []).slice(0,4).forEach((s,i) => {
+    const d = document.createElement('div'); d.className = 'step reveal';
+    d.innerHTML = `<div class="n">${i+1}</div><div class="t">${esc(s.title)}</div><div class="x">${markup(s.text)}</div>`;
+    g.appendChild(d);
+  });
+}
+
+function renderStaffed(sf) {
+  const sec = document.getElementById('staffed');
+  if (!sf.enabled) { sec.style.display = 'none'; return; }
+  document.getElementById('staffedTitle').textContent = sf.title || 'Staffed Hours & Self-Service';
+  document.getElementById('staffedP').innerHTML = markup(sf.p1 || '');
+  document.getElementById('selfServiceText').innerHTML = markup(sf.selfText || '');
+  const list = document.getElementById('staffedList'); list.innerHTML = '';
+  if (!STAFFED.length) { list.innerHTML = '<div style="color:var(--muted);font-size:15.5px;padding:8px 0">Self-service all week - book anytime.</div>'; return; }
+  STAFFED.forEach(r => {
+    const d = new Date(r.date + 'T00:00:00');
+    const lbl = d.toLocaleDateString(undefined, { weekday:'short', month:'short', day:'numeric' });
+    const row = document.createElement('div'); row.className = 'row';
+    row.innerHTML = `<span class="d">${lbl}${r.note ? ' - ' + esc(r.note) : ''}</span><span class="h">${fmt12(r.start_time)} - ${fmt12(r.end_time)}</span>`;
+    list.appendChild(row);
+  });
+  const tail = document.createElement('div');
+  tail.style.cssText = 'padding:10px 0 0;color:var(--muted);font-size:14px';
+  tail.textContent = 'All other times: self-service.';
+  list.appendChild(tail);
+}
+
+let galIdx = 0, galWired = false;
+function galTotal() { return document.querySelectorAll('#galTrack .galItem').length; }
+function renderGallery(g, settings) {
+  const sec = document.getElementById('gallery');
+  if (settings && settings.galleryEnabled === false) { sec.style.display = 'none'; return; }
+  const items = (g.items && g.items.length) ? g.items :
+    [1,2,3,4].map(n => ({ img: ph('GALLERY PHOTO ' + n, 1200, 800), caption: '' }));
+  const track = document.getElementById('galTrack'); track.innerHTML = '';
+  items.forEach(it => {
+    const d = document.createElement('div'); d.className = 'galItem';
+    d.innerHTML = `${pic(it.img, '(max-width:600px) 78vw, 560px', { alt: it.caption || '' })}${it.caption ? `<div class="cap">${esc(it.caption)}</div>` : ''}`;
+    track.appendChild(d);
+  });
+  galIdx = 0;
+  updateGalCount(galTotal());
+  if (!galWired) {
+    galWired = true;
+    track.addEventListener('scroll', () => {
+      const w = track.querySelector('.galItem')?.offsetWidth || 1;
+      galIdx = Math.round(track.scrollLeft / (w + 18));
+      updateGalCount(galTotal());
+    }, { passive: true });
+  }
+}
+function updateGalCount(total) { document.getElementById('galCount').textContent = (Math.min(galIdx+1,total)) + ' / ' + total; }
+function galSlide(dir) {
+  const track = document.getElementById('galTrack');
+  const w = (track.querySelector('.galItem')?.offsetWidth || 300) + 18;
+  track.scrollBy({ left: dir * w, behavior: REDUCED ? 'auto' : 'smooth' });
+}
+
+function renderEvent(settings) {
+  const sec = document.getElementById('eventsTeaser');
+  if ((settings && settings.eventsEnabled === false) || !NEXT_EVENT || !linkOk('/events')) { sec.style.display = 'none'; return; }   // W44: not yet public -> the teaser hides with its links
+  sec.style.display = '';
+  const e = NEXT_EVENT;
+  const d = new Date(e.event_date + 'T00:00:00');
+  const lbl = d.toLocaleDateString(undefined, { weekday:'long', month:'long', day:'numeric' });
+  document.getElementById('eventCard').innerHTML =
+    (e.flyer ? pic(e.flyer, '170px', {}) : '') +
+    `<div><div class="d">${lbl.toUpperCase()}</div><div class="t">${esc(e.title)}</div>` +
+    (e.description ? `<div class="x">${markup(e.description)}</div>` : '') +
+    (e.link ? `<p style="margin-top:10px"><a href="${escAttr(e.link)}">More details &#8250;</a></p>` : '') + `</div>`;
+}
+
+let memGen = 0;
+async function renderMemberships(mc) {
+  const gen = ++memGen; // async guard: only the LATEST render may touch the DOM
+  const sec = document.getElementById('membershipsSec');
+  const navEls = [document.getElementById('memNavCta'), document.getElementById('memNavSticky')];
+  const setNav = on => navEls.forEach(el => { if (el) el.style.display = on && linkOk('/memberships') ? '' : 'none'; });
+  if ((mc && mc.enabled === false) || !linkOk('/memberships')) { sec.style.display = 'none'; setNav(false); try { hideDeadLinks(); } catch (e) {} return; }
+  let tiers = [];
+  try { tiers = await fetch('/api/memberships/public').then(r => r.json()); } catch {}
+  if (gen !== memGen) return;
+  if (!Array.isArray(tiers) || !tiers.length) { sec.style.display = 'none'; setNav(false); return; }
+  if (mc) {
+    if (mc.kicker) document.getElementById('memKicker').textContent = mc.kicker;
+    if (mc.title)  document.getElementById('memTitle').textContent = mc.title;
+    document.getElementById('memIntro').innerHTML = markup(mc.intro || '');
+  }
+  const money = n => '$' + (Math.round(n * 100) / 100).toFixed(2).replace(/\.00$/, '');
+  document.getElementById('memCards').innerHTML = tiers.map(t => {
+    const prices = [];
+    if (t.price_monthly > 0) prices.push('<b style="font-size:22px;color:var(--heading)">' + money(t.price_monthly) + '</b><span style="color:var(--muted)">/mo</span>');
+    if (t.price_annual > 0) prices.push('<b style="font-size:22px;color:var(--heading)">' + money(t.price_annual) + '</b><span style="color:var(--muted)">/yr</span>');
+    return '<div style="background:var(--card);border:1px solid var(--line);border-radius:10px;padding:26px;display:flex;flex-direction:column">' +
+      '<div style="font-size:20px;color:var(--heading);margin-bottom:8px"><span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:' + esc(t.badge_color || '#c9a227') + ';margin-right:9px"></span>' + esc(t.name) + '</div>' +
+      '<div style="color:var(--muted);font-size:14px;line-height:1.6;flex:1;margin-bottom:14px;white-space:pre-line">' + markup(t.description || '') + '</div>' +
+      '<div style="margin-bottom:12px">' + prices.join(' <span style="color:var(--muted)">or</span> ') + '</div>' +
+      (t.full ? '<div style="font-size:13px;color:var(--muted);margin-bottom:10px">Currently full</div>'
+        : (t.spots_left !== null && t.spots_left <= 25 ? '<div style="font-size:12.5px;color:var(--accent);margin-bottom:10px">' + t.spots_left + ' spot' + (t.spots_left === 1 ? '' : 's') + ' left</div>' : '')) +
+      '<a href="/memberships" style="display:block;text-align:center;background:' + (t.full ? 'var(--line)' : 'var(--btn)') + ';color:' + (t.full ? 'var(--muted)' : 'var(--btnText)') + ';padding:12px;border-radius:6px;text-decoration:none;font-weight:600">' + (t.full ? 'Join Waitlist by Contacting Us' : 'Join ' + esc(t.name)) + '</a></div>';
+  }).join('');
+  sec.style.display = '';
+  setNav(true);
+}
+function renderPromo(p) {
+  const sec = document.getElementById('promo');
+  if (!p || p.enabled === false || !p.code) { sec.style.display = 'none'; return; }
+  sec.style.display = '';
+  document.getElementById('promoLabel').textContent = p.label || '';
+  document.getElementById('promoTitle').textContent = p.title || '';
+  document.getElementById('promoText').innerHTML = markup(p.text || '');
+  document.getElementById('promoCode').textContent = p.code;
+}
+
+function renderHours(v) {
+  const block = document.getElementById('hoursBlock');
+  if (!HOURS || v.showHours === false) { block.style.display = 'none'; return; }
+  const body = document.getElementById('hoursBody');
+  if (HOURS.open24) {
+    const days = groupDays(HOURS.days);
+    body.textContent = (days === 'Every day' ? '' : days + ': ') + 'Open 24 Hours';
+    block.style.display = ''; return;
+  }
+  if (!HOURS.open || !HOURS.close || !(HOURS.days||[]).length) { block.style.display = 'none'; return; }
+  const range = fmt12(HOURS.open) + ' \u2013 ' + fmt12(HOURS.close) + (HOURS.closeNextDay ? ' (next day)' : '');
+  body.textContent = groupDays(HOURS.days) + ': ' + range;
+  block.style.display = '';
+}
+function groupDays(days) {
+  const ORDER = ['mon','tue','wed','thu','fri','sat','sun'];
+  const LBL = { mon:'Mon', tue:'Tue', wed:'Wed', thu:'Thu', fri:'Fri', sat:'Sat', sun:'Sun' };
+  const set = ORDER.filter(d => (days||[]).includes(d));
+  if (set.length === 7) return 'Every day';
+  if (!set.length) return '';
+  const runs = [];
+  let start = 0;
+  for (let i = 1; i <= set.length; i++) {
+    if (i === set.length || ORDER.indexOf(set[i]) !== ORDER.indexOf(set[i-1]) + 1) {
+      runs.push(start === i-1 ? LBL[set[start]] : LBL[set[start]] + '\u2013' + LBL[set[i-1]]);
+      start = i;
+    }
+  }
+  return runs.join(', ');
+}
+function renderVisit(v) {
+  renderHours(v);
+  if (v.email || v.phone) {
+    document.getElementById('visitContact').innerHTML =
+      (v.phone ? esc(v.phone) + '<br>' : '') + (v.email ? esc(v.email) : '');
+  }
+  const slot = document.getElementById('mapSlot');
+  if (v.showMap === false) { slot.style.display = 'none'; return; }
+  // Lazy keyless map embed - only loads when scrolled near.
+  const addr = encodeURIComponent('{{ADDR_FULL}}');
+  const io = new IntersectionObserver(es => {
+    if (es[0].isIntersecting) {
+      slot.innerHTML = `<iframe loading="lazy" src="https://maps.google.com/maps?q=${addr}&output=embed" title="Map"></iframe>`;
+      io.disconnect();
+    }
+  }, { rootMargin: '400px' });
+  io.observe(slot);
+}
+
+function renderLogo(showLogo) {
+  if (!showLogo) return;
+  const img = new Image();
+  img.onload = () => { document.getElementById('brandLogoSlot').appendChild(img); };
+  img.src = '/uploads/logo.png';
+  img.onerror = () => {
+    const alt = new Image();
+    alt.onload = () => document.getElementById('brandLogoSlot').appendChild(alt);
+    alt.src = '/uploads/logo.jpg';
+  };
+}
+
+// Safe mini-markup for owner text (Example Owner's wizard questions, Aug 19).
+// ALWAYS escapes first - raw HTML never renders. Then, on the escaped text:
+//   **bold**          -> <strong>
+//   [label](https://) -> link (http/https only)
+//   lines starting '- ' -> bulleted list
+//   blank line        -> paragraph break; single newline -> line break
+function markup(t){
+  let x = esc(t || '');
+  x = x.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+  // B-wave 1 (Sep 11 2026): italics - _words_ between non-word characters; a
+  // snake_case_name is left alone and a row of underscores is still a divider
+  x = x.replace(/(^|[^A-Za-z0-9_])_([^_\n]+)_(?![A-Za-z0-9_])/g, '$1<em>$2</em>');
+  // dividers: --- on its own line, or a run of 5+ underscores (grandfathers
+  // hand-typed separator rows into styled rules automatically)
+  x = x.replace(/^[ \t]*(?:-{3,}|_{5,})[ \t]*$/gm, '<hr style="border:none;border-top:1px solid var(--accent);opacity:.55;margin:14px 0">');
+  // sub-headings: ## Heading on its own line
+  // second heading level: ### Small heading on its own line (B-wave 1)
+  x = x.replace(/^###[ \t]+(.+)$/gm, '<h5 style="margin:12px 0 4px;letter-spacing:.3px;font-size:.95em">$1</h5>');
+  x = x.replace(/^##[ \t]+(.+)$/gm, '<h4 style="margin:14px 0 6px;letter-spacing:.4px">$1</h4>');
+  x = x.replace(/\[([^\]\n]+)\]\((https?:\/\/[^)\s]+|\/[^)\s]*)\)/g, function(m, label, url){
+    return '<a href="' + url + '" style="color:var(--accent)">' + label + '</a>';
+  });
+  const blocks = x.split(/\n\s*\n/).map(function(b){
+    const lines = b.split('\n');
+    if (lines.length && lines.every(function(l){ return /^\s*-\s+/.test(l) || !l.trim(); })) {
+      const items = lines.filter(function(l){ return l.trim(); }).map(function(l){ return '<li>' + l.replace(/^\s*-\s+/, '') + '</li>'; }).join('');
+      return '<ul style="margin:8px 0 8px 20px">' + items + '</ul>';
+    }
+    // numbered list: 1. or 1) at the start of every line (B-wave 1)
+    if (lines.length && lines.every(function(l){ return /^\s*\d+[.)]\s+/.test(l) || !l.trim(); })) {
+      const items = lines.filter(function(l){ return l.trim(); }).map(function(l){ return '<li>' + l.replace(/^\s*\d+[.)]\s+/, '') + '</li>'; }).join('');
+      return '<ol style="margin:8px 0 8px 22px">' + items + '</ol>';
+    }
+    // quote: every line starts with > (escaped by then) (B-wave 1)
+    if (lines.length && lines.every(function(l){ return /^\s*&gt;(\s|$)/.test(l) || !l.trim(); })) {
+      const q = lines.filter(function(l){ return l.trim(); }).map(function(l){ return l.replace(/^\s*&gt;\s?/, ''); }).join('<br>');
+      return '<blockquote style="margin:10px 0;padding:6px 14px;border-left:3px solid var(--accent);opacity:.92">' + q + '</blockquote>';
+    }
+    return '<p style="margin:8px 0">' + b.replace(/\n/g, '<br>') + '</p>';
+  });
+  return blocks.join('');
+}
+// Custom pages: header nav + footer links for published pages flagged to show.
+function renderCustomNav(pages, footerLinks){
+  try {
+    // ONE navigation model (Sep 5 2026): the server resolves built-in pages
+    // (Events, Memberships when a tier sells online, Gift Cards, How It Works)
+    // and the owner's custom pages in the order set on the Navigation card.
+    // Without it (an old server) fall back to the pages' own flags.
+    const nav = (NAV && Array.isArray(NAV.top) && NAV.enabled !== false) ? NAV.top.map(function(l){ return { href: l.href, title: l.label }; })
+      : (pages || []).filter(function(pg){ return pg.published && pg.showInNav; }).map(function(pg){ return { href: '/p/' + pg.slug, title: pg.title }; });
+    const bar = document.querySelector('.topbar .navlinks') || document.querySelector('.topbar');
+    if (bar) bar.querySelectorAll('a.navpage').forEach(function(a){ a.remove(); });
+    if (bar && nav.length) nav.forEach(function(pg){
+      const a = document.createElement('a'); a.href = pg.href; a.textContent = pg.title; a.className = 'navpage';
+      // The topbar overlays the hero image - match its light text (.topbar .name
+      // hardcodes #f2efe2), and slot links BEFORE the Book button (a.book).
+      a.style.cssText = 'color:#f2efe2;text-decoration:none;margin-right:14px;font-size:14px;letter-spacing:1px';
+      // the page you are on (Oct 20 2026, late): marked for screen readers and underlined
+      if (PAGE_SLUG && pg.href === '/p/' + PAGE_SLUG) { a.setAttribute('aria-current', 'page'); a.style.textDecoration = 'underline'; a.style.textUnderlineOffset = '6px'; }
+      const cta = bar.querySelector('a.book, a.btn'); bar.insertBefore(a, cta || null);
+    });
+    // phone: the same links in a drawer under the top bar
+    const btn = document.getElementById('heroMenuBtn'), drawer = document.getElementById('heroDrawer');
+    if (btn && drawer) {
+      if (nav.length) {
+        btn.style.display = '';
+        drawer.innerHTML = nav.map(function(pg){ return '<a href="' + escAttr(pg.href) + '">' + esc(pg.title) + '</a>'; }).join('');
+        if (!btn.dataset.wired) { btn.dataset.wired = '1'; btn.addEventListener('click', function(){ const open = drawer.classList.toggle('open'); btn.setAttribute('aria-expanded', open ? 'true' : 'false'); }); }
+      } else { btn.style.display = 'none'; }
+    }
+    // the menu's other shapes (Oct 20 2026, late): tabs under the top bar and the phones' bottom bar - drawn always, shown
+    // only when the owner chose them (site-style.js menuStyle / phoneBar)
+    const home = homeHref(), here = (h) => PAGE_SLUG ? h === '/p/' + PAGE_SLUG : (h === home || h === '/' || h === '/landing');
+    const link = (l, cls) => '<a href="' + escAttr(l.href) + '"' + (cls ? ' class="' + cls + '"' : '') + (here(l.href) ? ' aria-current="page"' : '') + '>' + esc(l.title) + '</a>';
+    const tabsEl = document.getElementById('navTabs');
+    if (tabsEl) { tabsEl.innerHTML = [{ href: home, title: 'Home' }].concat(nav).map(l => link(l)).join(''); tabsEl.style.display = nav.length ? '' : 'none'; }
+    const pb = document.getElementById('phoneBar');
+    if (pb) { const bookOn = !(NAV && NAV.public && NAV.public.booking === false); pb.innerHTML = [{ href: home, title: 'Home' }].concat(nav.slice(0, bookOn ? 2 : 3)).map(l => link(l)).join('') + (bookOn ? link({ href: '/book', title: 'Book' }, 'book') : ''); }
+    const foot = document.getElementById('footExtra');
+    if (foot) {
+      let h = '';
+      (pages || []).filter(function(pg){ return pg.published && pg.showInFooter; }).forEach(function(pg){
+        h += ' &middot; <a href="/p/' + esc(pg.slug) + '">' + esc(pg.title) + '</a>';
+      });
+      (footerLinks || []).forEach(function(l){
+        if (l && l.label && l.url && /^(https?:\/\/|\/)/.test(l.url)) h += ' &middot; <a href="' + esc(l.url) + '">' + esc(l.label) + '</a>';
+      });
+      foot.innerHTML = h;
+    }
+  } catch(e){}
+}
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function escAttr(s) { return esc(s).replace(/'/g, '&#39;'); }
+function fmt12(t) { if (!t) return ''; const [h,m] = t.split(':').map(Number); if (isNaN(h)) return t; const ap = h < 12 ? 'AM' : 'PM'; return `${h%12||12}:${String(m||0).padStart(2,'0')} ${ap}`; }
+
+// ── THE PAGE AS A LIST OF BLOCKS (wave B, Sep 5 2026) ────────────────────────
+// Built-in sections stay in the HTML (a crawler without JS still sees them);
+// applyLayout() moves them into the owner's order and renders the custom
+// blocks between them. Without a saved layout the order is the one this page
+// always had (site-layout.js derives it, old "sections" become story blocks).
+const BUILTIN_EL = { offers: 'offers', steps: 'steps', staffed: 'staffed', gallery: 'gallery', event: 'eventsTeaser', memberships: 'membershipsSec', promo: 'promo', visit: 'visit', ctaEnd: 'finalCta' };
+function socialIcons() { return (window.BASiteChrome && BASiteChrome.ICONS) || {}; }
+function storyHTML(it, i) {
+  return `<div class="wrap">
+      <div>
+        <div class="mono">${esc(it.kicker || 'What We Offer')}</div>
+        <h2>${esc(it.title)}</h2>
+        ${it.p1 ? `<div class="secText">${markup(it.p1)}</div>` : ''}
+        ${it.p2 ? `<div class="secText">${markup(it.p2)}</div>` : ''}
+        ${it.calloutTitle || it.calloutText ? `<div class="callout"><div class="t">${esc(it.calloutTitle)}</div><div class="x">${esc(it.calloutText)}</div></div>` : ''}
+        ${it.linkText && it.linkUrl ? `<p style="margin-top:16px"><a class="more" href="${escAttr(it.linkUrl)}">${esc(it.linkText)} &#8250;</a></p>` : ''}
+      </div>
+      ${pic(it.img || ph('SECTION PHOTO '+(i+1)+' - '+(it.title||''),1200,900), '(max-width:840px) 100vw, 45vw', { alt: it.title || '' })}
+    </div>`;
+}
+// Moving content must be pausable (WCAG 2.2.2) and must not start for a
+// visitor who asked their phone for less motion (Sep 6 2026).
+const REDUCE_MOTION = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+function vidToggle(btn){ const v = btn.parentElement.querySelector('video'); if (!v) return; if (v.paused) { v.play(); btn.setAttribute('aria-pressed', 'true'); btn.textContent = 'Pause video'; } else { v.pause(); btn.setAttribute('aria-pressed', 'false'); btn.textContent = 'Play video'; } }
+function renderBlock(b, i) {
+  const sec = document.createElement('section'); sec.dataset.block = b.id; sec.id = 'blk-' + b.id; sec.className = 'reveal';
+  const head = (kicker, title) => `${kicker ? `<div class="mono">${esc(kicker)}</div>` : ''}${title ? `<h2>${esc(title)}</h2>` : ''}`;
+  switch (b.type) {
+    case 'story': sec.className = 'detail reveal'; sec.innerHTML = storyHTML(b, i); break;
+    case 'text': sec.className = 'blk reveal'; sec.innerHTML = `<div class="wrap">${head(b.kicker, b.title)}<div class="lead">${markup(b.body || '')}</div></div>`; break;
+    case 'faq': sec.className = 'blk alt reveal'; sec.innerHTML = `<div class="wrap">${head(b.kicker, b.title)}<div style="max-width:760px">${(b.items || []).filter(q => q && (q.q || q.a)).map((q, qi) => `<details class="faqItem"${b.open === 'all' || (b.open === 'first' && qi === 0) ? ' open' : ''}><summary>${esc(q.q)}</summary><div class="a">${markup(q.a || '')}</div></details>`).join('')}</div></div>`; break;
+    case 'rates': {
+      // "Mon,Tue,...,Sun" -> "Every day" / "Mon–Thu, Sat"; a tier that covers the whole day shows no times
+      const fmtDays = d => groupDays(String(d || '').split(',').map(x => x.trim().toLowerCase().slice(0, 3)).filter(Boolean));
+      const allDay = (a, b) => (!a || a === '00:00') && (!b || b >= '23:59');
+      const rows = (RATES || []).map(r => `<tr><td>${esc(r.name)}<span class="when">${esc(fmtDays(r.days))}${r.start_time && !allDay(r.start_time, r.end_time) ? ' &middot; ' + fmt12(r.start_time) + ' - ' + fmt12(r.end_time) : ''}</span></td><td>$${Number(r.price_per_half_hour || 0) * 2}/hr</td></tr>`).join('');
+      sec.className = 'blk reveal'; sec.innerHTML = `<div class="wrap">${head(b.kicker, b.title)}${rows ? `<table class="rates">${rows}</table>` : '<p class="lead">Rates are shown when you book.</p>'}${b.note ? `<div class="lead" style="margin-top:14px">${markup(b.note)}</div>` : ''}<p style="margin-top:20px"><a class="btn gold" href="/book">Book a Bay</a></p></div>`; break; }
+    case 'quotes': sec.className = 'blk alt reveal'; sec.innerHTML = `<div class="wrap">${head(b.kicker, b.title)}<div class="quotes">${(b.items || []).filter(q => q && q.text).map(q => `<div class="quote"><div class="q">&ldquo;${esc(q.text)}&rdquo;</div>${q.who ? `<div class="w">${esc(q.who)}</div>` : ''}</div>`).join('')}</div></div>`; break;
+    case 'video': sec.className = 'blk vidBlk reveal'; sec.innerHTML = `<div class="wrap">${head(b.kicker, b.title)}${b.video ? `<video src="${escAttr(b.video)}" ${b.poster ? `poster="${escAttr(b.poster)}"` : ''} muted loop playsinline preload="metadata"${REDUCE_MOTION ? '' : ' autoplay'} aria-label="${escAttr(b.title || 'Video')}"></video><button type="button" class="vidToggle" aria-pressed="${REDUCE_MOTION ? 'false' : 'true'}" onclick="vidToggle(this)">${REDUCE_MOTION ? 'Play video' : 'Pause video'}</button>` : `<div style="aspect-ratio:16/9;max-width:960px">${pic(ph('VIDEO - upload one on the block', 1600, 900), '100vw', {})}</div>`}</div>`; break;
+    case 'cta': sec.className = 'ctaBand reveal'; sec.innerHTML = `<div class="wrap"><h2>${esc(b.title || '')}</h2>${b.text ? `<p>${esc(b.text)}</p>` : ''}<a class="btn gold" href="${escAttr(b.link || '/book')}">${esc(b.button || 'Book a Bay')}</a></div>`; break;
+    case 'form': {
+      const F = (window.BASiteLayout && BASiteLayout.FORM_FIELDS) || [];
+      const want = new Set(b.fields || ['name', 'email', 'phone', 'message']);
+      const field = (k, lbl) => k === 'message' ? `<div><label for="inq-${b.id}-${k}">${esc(lbl)}</label><textarea id="inq-${b.id}-${k}" name="${k}" rows="4"></textarea></div>` : `<div><label for="inq-${b.id}-${k}">${esc(lbl)}</label><input id="inq-${b.id}-${k}" name="${k}" type="${k === 'email' ? 'email' : k === 'phone' ? 'tel' : 'text'}" autocomplete="${k === 'name' ? 'name' : k === 'email' ? 'email' : k === 'phone' ? 'tel' : 'off'}"></div>`;
+      const fields = F.filter(([k]) => want.has(k) || k === 'name');
+      const pairs = fields.filter(([k]) => k !== 'message');
+      let html = '';
+      for (let j = 0; j < pairs.length; j += 2) html += `<div class="two">${field(pairs[j][0], pairs[j][1])}${pairs[j + 1] ? field(pairs[j + 1][0], pairs[j + 1][1]) : ''}</div>`;
+      if (want.has('message')) html += field('message', (F.find(([k]) => k === 'message') || [])[1] || 'Tell us more');
+      sec.className = 'blk alt reveal'; sec.innerHTML = `<div class="wrap">${head(b.kicker, b.title)}${b.intro ? `<div class="lead">${markup(b.intro)}</div>` : ''}<form class="inq" data-thanks="${escAttr(b.thanks || 'Thanks - we will get back to you shortly.')}" onsubmit="return sendInquiry(event, '${escAttr(b.id)}')">${html}<div class="trap" aria-hidden="true"><label>Leave this empty<input name="website" tabindex="-1" autocomplete="off"></label></div><div><button class="btn gold" type="submit">Send</button></div><div class="msg" role="status" aria-live="polite"></div></form></div>`; break; }
+    case 'social': {
+      const soc = (C.social) || {}; const I = socialIcons(); const L = { facebook: 'Facebook', instagram: 'Instagram', tiktok: 'TikTok', youtube: 'YouTube', x: 'X', google: 'Google reviews' };
+      const links = Object.keys(L).filter(k => typeof soc[k] === 'string' && /^https:\/\//.test(soc[k])).map(k => `<a href="${escAttr(soc[k])}" target="_blank" rel="noopener">${I[k] || ''}<span>${L[k]}</span></a>`)
+        .concat((Array.isArray(soc.more) ? soc.more : []).filter(l => l && l.label && /^https:\/\//.test(String(l.url || ''))).map(l => `<a href="${escAttr(l.url)}" target="_blank" rel="noopener"><span>${esc(l.label)}</span></a>`)).join('');
+      if (!links) return null;                                   // W44 addendum: off when empty
+      sec.className = 'blk reveal'; sec.innerHTML = `<div class="wrap">${head(b.kicker, b.title)}<div class="socialRow">${links}</div></div>`; break; }
+    case 'signup': {
+      // W45: the email-updates block - draws nothing while Email Updates is off (the owner's card)
+      const sg = NAV && NAV.signup; if (!sg || !sg.enabled) return null;
+      sec.className = 'blk alt reveal'; sec.innerHTML = `<div class="wrap">${head(b.kicker, (b.title || '').trim() || sg.title)}<div class="lead">${markup((b.text || '').trim() || sg.text)}</div><div class="signupHost"></div></div>`;
+      const host = sec.querySelector('.signupHost');
+      if (window.BASignup) BASignup.draw(host, Object.assign({}, sg, { button: (b.button || '').trim() || sg.button }), { source: 'home' });
+      break; }
+    // (Oct 20 2026): weekly specials, a food and drink menu, and cards
+    case 'specials': {
+      const L = window.BASiteLayout, dow = facilityDow(), today = TODAY || new Date().toISOString().slice(0, 10);
+      // a one-day special (Oct 20 2026, night) shows up to its day and is gone after it; a weekly one by its days
+      const onNow = (x) => (x.date ? x.date === today : L.dayMatch(x.days, dow));
+      // the counter's own specials (Oct 22 2026) beside the ones typed here - the same rule the counter charges by; one typed with
+      // the same name is not shown twice
+      const typed = (b.items || []).filter(x => x && x.title && (!x.date || x.date >= today));
+      const seenT = new Set(typed.map(x => String(x.title).toLowerCase()));
+      const all = typed.concat(b.counter === false ? [] : (SPECIALS_LIVE || []).filter(x => x && x.title && !seenT.has(String(x.title).toLowerCase())));
+      const shown = b.show === 'today' ? all.filter(onNow) : all;
+      if (!shown.length) return null;                            // nothing to show today: the section draws nothing
+      const when = (x) => (x.date ? (x.date === today ? 'Today' : new Date(x.date + 'T12:00:00Z').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' })) : L.daysWords(x.days));
+      sec.className = 'blk reveal';
+      sec.innerHTML = `<div class="wrap">${head(b.kicker, b.title)}<div class="specials">${shown.map(x => { const now = onNow(x); return `<div class="special${now ? ' today' : ''}">${x.img ? pic(x.img, '(max-width:700px) 100vw, 33vw', { alt: x.title }) : ''}<div class="si">${now && b.show !== 'today' ? '<span class="tag">Today</span>' : ''}<div class="d">${esc(when(x))}${x.time ? ' &middot; ' + esc(x.time) : ''}</div><div class="t">${esc(x.title)}</div>${x.text ? `<div class="x">${esc(x.text)}</div>` : ''}${x.price ? `<div class="p">${esc(x.price)}</div>` : ''}</div></div>`; }).join('')}</div></div>`;
+      break; }
+    case 'menu': {
+      const list = (xs) => `<div class="menuList">${xs.map(x => `<div class="mi"><div class="mn"><span>${esc(x.name)}</span>${x.price ? `<span class="mp">${esc(x.price)}</span>` : ''}</div>${x.text ? `<div class="mx">${esc(x.text)}</div>` : ''}</div>`).join('')}</div>`;
+      // the counter's own menu, live (Oct 20 2026, night): its categories are the sub-menus, a jump row when there are many
+      if (b.source === 'counter') {
+        const hide = new Set((b.hideGroups || []).map(g => String(g).toLowerCase()));
+        const groups = (MENU_LIVE || []).filter(g => g && g.items && g.items.length && !hide.has(String(g.name).toLowerCase()));
+        if (!groups.length) return null;
+        sec.className = 'blk reveal';
+        // as tabs (Oct 20 2026, late; maintainer: "tabs no tabs"): one part at a time, a tab for each - the WAI-ARIA tabs pattern, so a
+        // keyboard and a screen reader work it too (menuTab)
+        if (b.display === 'tabs' && groups.length > 1) {
+          const tabs = `<div class="menuTabs" role="tablist" aria-label="${escAttr(b.title || 'Menu')}">${groups.map((g, gi) => `<button type="button" role="tab" id="mt-${b.id}-${gi}" aria-controls="mg-${b.id}-${gi}" aria-selected="${gi === 0}" tabindex="${gi === 0 ? 0 : -1}" onclick="menuTab(this)" onkeydown="menuTabKey(event)">${esc(g.name)}</button>`).join('')}</div>`;
+          sec.innerHTML = `<div class="wrap">${head(b.kicker, b.title)}${tabs}${groups.map((g, gi) => `<div class="menuGroup" role="tabpanel" id="mg-${b.id}-${gi}" aria-labelledby="mt-${b.id}-${gi}" tabindex="0"${gi ? ' hidden' : ''}>${list(g.items)}</div>`).join('')}${b.note ? `<div class="lead" style="margin-top:14px">${markup(b.note)}</div>` : ''}</div>`;
+          break;
+        }
+        const jump = groups.length > 3 ? `<nav class="menuJump" aria-label="Menu sections">${groups.map((g, gi) => `<a href="#mg-${b.id}-${gi}">${esc(g.name)}</a>`).join('')}</nav>` : '';
+        sec.innerHTML = `<div class="wrap">${head(b.kicker, b.title)}${jump}${groups.map((g, gi) => `<div class="menuGroup" id="mg-${b.id}-${gi}"><h3>${esc(g.name)}</h3>${list(g.items)}</div>`).join('')}${b.note ? `<div class="lead" style="margin-top:14px">${markup(b.note)}</div>` : ''}</div>`;
+        break;
+      }
+      const items = (b.items || []).filter(x => x && x.name);
+      if (!items.length) return null;
+      sec.className = 'blk reveal';
+      sec.innerHTML = `<div class="wrap">${head(b.kicker, b.title)}<div class="menuList">${items.map(x => `<div class="mi"><div class="mn"><span>${esc(x.name)}</span>${x.price ? `<span class="mp">${esc(x.price)}</span>` : ''}</div>${x.text ? `<div class="mx">${esc(x.text)}</div>` : ''}</div>`).join('')}</div>${b.note ? `<div class="lead" style="margin-top:14px">${markup(b.note)}</div>` : ''}</div>`;
+      break; }
+    case 'banner': {
+      if (!b.title && !b.text) return null;
+      sec.className = 'bannerBand reveal';
+      sec.innerHTML = `${b.img ? pic(b.img, '100vw', { alt: '', cls: 'bg' }) : ''}<div class="shade"></div><div class="wrap">${b.kicker ? `<div class="mono">${esc(b.kicker)}</div>` : ''}${b.title ? `<h2>${esc(b.title)}</h2>` : ''}${b.text ? `<p>${esc(b.text)}</p>` : ''}${b.button && b.link ? `<a class="btn gold" href="${escAttr(b.link)}">${esc(b.button)}</a>` : ''}</div>`;
+      break; }
+    case 'cards': {
+      // the package deals, live (Oct 22 2026 - Pricing > Package Deals): each a card - its price, its words, what it includes and
+      // when - with a Book button that opens the booking page with it picked; no package on sale, nothing drawn
+      const items = b.source === 'packages'
+        ? (PACKAGES_LIVE || []).map(p => ({ title: p.name, price: p.price, text: [p.words, p.length + ' of bay time' + (p.includes ? ', includes ' + p.includes : ''), p.when].filter(Boolean).join('\n'), linkText: 'Book this package', link: '/book?package=' + encodeURIComponent(p.id) }))
+        : (b.items || []).filter(x => x && x.title);
+      if (!items.length) return null;
+      sec.className = 'blk reveal';
+      sec.innerHTML = `<div class="wrap">${head(b.kicker, b.title)}<div class="cardGrid">${items.map(x => `<div class="cardItem">${x.img ? pic(x.img, '(max-width:700px) 100vw, 33vw', { alt: x.title }) : ''}<div class="ci"><div class="t">${esc(x.title)}</div>${x.price ? `<div class="p">${esc(x.price)}</div>` : ''}${x.text ? `<div class="x">${markup(x.text)}</div>` : ''}${x.linkText && x.link ? `<a class="more" href="${escAttr(x.link)}">${esc(x.linkText)} &#8250;</a>` : ''}</div></div>`).join('')}</div></div>`;
+      break; }
+    default: return null;
+  }
+  blockLook(sec, b);
+  return sec;
+}
+// the menu's tabs: the tapped one shows its part; arrow keys, Home and End move along the row (WAI-ARIA tabs pattern)
+function menuTab(btn) {
+  const row = btn.parentNode;
+  row.querySelectorAll('[role=tab]').forEach(t => { const on = t === btn; t.setAttribute('aria-selected', String(on)); t.tabIndex = on ? 0 : -1; const panel = document.getElementById(t.getAttribute('aria-controls')); if (panel) panel.hidden = !on; });
+}
+function menuTabKey(ev) {
+  const tabs = [...ev.target.parentNode.querySelectorAll('[role=tab]')], i = tabs.indexOf(ev.target);
+  const to = ev.key === 'ArrowRight' ? (i + 1) % tabs.length : ev.key === 'ArrowLeft' ? (i - 1 + tabs.length) % tabs.length : ev.key === 'Home' ? 0 : ev.key === 'End' ? tabs.length - 1 : -1;
+  if (to < 0) return;
+  ev.preventDefault(); tabs[to].focus(); menuTab(tabs[to]);
+}
+async function sendInquiry(ev, blockId) {
+  ev.preventDefault();
+  const f = ev.target, msg = f.querySelector('.msg'), btn = f.querySelector('button[type=submit]');
+  const body = { block: blockId }; new FormData(f).forEach((v, k) => body[k] = v);
+  if (PREVIEW) { msg.textContent = 'Preview - nothing is sent from here.'; return false; }
+  btn.disabled = true; msg.textContent = 'Sending...';
+  try {
+    const r = await fetch('/api/website/inquiry', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(d.error || 'Could not send - please try again.');
+    msg.textContent = f.dataset.thanks; f.querySelectorAll('input,textarea').forEach(i => { if (i.name !== 'website') i.value = ''; });
+  } catch (e) { msg.textContent = e.message; }
+  btn.disabled = false;
+  return false;
+}
+function applyLayout() {
+  const L = window.BASiteLayout; if (!L) return;
+  const PG = thisPage();
+  if (PG) {
+    // a page: its own sections, then the closing band as the homepage has it (on or off), then the footer
+    const end = document.getElementById('layoutEnd'), parent = end.parentNode, band = document.getElementById('finalCta');
+    document.querySelectorAll('section[data-block]').forEach(el => el.remove());
+    L.pageLayout(PG).forEach(b => { if (b.on === false) return; const el = renderBlock(b, 0); if (el) parent.insertBefore(el, end); });
+    const ctaOn = L.defaultLayout(C).some(b => b.type === 'ctaEnd' && b.on !== false);
+    if (band) { band.style.display = ctaOn ? '' : 'none'; parent.insertBefore(band, end); }
+    return;
+  }
+  const blocks = L.defaultLayout(C);
+  // Blocks land inside <main> (Sep 6 2026): the anchor is the end-of-layout marker, so the
+  // page's one main landmark holds every block; the footer stays outside it.
+  const footer = document.getElementById('layoutEnd') || document.querySelector('footer'); const parent = footer.parentNode;
+  document.querySelectorAll('section[data-block]').forEach(el => el.remove());
+  const host = document.getElementById('detailSections'); if (host) host.innerHTML = '';
+  let storyIdx = 0;
+  blocks.forEach(b => {
+    let el = null;
+    if (BUILTIN_EL[b.type]) { el = document.getElementById(BUILTIN_EL[b.type]); if (el && (b.type === 'ctaEnd' || b.type === 'visit') && b.on === false) el.style.display = 'none'; else if (el && (b.type === 'ctaEnd' || b.type === 'visit')) el.style.display = ''; }
+    else if (L.isOn(b, C)) { el = renderBlock(b, b.type === 'story' ? storyIdx++ : 0); }
+    if (el) parent.insertBefore(el, footer);
+  });
+  if (host) parent.insertBefore(host, footer);   // legacy host stays (empty) before the footer
+}
+// ── W44: hero buttons, the closing band, and what is not yet public ──────────
+function pubMap() { return (window.BASiteLayout ? BASiteLayout.publicMap(C.settings) : null); }
+function linkOk(href) { const m = pubMap(); return !m || BASiteLayout.hrefPublic(m, href); }
+function heroButtons(h) {
+  // hero.buttons wins; the old ctaText/ctaLink pair is still read as button 1 (rule 14)
+  const list = Array.isArray(h.buttons) && h.buttons.length ? h.buttons : [{ label: h.ctaText || 'Book a Bay', link: h.ctaLink || '/book', show: true }];
+  return list.slice(0, 2).map(b => ({ label: String((b && b.label) || '').trim(), link: String((b && b.link) || '').trim(), show: !b || b.show !== false }));
+}
+function renderButtons() {
+  const h = deep(DEFAULTS.hero, C.hero);
+  const btns = heroButtons(h);
+  ['heroCta', 'heroCta2'].forEach(function (id, i) {
+    const el = document.getElementById(id); if (!el) return;
+    const b = btns[i];
+    const on = !!(b && b.show && b.label && b.link && linkOk(b.link));
+    el.style.display = on ? '' : 'none';
+    if (on) { el.textContent = b.label; el.href = b.link; if (/^https?:/.test(b.link)) { el.target = '_blank'; el.rel = 'noopener'; } else { el.removeAttribute('target'); el.removeAttribute('rel'); } }
+  });
+  // the closing band: its own words, or the first hero button's
+  const layout = (window.BASiteLayout ? BASiteLayout.defaultLayout(C) : []);
+  const end = layout.find(b => b.type === 'ctaEnd') || {};
+  const t = document.getElementById('finalTitle'), x = document.getElementById('finalText'), bc = document.getElementById('bottomCta');
+  if (t) t.textContent = (end.title || '').trim() || 'Ready to Play?';
+  if (x) { const txt = (end.text || '').trim(); x.textContent = txt || 'Pick your time. Get your code. Tee off.'; }
+  if (bc) {
+    const label = (end.button || '').trim() || (btns[0] && btns[0].label) || 'Book a Bay';
+    const link = (end.link || '').trim() || (btns[0] && btns[0].link) || '/book';
+    bc.textContent = label; bc.href = link; bc.style.display = linkOk(link) ? '' : 'none';
+  }
+  hideDeadLinks();
+  // the top bar and the sticky bar's Book button follow the map too
+  const bookOn = linkOk('/book');
+  document.querySelectorAll('.topbar a.book, #stickyBar a[href="/book"], #heroDrawer a.book').forEach(a => { a.style.display = bookOn ? '' : 'none'; });
+  const memOn = linkOk('/memberships');
+  if (!memOn) ['memNavCta', 'memNavSticky'].forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
+}
+// W44 addendum: a button or link that points at nothing hides with it - a homepage
+// section that is off (or drew nothing), a page that is not published or not
+// public, a gated surface, an empty anchor. Same rule as the server's
+// sitenav.linkAlive (site-layout.js carries the client copy); the drawn element
+// is checked too, so a section that hid itself for lack of content counts as gone.
+function hideDeadLinks() {
+  if (!window.BASiteLayout) return;
+  const map = BASiteLayout.publicMap(C.settings);
+  // every link on the page but the keyboard skip link - the top bar, the hero, the drawer, the sticky
+  // bar, every section and block, the footer (the chrome redraws it from the resolved list, this catches the static one)
+  const scope = document.querySelectorAll('a[href]:not(.skip-link)');
+  scope.forEach(a => {
+    const href = a.getAttribute('href') || '';
+    if (/^(mailto:|tel:|javascript:)/i.test(href)) return;
+    let alive = BASiteLayout.linkAlive(C, map, href);
+    if (alive && (href.startsWith('#') || /^\/(landing)?#/.test(href))) {
+      const el = document.getElementById(href.split('#')[1]);
+      alive = !!el && getComputedStyle(el).display !== 'none';
+    }
+    if (!alive) { a.style.display = 'none'; a.setAttribute('data-dead-link', '1'); }
+    else if (a.getAttribute('data-dead-link')) { a.style.display = ''; a.removeAttribute('data-dead-link'); }
+  });
+}
+function renderAnnouncement() {
+  const el = document.getElementById('siteAnn'); if (!el) return;
+  if (ANN && ANN.enabled && ANN.message) {
+    el.textContent = '';
+    if (ANN.link && /^(https?:\/\/|\/)/.test(ANN.link)) { const l = document.createElement('a'); l.href = ANN.link; l.textContent = ANN.message; l.style.cssText = 'color:inherit;text-decoration:underline'; if (/^https?:/.test(ANN.link)) { l.target = '_blank'; l.rel = 'noopener'; } el.appendChild(l); }
+    else el.textContent = ANN.message;
+    el.style.display = '';
+  } else el.style.display = 'none';
+}
+// ── LIVE PREVIEW (wave C): the editor posts its UNSAVED state; same origin only ──
+if (PREVIEW) {
+  // the setup chat shows the SAVED site (live=1): no 'unsaved changes' tag there
+  if (new URLSearchParams(location.search).get('live') !== '1') document.getElementById('previewTag').style.display = '';
+  window.addEventListener('message', ev => {
+    if (ev.origin !== location.origin || !ev.data || ev.data.type !== 'ba-preview') return;
+    const d = ev.data;
+    if (d.content) C = Object.assign({}, C, d.content);
+    if (d.announcement) ANN = d.announcement;
+    renderAll();
+    if (d.scrollTo) { const el = document.querySelector(`[data-block="${d.scrollTo}"]`) || document.getElementById(BUILTIN_EL[d.scrollTo] || ''); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  });
+}
+
+// ── BOOT: render defaults immediately, hydrate from the CMS, re-render ───────
+function renderAll() {
+  applyTheme(C.theme);
+  applyFonts(C.theme && C.theme.fonts);
+  applyDesign(C.theme && C.theme.design);
+  const PG = thisPage();
+  document.body.classList.toggle('pageMode', !!PG);
+  if (PG) {
+    renderHero(Object.assign(deep(DEFAULTS.hero, {}), { tag: '', headline: PG.title || '', sub: PG.sub || '', images: PG.img ? [PG.img] : [], video: '', videoMobile: '', scrollHint: false }));
+    // the business name goes home from a page (on the homepage it is just the name)
+    const bn = document.getElementById('brandName');
+    if (bn && !bn.closest('a')) { const a = document.createElement('a'); a.href = homeHref(); a.className = 'brandHome'; bn.parentNode.insertBefore(a, bn); a.appendChild(bn); }
+    try { renderButtons(); } catch (e) {}
+    renderCustomNav(C.pages || [], (C.settings && C.settings.footerLinks) || []);
+    renderAnnouncement();
+    applyLayout();
+    try { hideDeadLinks(); } catch (e) {}
+    wireReveals();
+    return;
+  }
+  // TODAY'S SPECIALS WHERE THE OWNER PUT THEM (Oct 20 2026, night; maintainer: "in a slide show pictures below the hero or in exchange
+  // of the hero like replace landing photo with the special for tonight"): the first special marked for the top leads it -
+  // its name, its words and its photo (or the top's own) - and those marked for the slides come first in the slideshow
+  const SPEC_TODAY = (window.BASiteLayout && BASiteLayout.todaysSpecials) ? BASiteLayout.todaysSpecials(C, TODAY || new Date().toISOString().slice(0, 10)) : [];
+  const nightOf = (x) => (/\b(pm|night|tonight|late|close)\b/i.test((x.time || '') + ' ' + (x.text || '') + ' ' + x.title) ? 'Tonight' : 'Today');
+  const lineOf = (x) => [x.text, x.price, x.time].filter(Boolean).join(' \u00b7 ');
+  const topSpec = SPEC_TODAY.find(x => x.also.indexOf('top') >= 0);
+  const hero = deep(DEFAULTS.hero, C.hero);
+  if (topSpec) Object.assign(hero, { tag: nightOf(topSpec) + "'s special", headline: topSpec.title, sub: lineOf(topSpec) || hero.sub, images: topSpec.img ? [topSpec.img] : hero.images, video: topSpec.img ? '' : hero.video, videoMobile: topSpec.img ? '' : hero.videoMobile });
+  renderHero(hero);
+  const offers = deep(DEFAULTS.offers, C.offers), slideSpecs = SPEC_TODAY.filter(x => x.also.indexOf('slides') >= 0);
+  if (slideSpecs.length) { offers.slides = slideSpecs.map(x => ({ label: nightOf(x), title: x.title, text: lineOf(x), img: x.img, flyer: x.flyer || '' })).concat((offers.enabled ? offers.slides : []) || []); offers.enabled = true; }
+  renderOffers(offers);
+  renderSteps(deep(DEFAULTS.steps, C.steps));
+  renderStaffed(deep(DEFAULTS.staffed, C.staffed));
+  // W44: up to two hero buttons (label, link, show), the closing band's own
+  // words, and every button that points at a part of the site that is NOT
+  // yet public hides itself (What's public card) - one map, read here.
+  try { renderButtons(); } catch(e){}
+  renderCustomNav(C.pages || [], (C.settings && C.settings.footerLinks) || []);
+  renderGallery(deep(DEFAULTS.gallery, C.gallery), deep(DEFAULTS.settings, C.settings));
+  renderEvent(deep(DEFAULTS.settings, C.settings));
+  renderPromo(C.promo || DEFAULTS.promo);
+  renderMemberships(C.memberships || DEFAULTS.memberships);
+  renderVisit(deep(DEFAULTS.visit, C.visit));
+  renderAnnouncement();
+  applyLayout();
+  try { hideDeadLinks(); } catch (e) {}
+  wireReveals();
+}
+function wireReveals() {
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+}
+function adopt(data) {
+  C = data.content || {}; STAFFED = data.staffed || []; NEXT_EVENT = data.nextEvent || null; HOURS = data.hours || null; IMAGES = data.images || {}; NAV = data.nav || null; RATES = data.rates || []; ANN = data.announcement || null; TODAY = data.today || null; MENU_LIVE = data.menu || []; SPECIALS_LIVE = data.specials || []; PACKAGES_LIVE = data.packages || [];
+}
+// The server inlines the content (window.BA_SITE) so the first paint is the
+// real site - hero, words and phone-sized photos - with no second round trip.
+if (window.BA_SITE) { adopt(window.BA_SITE); }
+renderLogo(!(C.hero && C.hero.showLogo === false));
+// a page made of sections that is not in the public data (a draft, opened by a signed-in owner) is read first - never the
+// homepage drawn in its place for a moment
+const PAGE_MISSING = !!PAGE_SLUG && !thisPage();
+if (!PAGE_MISSING) renderAll();
+if (!window.BA_SITE || PAGE_MISSING) {
+  fetch('/api/website/content').then(r => r.json()).then(data => { adopt(data); renderAll(); })
+    .catch(() => { /* silent fallback: placeholders keep the page whole */ });
+}
+
+// Sticky bar after the hero
+const bar = document.getElementById('stickyBar');
+addEventListener('scroll', () => {
+  bar.classList.toggle('show', scrollY > (document.getElementById('hero').offsetHeight - 80));
+}, { passive: true });
+</script>
+</body>
+</html>

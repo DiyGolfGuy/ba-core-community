@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Member Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#c9a227">
+  <style>
+    :root {
+      --bg:#111111; --surface:#1e1e1e; --surface2:#252525;
+      --border:#333333; --border2:#444444;
+      --gold:#888888; --gold-dim:#88888888; --accent:var(--gold);
+      --text:#eeeeee; --text2:#aaaaaa; --muted:#666666;
+      --danger:#c94a4a; --success:#4ac97a;
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--bg);color:var(--text);font-family:var(--font-body,system-ui,sans-serif);min-height:100vh;-webkit-font-smoothing:antialiased;}
+
+    header{background:rgba(6,10,6,0.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 clamp(20px,5vw,72px);height:64px;display:flex;align-items:center;justify-content:space-between;}
+    .logo-main{font-family:var(--font-display,Georgia,serif);font-size:20px;font-weight:700;}
+    .logo-sub{font-family:var(--font-mono,ui-monospace,monospace);font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);}
+
+    .portal-wrap{max-width:700px;margin:0 auto;padding:clamp(32px,5vh,60px) clamp(20px,5vw,48px);}
+
+    /* LOGIN */
+    .login-card{background:var(--surface);border:1px solid var(--border);padding:40px;text-align:center;max-width:400px;margin:60px auto;}
+    .login-card h2{font-family:var(--font-display,Georgia,serif);font-size:28px;margin-bottom:6px;}
+    .login-card p{color:var(--muted);font-size:13px;margin-bottom:28px;}
+    .login-card input{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:13px 14px;font-family:var(--font-body,system-ui,sans-serif);font-size:15px;outline:none;margin-bottom:12px;}
+    .login-card input:focus{border-color:var(--gold);}
+    .login-card input::placeholder{color:var(--muted);}
+    .btn-login{width:100%;padding:14px;background:var(--gold);color:var(--bg);border:none;font-family:var(--font-display,Georgia,serif);font-size:16px;font-weight:700;cursor:pointer;transition:all .2s;}
+    .btn-login:hover{opacity:.9;}
+    .login-error{color:var(--danger);font-size:12px;margin-top:10px;display:none;font-family:var(--font-mono,ui-monospace,monospace);}
+
+    /* PORTAL */
+    #portalContent{display:none;}
+
+    .member-header{display:flex;align-items:center;gap:16px;margin-bottom:28px;}
+    .member-badge{width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-family:var(--font-display,Georgia,serif);font-size:22px;font-weight:700;color:var(--bg);}
+    .member-name{font-family:var(--font-display,Georgia,serif);font-size:28px;font-weight:700;}
+    .member-tier{font-family:var(--font-mono,ui-monospace,monospace);font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-top:2px;}
+    .member-since{font-size:11px;color:var(--muted);font-family:var(--font-mono,ui-monospace,monospace);margin-top:2px;}
+
+    .card{background:var(--surface);border:1px solid var(--border);padding:20px;margin-bottom:16px;}
+    .card-title{font-family:var(--font-mono,ui-monospace,monospace);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+    .card-title .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+
+    .stat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;}
+    @media(max-width:500px){.stat-grid{grid-template-columns:1fr 1fr;}}
+    .stat-item{background:var(--surface2);border:1px solid var(--border);padding:14px;text-align:center;}
+    .stat-val{font-family:var(--font-mono,ui-monospace,monospace);font-size:24px;font-weight:700;color:var(--gold);}
+    .stat-lbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:4px;font-family:var(--font-mono,ui-monospace,monospace);}
+
+    .perk-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
+    .perk-row:last-child{border-bottom:none;}
+    .perk-key{color:var(--muted);}
+    .perk-val{font-weight:600;}
+
+    .booking-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;}
+    .booking-row:last-child{border-bottom:none;}
+    .booking-date{font-family:var(--font-mono,ui-monospace,monospace);font-size:11px;color:var(--muted);}
+    .booking-detail{font-weight:600;}
+    .booking-bay{font-size:11px;color:var(--gold);}
+
+    .progress-bar{height:6px;background:var(--surface2);border:1px solid var(--border);margin-top:6px;margin-bottom:4px;}
+    .progress-fill{height:100%;background:var(--gold);transition:width .3s;}
+    .progress-fill.warn{background:var(--danger);}
+    .progress-label{font-family:var(--font-mono,ui-monospace,monospace);font-size:10px;color:var(--muted);display:flex;justify-content:space-between;}
+
+    .btn-back{display:inline-block;padding:10px 24px;background:transparent;border:1px solid var(--border2);color:var(--text);font-family:var(--font-display,Georgia,serif);font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;text-decoration:none;margin-top:16px;}
+    .btn-back:hover{border-color:var(--gold);color:var(--gold);}
+    .btn-logout{padding:8px 16px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:var(--font-mono,ui-monospace,monospace);font-size:11px;cursor:pointer;letter-spacing:1px;}
+    .btn-logout:hover{border-color:var(--danger);color:var(--danger);}
+
+    footer{padding:24px clamp(20px,5vw,72px);border-top:1px solid var(--border);text-align:center;}
+    .footer-text{font-family:var(--font-mono,ui-monospace,monospace);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+  
+/* Accessibility: a visible keyboard focus ring. Removing the outline for
+   looks leaves keyboard users unable to see where they are on the page. */
+:focus-visible{outline:3px solid #5b9bd5 !important;outline-offset:2px !important;border-radius:2px}
+.skip-link{position:absolute;left:-9999px;top:0;background:#5b9bd5;color:#08131d;padding:10px 16px;z-index:9999;font-weight:600}
+.skip-link:focus{left:0}
+</style>
+<script src="/markup.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#main" onclick="skipToContent(event)">Skip to content</a>
+
+<header>
+  <div>
+    <div class="logo-main" id="headerBrand">Member Portal</div>
+    <div class="logo-sub">Membership Dashboard</div>
+  </div>
+  <button class="btn-logout" id="btnLogout" style="display:none" onclick="logout()">Sign Out</button>
+</header>
+
+<!-- LOGIN -->
+<div id="loginSection" role="main">
+  <div class="login-card">
+    <h2>👤 Member Portal</h2>
+    <p>Enter your name and membership PIN to view your account</p>
+    <input type="text" id="loginName" placeholder="Your full name" autocomplete="name" aria-label="Your full name">
+    <input type="text" id="loginPin" placeholder="Membership PIN" maxlength="8" inputmode="numeric" pattern="[0-9]*" aria-label="Membership PIN">
+    <button class="btn-login" onclick="portalLogin()">Sign In</button>
+    <div class="login-error" id="loginError" role="status" aria-live="polite"></div>
+  </div>
+</div>
+
+<!-- PORTAL CONTENT -->
+<div id="portalContent" role="main">
+  <div class="portal-wrap">
+
+    <!-- MEMBER HEADER -->
+    <div class="member-header">
+      <div class="member-badge" id="memberBadge">⛳</div>
+      <div>
+        <div class="member-name" id="portalName"></div>
+        <div class="member-tier" id="portalTier"></div>
+        <div class="member-since" id="portalSince"></div>
+      <div id="portalCredit" style="display:none;margin-top:8px;font-size:13.5px;color:#7fb069;background:rgba(127,176,105,.08);border:1px solid rgba(127,176,105,.3);border-radius:6px;padding:8px 12px"></div>
+      <div id="portalWaiver" style="display:none;margin-top:8px;font-size:13.5px;border-radius:6px;padding:8px 12px"></div>
+      <div id="portalFamily" style="display:none;margin-top:10px;border:1px solid var(--border,#2a332a);border-radius:6px;padding:10px 12px"></div>
+      </div>
+    </div>
+
+    <!-- USAGE STATS -->
+    <div class="card">
+      <div class="card-title"><span class="dot" id="dotUsage"></span>Your Usage</div>
+      <div class="stat-grid" id="usageStats"></div>
+      <div id="usageBars"></div>
+    </div>
+
+    <!-- MEMBERSHIP & BILLING -->
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Membership &amp; Billing</div>
+      <div id="billingBody" style="font-size:14px;line-height:1.7"></div>
+      <div id="billingActions" style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap"></div>
+      <div id="billingMsg" style="margin-top:10px;font-size:13px;display:none"></div>
+    </div>
+
+    <!-- MEMBERSHIP PERKS -->
+    <div class="card">
+      <div class="card-title"><span class="dot" id="dotPerks"></span>Your Membership Includes</div>
+      <div id="perksList"></div>
+    </div>
+
+    <!-- UPCOMING BOOKINGS -->
+    <div class="card">
+      <div class="card-title"><span class="dot" id="dotUpcoming"></span>Upcoming Bookings</div>
+      <div id="upcomingList"></div>
+    </div>
+
+    <!-- RECENT HISTORY -->
+    <div class="card">
+      <div class="card-title"><span class="dot" id="dotHistory"></span>Recent History</div>
+      <div id="historyList"></div>
+    </div>
+
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <a href="/" class="btn-back">⛳ Book a Session</a>
+      <a href="/my-booking" class="btn-back">Manage Bookings</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-text" id="footerBrand"></div>
+</footer>
+
+<script>
+function escText(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+function markup(t) { return window.BAMarkup ? BAMarkup.markupToHtml(t) : escText(t); }
+  const fmt12 = t => { if(!t) return'-'; const[h,m]=t.split(':').map(Number); return `${h%12||12}:${String(m).padStart(2,'0')} ${h>=12?'PM':'AM'}`; };
+
+  // A member's rate names what it buys (maintainer, Sep 19 2026). At a club that rents
+  // the whole building as one, "Member rate: $25/30min" on its own reads as a
+  // bay rate - the same ambiguity that had one owner convinced his bay count
+  // was multiplying the price.
+  let WHOLE_FACILITY = false;
+  let LAST_PORTAL = null;   // so the rate label can be redrawn if the flag lands late
+  // Load theme
+  (async () => {
+    try {
+      fetch('/api/booking-rules').then(r => r.ok ? r.json() : null)
+        .then(r => { if (r) { WHOLE_FACILITY = !!r.wholeFacility; if (LAST_PORTAL) { try { renderPortal(LAST_PORTAL); } catch (e) {} } } })
+        .catch(() => {});
+      const [themeRes, contactRes] = await Promise.all([fetch('/api/theme'), fetch('/api/contact')]);
+      if (themeRes.ok) {
+        const t = await themeRes.json();
+        const r = document.documentElement.style;
+        if (t.bgColor)      r.setProperty('--bg', t.bgColor);
+        if (t.surfaceColor) { r.setProperty('--surface', t.surfaceColor); r.setProperty('--surface2', t.surfaceColor+'dd'); }
+        if (t.accentColor)  { r.setProperty('--gold', t.accentColor); r.setProperty('--gold-dim', t.accentColor+'88'); }
+        if (t.textColor)    r.setProperty('--text', t.textColor);
+        if (t.mutedColor)   r.setProperty('--muted', t.mutedColor);
+        if (t.bgColor) document.body.style.background = t.bgColor;
+      }
+      if (contactRes.ok) {
+        const c = await contactRes.json();
+        if (c.businessName) {
+          document.getElementById('headerBrand').textContent = c.businessName + ' · Member Portal';
+          document.getElementById('footerBrand').textContent = '© ' + c.businessName;
+        }
+      }
+    } catch {}
+  })();
+
+  document.getElementById('loginPin').addEventListener('keydown', e => { if(e.key==='Enter') portalLogin(); });
+
+  async function portalLogin() {
+    const name = document.getElementById('loginName').value.trim();
+    const pin  = document.getElementById('loginPin').value.trim();
+    const err  = document.getElementById('loginError');
+
+    if (!name || !pin) { err.textContent = 'Please enter your name and PIN.'; err.style.display = 'block'; return; }
+
+    try {
+      const res = await fetch('/api/members/portal', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ name, pin })
+      });
+      const data = await res.json();
+      if (!res.ok) { err.textContent = data.error || 'Login failed.'; err.style.display = 'block'; return; }
+
+      err.style.display = 'none';
+      document.getElementById('loginSection').style.display = 'none';
+      document.getElementById('portalContent').style.display = 'block';
+      document.getElementById('btnLogout').style.display = '';
+      PORTAL_CREDS = { name, pin };
+      renderPortal(data);
+    } catch (e) { err.textContent = 'Connection error.'; err.style.display = 'block'; }
+  }
+
+  function logout() {
+    document.getElementById('loginSection').style.display = '';
+    document.getElementById('portalContent').style.display = 'none';
+    document.getElementById('btnLogout').style.display = 'none';
+    document.getElementById('loginPin').value = '';
+  }
+
+  function renderPortal(data) {
+    LAST_PORTAL = data;
+    const m = data.member;
+    const t = data.tier;
+    renderBilling(data.member);
+    const u = data.usage;
+    const color = m.badge_color || 'var(--gold)';
+
+    // Header
+    document.getElementById('memberBadge').style.background = color;
+    document.getElementById('portalName').textContent = m.name;
+    document.getElementById('portalTier').style.color = color;
+    document.getElementById('portalTier').textContent = m.tier_name + ' Member';
+    const famEl = document.getElementById('portalFamily');
+    if (famEl) {
+      const fam = data.family || [];
+      if (fam.length) {
+        famEl.style.display = 'block';
+        famEl.innerHTML = '<div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted,#8b918b);margin-bottom:6px">Your Membership Codes</div>'
+          + fam.map(f => '<div style="display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13px">'
+            + '<span>' + (f.name || '').replace(/</g,'&lt;') + (f.is_primary ? ' <span style="font-size:10px;color:var(--gold,#c9a227)">PRIMARY</span>' : '') + '</span>'
+            + '<span style="font-family:monospace;color:var(--gold,#c9a227)">' + (f.pin || '') + '</span>'
+            + '<span style="font-size:10.5px;color:' + (f.status === 'active' ? '#7fb069' : '#d08770') + '">' + f.status + '</span></div>').join('');
+      } else famEl.style.display = 'none';
+    }
+    const creditEl = document.getElementById('portalCredit');
+    if (creditEl) {
+      if ((data.credit_cents || 0) > 0) {
+        creditEl.style.display = 'block';
+        creditEl.textContent = 'Available credit: $' + (data.credit_cents/100).toFixed(2) + ' — applies automatically to your next booking';
+      } else creditEl.style.display = 'none';
+    }
+    const wvEl = document.getElementById('portalWaiver');
+    if (wvEl) {
+      const w = data.waiver;
+      if (!w) wvEl.style.display = 'none';
+      else {
+        let txt = '', tone = 'ok';
+        if (w.term === 'visit') { txt = 'Liability waiver: you sign one each visit.'; }
+        else if (w.on_file && w.renew_due) { txt = 'Liability waiver on file until ' + w.expires_at + ' (' + w.days_left + ' day' + (w.days_left === 1 ? '' : 's') + ') - please sign the new one at your next booking or at the counter.'; tone = 'warn'; }
+        else if (w.on_file && w.expires_at) { txt = 'Liability waiver on file until ' + w.expires_at + '.'; }
+        else if (w.on_file) { txt = 'Liability waiver on file for the life of your membership.'; }
+        else if (w.expired) { txt = 'Your liability waiver has run out - you will sign a new one at your next booking or at the counter.'; tone = 'warn'; }
+        else { txt = 'No liability waiver on file yet - you will sign one at your next booking or at the counter.'; tone = 'warn'; }
+        wvEl.textContent = txt;
+        wvEl.style.display = 'block';
+        wvEl.style.color = tone === 'warn' ? '#e0b64a' : '#7fb069';
+        wvEl.style.background = tone === 'warn' ? 'rgba(224,182,74,.08)' : 'rgba(127,176,105,.08)';
+        wvEl.style.border = '1px solid ' + (tone === 'warn' ? 'rgba(224,182,74,.35)' : 'rgba(127,176,105,.3)');
+      }
+    }
+    document.getElementById('portalSince').textContent = 'Member since ' + new Date(m.member_since).toLocaleDateString('en-US', { month:'long', year:'numeric' });
+
+    // Dots
+    ['dotUsage','dotPerks','dotUpcoming','dotHistory'].forEach(id => document.getElementById(id).style.background = color);
+
+    // Stats
+    const stats = [];
+    stats.push({ val: u.today_hours + 'h', lbl: 'Today' });
+    stats.push({ val: u.week_hours + 'h', lbl: 'This Week' });
+    stats.push({ val: u.month_hours + 'h', lbl: 'This Month' });
+    if (u.guest_passes_remaining !== null) {
+      stats.push({ val: u.guest_passes_remaining, lbl: 'Guest Passes Left' });
+    }
+    document.getElementById('usageStats').innerHTML = stats.map(s =>
+      `<div class="stat-item"><div class="stat-val">${s.val}</div><div class="stat-lbl">${s.lbl}</div></div>`
+    ).join('');
+
+    // Usage bars
+    let barsHtml = '';
+    if (t) {
+      if (t.hours_per_day > 0) barsHtml += renderBar('Daily', u.today_hours, t.hours_per_day);
+      if (t.hours_per_week > 0) barsHtml += renderBar('Weekly', u.week_hours, t.hours_per_week);
+      if (t.hours_per_month > 0) barsHtml += renderBar('Monthly', u.month_hours, t.hours_per_month);
+      if (t.guest_passes_per_month > 0) barsHtml += renderBar('Guest Passes', u.guest_passes_used, t.guest_passes_per_month);
+    }
+    document.getElementById('usageBars').innerHTML = barsHtml;
+
+    // Perks
+    if (t) {
+      const perks = [];
+      const discLabel = t.discount_type==='percentage'?t.discount_value+'% off all bookings':t.discount_type==='fixed'?'$'+t.discount_value+' off per booking':t.discount_type==='free_hours'?t.discount_value+' free hours included':t.discount_type==='flat_rate'?('Member rate: $'+t.discount_value+'/30min '+(WHOLE_FACILITY?'for the whole facility':'per bay')):'Member pricing';
+      perks.push({ k: 'Pricing', v: discLabel });
+      if (t.hours_per_day > 0) perks.push({ k: 'Daily Limit', v: t.hours_per_day + ' hours/day' });
+      if (t.hours_per_week > 0) perks.push({ k: 'Weekly Limit', v: t.hours_per_week + ' hours/week' });
+      if (t.hours_per_month > 0) perks.push({ k: 'Monthly Limit', v: t.hours_per_month + ' hours/month' });
+      if (t.allowed_days) perks.push({ k: 'Available Days', v: t.allowed_days.toUpperCase() });
+      if (t.earliest_time && t.latest_time) perks.push({ k: 'Available Hours', v: fmt12(t.earliest_time) + ' – ' + fmt12(t.latest_time) });
+      if (t.booking_window_days > 0) perks.push({ k: 'Booking Window', v: t.booking_window_days + ' days in advance' });
+      if (t.guest_allowed) {
+        let guestDesc = 'Guests allowed';
+        if (t.guest_max_per_visit > 0) guestDesc += ' · max ' + t.guest_max_per_visit + '/visit';
+        if (t.guest_passes_per_month > 0) guestDesc += ' · ' + t.guest_passes_per_month + ' passes/month';
+        if (t.guest_pricing_type === 'free') guestDesc += ' · free';
+        else if (t.guest_pricing_type === 'flat') guestDesc += ' · $' + t.guest_pricing_value + '/guest';
+        else if (t.guest_pricing_type === 'percentage') guestDesc += ' · ' + t.guest_pricing_value + '% off';
+        perks.push({ k: 'Guest Policy', v: guestDesc });
+      }
+      // Tier description: owner-written text, rendered through the shared
+      // escape-first formatter (bullets, dividers, headings, bold) - never raw.
+      const notes = t.description ? `<div class="perk-row" style="display:block"><span class="perk-key">Notes</span><div class="perk-val" style="font-weight:400;margin-top:4px;line-height:1.55">${markup(t.description)}</div></div>` : '';
+      document.getElementById('perksList').innerHTML = perks.map(p =>
+        `<div class="perk-row"><span class="perk-key">${p.k}</span><span class="perk-val">${p.v}</span></div>`
+      ).join('') + notes;
+    }
+
+    // Upcoming bookings
+    const upcoming = data.upcoming_bookings || [];
+    if (!upcoming.length) {
+      document.getElementById('upcomingList').innerHTML = '<div style="color:var(--muted);font-size:13px">No upcoming bookings</div>';
+    } else {
+      document.getElementById('upcomingList').innerHTML = upcoming.map(b =>
+        `<div class="booking-row">
+          <div><div class="booking-detail">${new Date(b.date+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}</div><div class="booking-bay">${b.bay_name||''}</div></div>
+          <div style="text-align:right"><div style="font-family:var(--font-mono,ui-monospace,monospace);font-size:12px">${fmt12(b.start_time)} – ${fmt12(b.end_time)}</div><div class="booking-date">${b.duration_minutes} min</div></div>
+        </div>`
+      ).join('');
+    }
+
+    // Recent history
+    const recent = data.recent_bookings || [];
+    if (!recent.length) {
+      document.getElementById('historyList').innerHTML = '<div style="color:var(--muted);font-size:13px">No booking history yet</div>';
+    } else {
+      document.getElementById('historyList').innerHTML = recent.map(b =>
+        `<div class="booking-row">
+          <div><div class="booking-detail">${b.date}</div><div class="booking-bay">${b.bay_name||''} ${b.guest_count>0?'· +'+b.guest_count+' guest(s)':''}</div></div>
+          <div style="text-align:right"><div style="font-family:var(--font-mono,ui-monospace,monospace);font-size:12px">${b.start_time?fmt12(b.start_time)+' – '+fmt12(b.end_time):''}</div><div class="booking-date">${b.duration_minutes} min</div></div>
+        </div>`
+      ).join('');
+    }
+  }
+
+  function renderBar(label, used, limit) {
+    const pct = Math.min(100, Math.round((used / limit) * 100));
+    const warn = pct >= 80;
+    const remaining = Math.max(0, Math.round((limit - used) * 10) / 10);
+    return `<div style="margin-bottom:12px">
+      <div style="font-size:12px;font-weight:600;margin-bottom:2px">${label}</div>
+      <div class="progress-bar"><div class="progress-fill ${warn?'warn':''}" style="width:${pct}%"></div></div>
+      <div class="progress-label"><span>${used} of ${limit} used</span><span>${remaining} remaining</span></div>
+    </div>`;
+  }
+
+let PORTAL_CREDS = null;
+function renderBilling(mem) {
+  const body = document.getElementById('billingBody');
+  const acts = document.getElementById('billingActions');
+  const fmt = d => d ? new Date(d).toLocaleDateString() : '';
+  if (!mem.online_billing) {
+    body.innerHTML = 'Your membership is managed by the facility.' +
+      (mem.current_period_end ? ' Active through <b>' + fmt(mem.current_period_end) + '</b>.' : '') +
+      ' To make changes, contact us and we will take care of it.';
+    acts.innerHTML = '';
+    return;
+  }
+  const cad = mem.billing_cadence === 'annual' ? 'Annual' : 'Monthly';
+  const daysLeft = mem.current_period_end ? Math.max(0, Math.ceil((new Date(mem.current_period_end) - Date.now()) / 86400000)) : null;
+  const amt = mem.next_amount > 0 ? '$' + (Math.round(mem.next_amount * 100) / 100).toFixed(2).replace(/\.00$/, '') : '';
+  let line = cad + ' membership';
+  if (mem.cancel_at_period_end) {
+    line += ' — <b>cancellation scheduled</b>. Your benefits continue through <b>' + fmt(mem.current_period_end) + '</b>' +
+      (daysLeft !== null ? ' (<b>' + daysLeft + ' day' + (daysLeft === 1 ? '' : 's') + ' left</b>)' : '') + '; no further charges will be made.';
+  } else {
+    line += (daysLeft !== null ? ' — <b>' + daysLeft + ' day' + (daysLeft === 1 ? '' : 's') + '</b> left in this billing period.' : '.');
+    if (amt) line += '<br>Next payment: <b>' + amt + '</b> on <b>' + fmt(mem.current_period_end) + '</b>, charged automatically.';
+    if (mem.sub_status === 'past_due') line += '<br><span style="color:var(--danger)">Your last payment did not go through — please update your payment method below to keep your membership.</span>';
+  }
+  body.innerHTML = line;
+  acts.innerHTML = '<a class="btn" href="/book" style="text-decoration:none;text-align:center">Book a Bay</a>' +
+    '<button class="btn" style="background:none;border:1px solid var(--border);color:var(--text)" onclick="openBilling()">Update Payment Method</button>' +
+    (mem.cancel_at_period_end ? '' : '<button class="btn" style="background:none;border:1px solid var(--border);color:var(--muted)" onclick="cancelMembership(\'' + fmt(mem.current_period_end) + '\')">Cancel Membership</button>');
+}
+async function cancelMembership(endDate) {
+  if (!confirm('Cancel your membership?\n\nYou will keep all your benefits until ' + (endDate || 'the end of your current paid period') + '. After that, no further charges will be made.')) return;
+  const msg = document.getElementById('billingMsg');
+  try {
+    const r = await fetch('/api/memberships/portal/cancel', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(PORTAL_CREDS) });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || 'Could not cancel.');
+    msg.style.display = 'block'; msg.style.color = 'var(--gold)';
+    msg.textContent = 'Cancellation confirmed. Your benefits continue through ' + (d.ends ? new Date(d.ends).toLocaleDateString() : 'your paid period') + ' - no further charges. A confirmation email is on its way.';
+    renderBilling({ online_billing: true, billing_cadence: '', cancel_at_period_end: true, current_period_end: d.ends });
+  } catch (e) { msg.style.display = 'block'; msg.style.color = 'var(--danger)'; msg.textContent = e.message; }
+}
+async function openBilling() {
+  const msg = document.getElementById('billingMsg');
+  try {
+    const r = await fetch('/api/memberships/portal/billing', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(PORTAL_CREDS) });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || 'Could not open billing.');
+    location.href = d.url;
+  } catch (e) { msg.style.display = 'block'; msg.style.color = 'var(--danger)'; msg.textContent = e.message; }
+}
+
+// Skip link (Sep 6 2026): lands on whichever of the two panels is showing.
+function skipToContent(e){ if(e) e.preventDefault(); var p=document.getElementById('portalContent'), l=document.getElementById('loginSection'); var t=(p&&p.style.display!=='none'&&p.offsetParent!==null)?p:l; if(!t) return; t.setAttribute('tabindex','-1'); t.focus(); }
+</script>
+</body>
+</html>

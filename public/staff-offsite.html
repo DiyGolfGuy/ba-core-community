@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Staff Sign-In</title>
+<style>
+  body{margin:0;background:#060a06;color:#e8ede8;font:16px/1.6 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+       display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:24px}
+  .box{max-width:420px}
+  h1{font-size:20px;margin:0 0 10px}
+  p{color:#8a917f;margin:0 0 18px}
+  a{color:#c9a227;text-decoration:underline;text-underline-offset:3px}
+
+/* Accessibility: a visible keyboard focus ring. Removing the outline for
+   looks leaves keyboard users unable to see where they are on the page. */
+:focus-visible{outline:3px solid #5b9bd5 !important;outline-offset:2px !important;border-radius:2px}
+.skip-link{position:absolute;left:-9999px;top:0;background:#5b9bd5;color:#08131d;padding:10px 16px;z-index:9999;font-weight:600}
+.skip-link:focus{left:0}
+</style>
+</head>
+<body>
+  <main class="box" id="main">
+    <h1>Staff sign-in is available on the facility network only.</h1>
+    <p>On the facility WiFi, open the booking device's own address instead of the website's: <b>ba-core.local:3001/staff</b>, or the device's IP address followed by <b>:3001/staff</b>. The website's address does not open the staff pad, even inside the building. Owners can sign in to the admin panel from anywhere.</p>
+    <p><a href="/">Back to the website</a></p>
+  </main>
+</body>
+</html>

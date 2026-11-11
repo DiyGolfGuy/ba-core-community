@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Session Ending</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Outfit:wght@300;400;600&family=DM+Mono&display=swap" rel="stylesheet">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background:#060a06; color:#e8ede8;
+      font-family:'Outfit',sans-serif;
+      min-height:100vh; display:flex; align-items:center; justify-content:center;
+      overflow:hidden;
+    }
+
+    /* IDLE */
+    #idle { display:flex; align-items:center; justify-content:center; min-height:100vh; width:100%; }
+    .idle-icon { font-size:48px; color:#1c251c; }
+
+    /* SHARED WARNING STYLES */
+    .warning-screen {
+      display:none; position:fixed; inset:0;
+      align-items:center; justify-content:center; flex-direction:column;
+      z-index:100; text-align:center; padding:40px;
+    }
+    .warning-screen.show { display:flex; animation:fadeIn 0.6s ease; }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+    .warning-icon { font-size:clamp(48px,8vw,88px); margin-bottom:20px; animation:pulse 1.5s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
+
+    .warning-title {
+      font-family:'Playfair Display',serif;
+      font-size:clamp(32px,6vw,72px); font-weight:700; line-height:1.1; margin-bottom:12px;
+    }
+    .warning-sub {
+      font-size:clamp(16px,2.5vw,26px); font-weight:300; line-height:1.5;
+      max-width:720px; margin-bottom:40px;
+    }
+
+    /* COUNTDOWN RING */
+    .countdown-wrap { position:relative; width:clamp(140px,20vw,200px); height:clamp(140px,20vw,200px); margin:0 auto 24px; }
+    .countdown-wrap svg { transform:rotate(-90deg); width:100%; height:100%; }
+    .ring-bg   { fill:none; stroke:#1c251c; stroke-width:8; }
+    .ring-fill { fill:none; stroke-width:8; stroke-linecap:round; transition:stroke-dashoffset 1s linear; }
+    .countdown-num {
+      position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+      font-family:'Playfair Display',serif; font-size:clamp(32px,5vw,56px); font-weight:700;
+    }
+    .countdown-label { font-family:'DM Mono',monospace; font-size:12px; color:#5a6a5a; letter-spacing:3px; text-transform:uppercase; margin-top:-8px; margin-bottom:32px; }
+
+    .warning-footer { font-size:clamp(12px,1.5vw,18px); letter-spacing:0.5px; }
+
+    /* SHUTDOWN MODE — gold */
+    #warningShutdown { background:rgba(6,10,6,0.98); }
+    #warningShutdown .warning-title { color:#c9a227; }
+    #warningShutdown .warning-sub   { color:#a0aaa0; }
+    #warningShutdown .ring-fill     { stroke:#c9a227; }
+    #warningShutdown .countdown-num { color:#c9a227; }
+    #warningShutdown .warning-footer { color:#4a9a4a; }
+
+    /* BACK-TO-BACK MODE — green, friendlier tone */
+    #warningBacktoback { background:rgba(4,12,4,0.98); }
+    #warningBacktoback .warning-title { color:#4ac97a; }
+    #warningBacktoback .warning-sub   { color:#a0aaa0; }
+    #warningBacktoback .ring-fill     { stroke:#4ac97a; }
+    #warningBacktoback .countdown-num { color:#4ac97a; }
+    #warningBacktoback .warning-footer { color:#a0aaa0; }
+
+    /* PROGRESS BAR */
+    .progress-bar { position:fixed; bottom:0; left:0; height:5px; transition:width 1s linear; }
+    #warningShutdown   .progress-bar { background:#c9a227; }
+    #warningBacktoback .progress-bar { background:#4ac97a; }
+
+    /* BRAND */
+    .brand { position:fixed; bottom:18px; left:50%; transform:translateX(-50%); font-family:'Playfair Display',serif; font-size:16px; color:#1c251c; letter-spacing:2px; white-space:nowrap; }
+  
+/* Accessibility: a visible keyboard focus ring. Removing the outline for
+   looks leaves keyboard users unable to see where they are on the page. */
+:focus-visible{outline:3px solid #5b9bd5 !important;outline-offset:2px !important;border-radius:2px}
+.skip-link{position:absolute;left:-9999px;top:0;background:#5b9bd5;color:#08131d;padding:10px 16px;z-index:9999;font-weight:600}
+.skip-link:focus{left:0}
+</style>
+</head>
+<body>
+<main id="main">
+
+<!-- IDLE -->
+<div id="idle"><div class="idle-icon">⛳</div></div>
+
+<!-- SHUTDOWN WARNING -->
+<div class="warning-screen" id="warningShutdown">
+  <div class="warning-icon">⏰</div>
+  <div class="warning-title">Your Session is<br><em>Ending Soon</em></div>
+  <div class="warning-sub">
+    Thank you for playing at <span id="brandName1"></span>.<br>
+    Please begin wrapping up your round.
+  </div>
+  <div class="countdown-wrap">
+    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <circle class="ring-bg"   cx="100" cy="100" r="88" />
+      <circle class="ring-fill" cx="100" cy="100" r="88" id="ringFill1" stroke-dasharray="553" stroke-dashoffset="0" />
+    </svg>
+    <div class="countdown-num" id="countdownNum1">3:00</div>
+  </div>
+  <div class="countdown-label">minutes remaining</div>
+  <div class="warning-footer">🖥️ The simulator will shut down automatically when your session ends.</div>
+  <div class="progress-bar" id="progressBar1" style="width:100%"></div>
+</div>
+
+<!-- BACK-TO-BACK WARNING -->
+<div class="warning-screen" id="warningBacktoback">
+  <div class="warning-icon">🏌️</div>
+  <div class="warning-title" style="color:#4ac97a">Time to<br><em>Wrap Up!</em></div>
+  <div class="warning-sub">
+    Your session at <span id="brandName2"></span> is ending.<br>
+    The next guest will be arriving shortly — please collect your belongings.
+  </div>
+  <div class="countdown-wrap">
+    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <circle class="ring-bg"   cx="100" cy="100" r="88" />
+      <circle class="ring-fill" cx="100" cy="100" r="88" id="ringFill2" stroke-dasharray="553" stroke-dashoffset="0" />
+    </svg>
+    <div class="countdown-num" id="countdownNum2">3:00</div>
+  </div>
+  <div class="countdown-label">minutes remaining</div>
+  <div class="warning-footer">The simulator will stay on for the next guest. Thank you for playing! ⛳</div>
+  <div class="progress-bar" id="progressBar2" style="width:100%"></div>
+</div>
+
+<div class="brand" id="brandFooter"></div>
+
+</main>
+<script>
+  const params   = new URLSearchParams(window.location.search);
+  const mode     = params.get('mode') || 'idle';  // 'warning' | 'backtoback' | 'idle'
+  const DURATION = 3 * 60; // 3 minutes — matches admin setting
+
+  // Load business name
+  fetch('/api/contact')
+    .then(r => r.json())
+    .then(c => {
+      const name = c.businessName || '';
+      document.getElementById('brandName1').textContent  = name;
+      document.getElementById('brandName2').textContent  = name;
+      document.getElementById('brandFooter').textContent = name;
+    })
+    .catch(() => {});
+
+  if (mode === 'warning') {
+    document.getElementById('idle').style.display = 'none';
+    document.getElementById('warningShutdown').classList.add('show');
+    startCountdown('ringFill1', 'countdownNum1', 'progressBar1');
+  } else if (mode === 'backtoback') {
+    document.getElementById('idle').style.display = 'none';
+    document.getElementById('warningBacktoback').classList.add('show');
+    startCountdown('ringFill2', 'countdownNum2', 'progressBar2');
+  }
+
+  function startCountdown(ringId, numId, barId) {
+    const ring  = document.getElementById(ringId);
+    const numEl = document.getElementById(numId);
+    const bar   = document.getElementById(barId);
+    const circumference = 553;
+    let secondsLeft = DURATION;
+
+    function update() {
+      if (secondsLeft < 0) { clearInterval(timer); return; }
+      const mins = Math.floor(secondsLeft / 60);
+      const secs = secondsLeft % 60;
+      numEl.textContent = `${mins}:${String(secs).padStart(2,'0')}`;
+      ring.style.strokeDashoffset = circumference * (1 - secondsLeft / DURATION);
+      bar.style.width = `${(secondsLeft / DURATION) * 100}%`;
+      secondsLeft--;
+    }
+
+    update();
+    const timer = setInterval(update, 1000);
+  }
+</script>
+<script>
+  fetch('/api/contact').then(r=>r.json()).then(c=>{
+    const name = c.businessName || 'Simulator Lounge';
+    ['brandName1','brandName2','brandFooter'].forEach(id=>{
+      const el = document.getElementById(id);
+      if(el) el.textContent = name;
+    });
+  }).catch(()=>{});
+</script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>{{HOLDING_HEADLINE}} — {{BUSINESS_NAME}}</title>
+  <meta name="description" content="{{META_DESCRIPTION}}">
+  <meta property="og:title" content="{{HOLDING_HEADLINE}} — {{BUSINESS_NAME}}">
+  <meta property="og:description" content="{{META_DESCRIPTION}}">
+  <meta property="og:image" content="{{OG_IMAGE}}">
+  <link rel="icon" type="image/png" href="/icons/icon-192.png">
+  <link rel="stylesheet" href="/site.css">
+  <script src="/site-chrome.js" defer></script>
+  <style>
+    /* W44 (Sep 10 2026): the holding page. What a visitor gets when they reach a
+       part of the site the owner has not made public yet - by link, by typing the
+       address, or by an old QR code. The site's own chrome, the owner's words. */
+    .holding{max-width:640px;margin:0 auto;padding:clamp(48px,12vh,120px) 20px 80px;text-align:center}
+    .holding .kicker{font-family:var(--font-mono,ui-monospace,monospace);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--accent,#c9a227);margin-bottom:18px}
+    .holding h1{font-family:var(--font-display,Georgia,serif);font-size:clamp(28px,6vw,46px);line-height:1.15;margin:0 0 18px}
+    .holding .text{font-size:17px;line-height:1.7;color:var(--muted,#a0aaa0);white-space:pre-line}
+    .holding .signup{margin-top:34px}
+    .holding .home{display:inline-block;margin-top:30px;font-size:14px}
+  </style>
+</head>
+<body>
+<header class="siteHead" id="siteHead" data-name="{{BUSINESS_NAME}}"></header>
+<main id="main-content">
+  <section class="holding">
+    <div class="kicker">{{BUSINESS_NAME}}</div>
+    <h1 id="holdingHeadline">{{HOLDING_HEADLINE}}</h1>
+    <div class="text" id="holdingText">{{HOLDING_TEXT}}</div>
+    <div class="signup" id="holdingSignup"></div>
+    <a class="home" href="/">&lsaquo; Back to the home page</a>
+  </section>
+</main>
+<footer class="siteFoot" id="siteFoot" data-name="{{BUSINESS_NAME}}"></footer>
+<script src="/signup.js" defer></script>
+<script>document.addEventListener('DOMContentLoaded', function () {
+  // W45: the email-updates block on the holding page while Email Updates is on and the owner wants it here
+  if (!window.BASignup) return;
+  fetch('/api/website/content').then(function (r) { return r.json(); }).then(function (d) {
+    var sg = d && d.nav && d.nav.signup; if (!sg || !sg.enabled || sg.onHolding === false) return;
+    var host = document.getElementById('holdingSignup'); host.innerHTML = '<h2 style="font-size:20px;margin:0 0 6px">' + String(sg.title).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }) + '</h2>';
+    var slot = document.createElement('div'); host.appendChild(slot); window.BA_SITE = d; BASignup.draw(slot, sg, { source: 'holding' });
+  }).catch(function () {});
+}); </script>
+</body>
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<!-- Copyright (c) 2025-2026 BA Custom Products LLC. Licensed under the PolyForm Shield License 1.0.0 - see LICENSE.txt.txt -->
+
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memberships — {{BUSINESS_NAME}}</title>
+<meta name="description" content="Memberships at {{BUSINESS_NAME}}{{IN_CITY_STATE}} - join online in about a minute.">
+<meta property="og:title" content="Memberships — {{BUSINESS_NAME}}">
+<meta property="og:description" content="Memberships at {{BUSINESS_NAME}}{{IN_CITY_STATE}} - join online in about a minute.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="{{BUSINESS_NAME}}">
+<meta property="og:url" content="{{SITE_URL}}/memberships">
+<meta property="og:image" content="{{OG_IMAGE}}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="{{OG_IMAGE}}">
+<link rel="canonical" href="{{SITE_URL}}/memberships">
+<link rel="icon" type="image/png" href="/icons/icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/site.css">
+<script src="/site-chrome.js" defer></script>
+<style>
+/* Sep 5 2026: the page wears the site's own design (site.css, the 13 brand
+   roles). --gold is the brand accent alias site.css provides. */
+#pageIntro strong,.tdesc strong{color:var(--gold)}
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{max-width:1000px;margin:0 auto;padding:36px 18px 60px}
+h1{font-size:clamp(32px,4.5vw,44px);margin:12px 0 6px}
+.sub{color:var(--muted);margin-bottom:26px;font-size:15.5px}
+.banner{border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin-bottom:20px;font-size:14.5px;line-height:1.5}
+.banner.ok{border-color:#3c6b45;background:rgba(74,201,122,.07)}
+.banner.err{border-color:#7a3b30;background:rgba(224,108,90,.07)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px}
+.tier{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:22px;display:flex;flex-direction:column}
+.badge{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:8px;vertical-align:-1px}
+.tname{font-size:22px;margin-bottom:6px}
+.tdesc{color:var(--muted);font-size:14px;line-height:1.55;flex:1;margin-bottom:14px;white-space:pre-line}
+.prices{margin-bottom:12px;font-size:15px}
+.prices b{font-size:20px}
+.spots{font-size:12.5px;color:var(--gold);margin-bottom:12px}
+.full{font-size:13px;color:var(--err);margin-bottom:12px}
+.btn{background:var(--btn);color:var(--btnText);border:none;border-radius:6px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;width:100%;font-family:inherit}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:50;overflow-y:auto;padding:26px 14px}
+.modal.open{display:block}
+.mcard{max-width:520px;margin:0 auto;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:24px}
+.mcard h2{font-size:22px;margin-bottom:14px}
+.f{margin-bottom:12px}
+.f label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:5px}
+.f input{width:100%;padding:11px;background:var(--bg);border:1px solid var(--line);border-radius:6px;color:var(--text);font-size:15px;font-family:inherit}
+.cad{display:flex;gap:10px;margin-bottom:14px}
+.cad button{flex:1;padding:12px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--text);cursor:pointer;font-family:inherit;font-size:14.5px}
+.cad button.sel{border-color:var(--gold);color:var(--gold)}
+.arl{border:1px solid var(--line);border-radius:8px;padding:13px;background:var(--bg);font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:12px}
+.consent{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.5;margin-bottom:16px;cursor:pointer}
+.consent input{width:17px;height:17px;margin-top:2px;flex-shrink:0}
+.err-msg{color:var(--err);font-size:13.5px;margin-bottom:10px;display:none}
+.mact{display:flex;gap:10px}
+.mact .ghost{background:none;border:1px solid var(--line);color:var(--muted)}
+
+/* Accessibility: a visible keyboard focus ring. Removing the outline for
+   looks leaves keyboard users unable to see where they are on the page. */
+:focus-visible{outline:3px solid #5b9bd5 !important;outline-offset:2px !important;border-radius:2px}
+.skip-link{position:absolute;left:-9999px;top:0;background:#5b9bd5;color:#08131d;padding:10px 16px;z-index:9999;font-weight:600}
+.skip-link:focus{left:0}
+</style>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<header class="siteHead" id="siteHead" data-name="{{BUSINESS_NAME}}"></header>
+<main class="wrap" id="main-content">
+  <div class="mono">Join the club</div>
+  <h1>Memberships</h1>
+  <p class="sub">Join online in about a minute. Your membership PIN unlocks your benefits every time you book.</p>
+  <div id="banner"></div>
+  <div id="pageIntro" style="display:none;margin:0 0 18px;font-size:14px;line-height:1.65;color:var(--text)"></div>
+  <div class="grid" id="tierGrid"><div style="color:var(--muted)">Loading memberships&hellip;</div></div>
+</main>
+<footer class="siteFoot" id="siteFoot" data-name="{{BUSINESS_NAME}}"><span id="yr" hidden></span></footer>
+
+<div class="modal" id="joinModal">
+  <div class="mcard">
+    <h2 id="mTitle">Join</h2>
+    <div class="cad" id="cadRow"></div>
+    <div class="f"><label for="jName">Full Name</label><input id="jName" autocomplete="name"></div>
+    <div class="f"><label for="jEmail">Email</label><input id="jEmail" type="email" autocomplete="email"></div>
+    <div class="f"><label for="jPhone">Mobile Number</label><input id="jPhone" type="tel" autocomplete="tel"></div>
+    <div class="arl" id="arlText"></div>
+    <label for="arlConsent" class="consent"><input type="checkbox" id="arlConsent"><span id="consentLabel">I agree to the automatic renewal terms above.</span></label>
+    <div id="jWaiverWrap" style="display:none;border:1px solid var(--border);border-radius:8px;padding:12px;margin:12px 0">
+      <div style="font-size:13px;font-weight:600;margin-bottom:6px">Membership Liability Waiver</div>
+      <div id="jWaiverDoc" style="font-size:12.5px;margin-bottom:10px"></div>
+      <div class="f"><label for="jWaiverSig">Type your full legal name to sign</label><input id="jWaiverSig" autocomplete="name"></div>
+      <label for="jWaiverAgree" class="consent"><input type="checkbox" id="jWaiverAgree"><span>I have read the waiver above and agree to its terms. Typing my name is my electronic signature, valid for the term of this membership.</span></label>
+      <label for="jWaiverGuardCk" class="consent"><input type="checkbox" id="jWaiverGuardCk" onchange="document.getElementById('jWaiverGuardWrap').style.display=this.checked?'block':'none'"><span>I am signing as the parent or legal guardian of a participant who is a minor.</span></label>
+      <div class="f" id="jWaiverGuardWrap" style="display:none"><label for="jWaiverGuardName">Participant's name (the minor)</label><input id="jWaiverGuardName" autocomplete="off"></div>
+    </div>
+    <div class="err-msg" id="jErr"></div>
+    <div class="mact">
+      <button class="btn ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn" id="jGo" onclick="startCheckout()">Continue to Secure Payment</button>
+    </div>
+  </div>
+</div>
+
+<script src="/markup.js"></script>
+<script>
+// Text formatting: the SAME renderer the landing page and admin preview use
+// (/markup.js). If the script ever fails to load, text still shows - escaped.
+function markup(t){ return window.BAMarkup ? BAMarkup.markupToHtml(t) : esc(t); }
+
+document.getElementById('yr').textContent = new Date().getFullYear();
+let TIERS = [], SEL = null, CADENCE = 'monthly';
+const $ = id => document.getElementById(id);
+const money = n => '$' + (Math.round(n * 100) / 100).toFixed(2).replace(/\.00$/, '');
+
+const qs = new URLSearchParams(location.search);
+if (qs.get('joined')) {
+  const pin = qs.get('pin');
+  $('banner').innerHTML = '<div class="banner ok"><b>Welcome to the club!</b> Your membership is active. ' +
+    (pin ? 'Your member PIN is <b style="font-size:17px">' + pin.replace(/[^0-9]/g,'') + '</b> — it was also emailed to you. ' : 'Check your email for your member PIN. ') +
+    'Use it at checkout every time you <a href="/book" style="color:var(--gold)">book a bay</a> to apply your benefits.</div>';
+} else if (qs.get('canceled')) {
+  $('banner').innerHTML = '<div class="banner err">Checkout was canceled — no charge was made. Choose a membership below any time.</div>';
+} else if (qs.get('pending')) {
+  // Sep 20 2026: the customer came back while the session was still open -
+  // an early arrival, or a method that settles slowly. Their money is in
+  // flight, not lost, and the unit will finish the join on its own.
+  $('banner').innerHTML = '<div class="banner ok">Your payment is still completing. As soon as it clears you will get your member code by email - there is nothing more you need to do. If it has not arrived within an hour, contact us and we will finish it for you.</div>';
+} else if (qs.get('verify') === 'failed') {
+  $('banner').innerHTML = '<div class="banner err">We could not verify that payment. If you were charged, contact us and we will make it right.</div>';
+}
+
+async function load() {
+  try {
+    try {
+      const c = window.BA_SITE || await fetch('/api/website/content').then(r => r.json());
+      const intro = c && c.content && c.content.membershipsIntro && c.content.membershipsIntro.text;
+      if (intro && intro.trim()) {
+        const el = document.getElementById('pageIntro');
+        el.innerHTML = markup(intro);
+        el.style.display = 'block';
+      }
+    } catch(e){}
+    TIERS = await fetch('/api/memberships/public').then(r => r.json());
+    const g = $('tierGrid'); g.innerHTML = '';
+    if (!TIERS.length) { g.innerHTML = '<div style="color:var(--muted)">Online membership signup is not available right now. Contact us to join.</div>'; return; }
+    TIERS.forEach(t => {
+      const d = document.createElement('div'); d.className = 'tier';
+      const priceBits = [];
+      if (t.price_monthly > 0) priceBits.push('<b>' + money(t.price_monthly) + '</b>/month');
+      if (t.price_annual > 0) priceBits.push('<b>' + money(t.price_annual) + '</b>/year');
+      d.innerHTML = '<div class="tname"><span class="badge" style="background:' + (t.badge_color || '#c9a227') + '"></span>' + esc(t.name) + '</div>' +
+        '<div class="tdesc">' + markup(t.description || '') + '</div>' +
+        '<div class="prices">' + priceBits.join(' &nbsp;or&nbsp; ') + '</div>' +
+        (t.full ? '<div class="full">Currently full — check back later</div>'
+          : (t.spots_left !== null && t.spots_left <= 25 ? '<div class="spots">' + t.spots_left + ' spot' + (t.spots_left === 1 ? '' : 's') + ' left</div>' : '')) +
+        '<button class="btn" ' + (t.full ? 'disabled' : '') + ' onclick="openJoin(\'' + t.id + '\')">Join ' + esc(t.name) + '</button>';
+      g.appendChild(d);
+    });
+  } catch { $('tierGrid').innerHTML = '<div style="color:var(--muted)">Unable to load memberships. Please refresh.</div>'; }
+}
+function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+
+let JOIN_WAIVER = null;
+function openJoin(id) {
+  SEL = TIERS.find(t => t.id === id); if (!SEL) return;
+  CADENCE = SEL.price_monthly > 0 ? 'monthly' : 'annual';
+  $('mTitle').textContent = 'Join ' + SEL.name;
+  renderCadence(); renderArl();
+  $('jErr').style.display = 'none'; $('arlConsent').checked = false;
+  JOIN_WAIVER = null;
+  $('jWaiverWrap').style.display = 'none';
+  $('jWaiverAgree').checked = false; $('jWaiverSig').value = '';
+  $('jWaiverGuardCk').checked = false; $('jWaiverGuardName').value = ''; $('jWaiverGuardWrap').style.display = 'none';
+  // The tier's own waiver document when pinned, the facility waiver otherwise.
+  fetch('/api/waivers/active?tier=' + encodeURIComponent(SEL.id)).then(r=>r.json()).then(w => {
+    if (w && w.hasWaiver && w.mode === 'required') {
+      JOIN_WAIVER = w;
+      $('jWaiverDoc').innerHTML = '<a href="/api/waivers/file/' + encodeURIComponent(w.filename) + '" target="_blank" rel="noopener" style="color:var(--gold)">Read the full waiver: ' + esc(w.name) + ' (v' + esc(w.version) + ')</a> - it opens in a new tab.';
+      $('jWaiverWrap').style.display = 'block';
+    }
+  }).catch(()=>{});
+  $('joinModal').classList.add('open');
+}
+function closeModal() { $('joinModal').classList.remove('open'); }
+function renderCadence() {
+  const row = $('cadRow'); row.innerHTML = '';
+  const opts = [];
+  if (SEL.price_monthly > 0) opts.push(['monthly', money(SEL.price_monthly) + ' / month']);
+  if (SEL.price_annual > 0) opts.push(['annual', money(SEL.price_annual) + ' / year']);
+  opts.forEach(([c, label]) => {
+    const b = document.createElement('button');
+    b.textContent = label; b.className = c === CADENCE ? 'sel' : '';
+    b.onclick = () => { CADENCE = c; renderCadence(); renderArl(); };
+    row.appendChild(b);
+  });
+}
+// The auto-renewal disclosure. Clear, conspicuous, and shown BEFORE payment —
+// with a separate consent checkbox. Cancellation policy stated plainly.
+function renderArl() {
+  const price = CADENCE === 'annual' ? SEL.price_annual : SEL.price_monthly;
+  const per = CADENCE === 'annual' ? 'year' : 'month';
+  $('arlText').innerHTML = '<b style="color:var(--text)">Automatic renewal terms:</b> Your ' + esc(SEL.name) +
+    ' membership costs <b style="color:var(--text)">' + money(price) + ' per ' + per + '</b> and renews automatically each ' + per +
+    ' until you cancel. You can cancel any time in your member portal at <b style="color:var(--text)">/my-membership</b> — cancellation takes effect at the end of your current paid period, you keep your benefits until then, and no further charges are made. Payments already made are not refunded for partial periods.' +
+    (CADENCE === 'annual' ? ' We will email you a reminder before each annual renewal.' : '');
+}
+async function startCheckout() {
+  const err = $('jErr'); err.style.display = 'none';
+  const name = $('jName').value.trim(), email = $('jEmail').value.trim(), phone = $('jPhone').value.trim();
+  if (!name || !email || !phone) { err.textContent = 'Please fill in your name, email, and mobile number.'; err.style.display = 'block'; return; }
+  if (!$('arlConsent').checked) { err.textContent = 'Please review and agree to the automatic renewal terms.'; err.style.display = 'block'; return; }
+  if (JOIN_WAIVER) {
+    if (!$('jWaiverAgree').checked) { err.textContent = 'Please read and agree to the membership liability waiver.'; err.style.display = 'block'; return; }
+    if ($('jWaiverSig').value.trim().length < 2) { err.textContent = 'Please type your full legal name to sign the waiver.'; err.style.display = 'block'; return; }
+  }
+  $('jGo').disabled = true; $('jGo').textContent = 'One moment\u2026';
+  try {
+    const r = await fetch('/api/memberships/checkout', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tier_id: SEL.id, cadence: CADENCE, name, email, phone, arl_consent: true,
+        waiver_id: JOIN_WAIVER ? JOIN_WAIVER.id : null,
+        waiver_signature: JOIN_WAIVER ? $('jWaiverSig').value.trim() : null,
+        waiver_guardian_for: (JOIN_WAIVER && $('jWaiverGuardCk').checked) ? $('jWaiverGuardName').value.trim() : null })
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || 'Could not start checkout.');
+    location.href = d.url;
+  } catch (e) {
+    err.textContent = e.message; err.style.display = 'block';
+    $('jGo').disabled = false; $('jGo').textContent = 'Continue to Secure Payment';
+  }
+}
+load();
+</script>
+</body>
+</html>
